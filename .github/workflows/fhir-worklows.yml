@@ -52,7 +52,7 @@ jobs:
         run: sushi .
   call-Test-Unitaire:
     needs :  Call-Sushi
-    uses: ./.github/workflows/fhir-validator-junit-engine.yaml
+    uses: ansforge/FIG_ans.workflows/.github/workflows/fhir-validator-junit-engine.yaml@master
   call-Publish:
     needs :  call-Test-Unitaire
-    uses: ./.github/workflows/gh-pages.yml
+    uses: ansforge/FIG_ans.workflows/.github/workflows/gh-pages.yml@master
