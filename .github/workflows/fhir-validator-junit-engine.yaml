@@ -14,7 +14,7 @@ jobs:
         uses: actions/checkout@main
         with:
           repository: ansforge/FIG_ans.workflows
-          set-safe-directory: test
+          path: test
           
       - uses: actions/checkout@v2
 
