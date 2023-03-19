@@ -2,7 +2,7 @@ title: Human readable name of the Test Suite.
 validator:
   version: "4.0"
   ig:
-    - ../fsh-generated/resources
+    - ../../ig/fsh-generated/resources
     - ../dependency/NOS    
     - ../dependency/mhd.tgz
     - ../dependency/hl7.fhir.fr.core-1.1.0.tgz
@@ -11,6 +11,6 @@ tests:
   
   # 2. Test has multiple file-matches and will generate multiple tests, non of which expects any errors.
   - fileMatch:
-      - ../fsh-generated/resources/**       
-      - "!../fsh-generated/resources/ImplementationGuide-*"
+      - ../../ig/fsh-generated/resources/**       
+      - "!../../ig/fsh-generated/resources/ImplementationGuide-*"
     tags: ig
