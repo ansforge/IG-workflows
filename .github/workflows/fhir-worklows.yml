@@ -41,10 +41,10 @@ jobs:
           fhir install hl7.fhir.fr.core 1.1.0
           fhir bake --package hl7.fhir.fr.core
  
-      - uses: actions/checkout@v1
-      - uses: actions/setup-node@v1
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
         with:
-          node-version: 12
+          node-version: 16
 
       - name: Install modules
         run: npm install -g fsh-sushi
