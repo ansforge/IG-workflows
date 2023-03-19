@@ -17,6 +17,8 @@ jobs:
           path: test
           
       - uses: actions/checkout@v2
+        with:      
+          path: ig
 
       # Install .NET runtime
       - name: Setup .NET Core SDK
@@ -57,7 +59,7 @@ jobs:
       - name: 🍣 Run SUSHI
         run: |
           npm install -g fsh-sushi
-          sushi 
+          sushi /ig
       - name: 📥 Download test tools
         run: |
           wget -q https://github.com/navikt/fhir-validator-junit-engine/releases/latest/download/fhir-validator-junit-engine.jar
@@ -65,7 +67,7 @@ jobs:
           wget -q https://repo1.maven.org/maven2/org/junit/platform/junit-platform-console-standalone/1.8.1/junit-platform-console-standalone-1.8.1.jar
           
       - name: ✔️ Run tests
-        run: java -jar junit-platform-console-standalone-1.8.1.jar -cp fhir-validator-junit-engine.jar:validator_cli.jar -f ../test/test/*.yaml --reports-dir ./test-results
+        run: java -jar junit-platform-console-standalone-1.8.1.jar -cp fhir-validator-junit-engine.jar:validator_cli.jar -f ./test/test/*.yaml --reports-dir ./test-results
         continue-on-error: true
 
       - name: 📤 Publish test results
