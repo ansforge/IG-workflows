@@ -14,10 +14,9 @@ jobs:
         uses: actions/checkout@main
         with:
           repository: ansforge/FIG_ans.workflows
+          set-safe-directory: test
           
       - uses: actions/checkout@v2
-        with :
-          clean: false  
 
       # Install .NET runtime
       - name: Setup .NET Core SDK
@@ -66,7 +65,7 @@ jobs:
           wget -q https://repo1.maven.org/maven2/org/junit/platform/junit-platform-console-standalone/1.8.1/junit-platform-console-standalone-1.8.1.jar
           
       - name: ✔️ Run tests
-        run: java -jar junit-platform-console-standalone-1.8.1.jar -cp fhir-validator-junit-engine.jar:validator_cli.jar -f ./test/*.yaml --reports-dir ./test-results
+        run: java -jar junit-platform-console-standalone-1.8.1.jar -cp fhir-validator-junit-engine.jar:validator_cli.jar -f ../test/test/*.yaml --reports-dir ./test-results
         continue-on-error: true
 
       - name: 📤 Publish test results
