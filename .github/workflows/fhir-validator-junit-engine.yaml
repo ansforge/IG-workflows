@@ -59,7 +59,7 @@ jobs:
       - name: 🍣 Run SUSHI
         run: |
           npm install -g fsh-sushi
-          sushi /ig
+          sushi ./ig
       - name: 📥 Download test tools
         run: |
           wget -q https://github.com/navikt/fhir-validator-junit-engine/releases/latest/download/fhir-validator-junit-engine.jar
