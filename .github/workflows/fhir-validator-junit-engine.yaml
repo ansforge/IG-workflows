@@ -16,7 +16,7 @@ jobs:
           repository: ansforge/FIG_ans.workflows
           path: test
           
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:      
           path: ig
 
@@ -50,7 +50,7 @@ jobs:
           fhir bake --package hl7.fhir.fr.core
           
       - name: 🗂️ Cache FHIR Packages
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             ~/.fhir/packages
