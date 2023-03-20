@@ -48,7 +48,7 @@ jobs:
       - name: 📥 Download pacth fr-core
         run: |
           wget -q https://github.com/ansforge/FIG_ans.workflows/blob/main/dependency/hl7.fhir.fr.core-1.1.0.tgz?raw=true -O ./hl7.fhir.fr.core-1.1.0.tgz
-          rmdir /var/lib/.fhir/packages/hl7.fhir.fr.core#1.1.0
+          rmdir /~/.fhir/packages/hl7.fhir.fr.core#1.1.0
           cp ./hl7.fhir.fr.core-1.1.0.tgz ~/.fhir/packages/hl7.fhir.fr.core#1.1.0/hl7.fhir.fr.core-1.1.0.tgz
           tar -xzvf ~/.fhir/packages/hl7.fhir.fr.core#1.1.0/hl7.fhir.fr.core-1.1.0.tgz -C ~/.fhir/packages/hl7.fhir.fr.core#1.1.0/
           
