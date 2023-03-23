@@ -69,7 +69,7 @@ jobs:
         uses: docker://hl7fhir/ig-publisher-base:latest
         if: ${{ steps.check_tag.outputs.exists == 'false' && steps.sushi_config.outputs.releaseLabel == 'release' }}
         with:
-          args: java -jar publisher.jar publisher -ig igs/${{ env.IG }}/ig.ini 
+          args: java -jar publisher.jar publisher -ig . 
 
       # A commit-tag is needed when creating a release.
       # This step will push a new tag on the current commit, unless it already exists.
@@ -85,7 +85,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         if: ${{ steps.check_tag.outputs.exists == 'false' && steps.sushi_config.outputs.releaseLabel == 'release' }}
         with:
-          name: ${{ env.IG }} v${{ steps.sushi_config.outputs.version }}
+          name:  v${{ steps.sushi_config.outputs.version }}
           tag_name: ${{ env.TAG }}
           body: ${{ steps.changelog.outputs.changes }}
           fail_on_unmatched_files: true
