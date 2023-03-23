@@ -64,10 +64,8 @@ jobs:
 
       # Builds the NPM Package for distribution.
       - name: 🏃‍♂️ Run IG Publisher
-        uses: docker://hl7fhir/ig-publisher-base:latest
         if: ${{ steps.check_tag.outputs.exists == 'false' && steps.sushi_config.outputs.releaseLabel == 'release' }}
-        with:
-          args: java -jar publisher.jar publisher -ig . 
+        run : java -Xmx8192m -jar publisher.jar publisher -ig .  -publish https://github.io/
 
       # A commit-tag is needed when creating a release.
       # This step will push a new tag on the current commit, unless it already exists.
