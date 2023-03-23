@@ -22,9 +22,7 @@ jobs:
 
       # Persist the IG Publisher input-cache between runners.
       - name: 🗂️ Cache IG Publisher input-cache
-        uses: actions/cache@v2
-        with:
-          key: ig-publisher-input-cache        
+        uses: actions/cache@v2   
 
       # Gets the IG's id and version from the sushi-config.yaml file, this is needed to create the unique package/release name.
       - name: 🆔 Get Id and Version
