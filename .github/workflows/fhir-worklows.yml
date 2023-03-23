@@ -64,5 +64,5 @@ jobs:
     uses: ansforge/FIG_ans.workflows/.github/workflows/gh-pages.yml@main
   call-Release:
     needs : call-Publish
-    uses: ansforge/FIG_ans.workflows/.github/workflows/Release@main    
+    uses: ansforge/FIG_ans.workflows/.github/workflows/Release.yml@main    
     
