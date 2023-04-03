@@ -1,3 +1,14 @@
+#Publication IG/NOS
+# Creation d'un dossier NOS => package_list
+# Git clone le projet FIG-ANS-relase
+# git submodule update --init --recursive
+#Publication request à créer à chaque fois ou adapter (publication-request.json) / doit être quelque par
+#https://confluence.hl7.org/display/FHIR/IG+Publication+Request+Documentation
+#Repousse dans FIGans realses
+#java -jar /Library/WebServer/Documents/FIG_ans-ig-release/publisher.jar -go-publish -source /Users/nicolasriss/Desktop/ANSFORGE_ans-ig/IG-NOS -web /Library/WebServer/Documents/FIG_ans-ig-release/www/ig -registry /Library/WebServer/Documents/FIG_ans-ig-release/ig-registry/fhir-ig-list.json -history /Library/WebServer/Documents/FIG_ans-ig-release/fhir-ig-history-template -templates /Library/WebServer/Documents/FIG_ans-ig-release/www/templates -temp /Library/WebServer/Documents/tmp
+
+
+
 name: Release
 
 on:
