@@ -20,7 +20,21 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - name: Get IG-website-release
+        uses: actions/checkout@main
+        with:
+          repository: ansforge/IG-website-release
+          path: IG-website-release
+  
+      - name: Init        
+        run: |
+          cd  IG-website-release
+          git submodule update --init --recursive
+          
+          
+      - uses: actions/checkout@v3
+        with:      
+          path: igRepo
 
       - uses: actions/checkout@v3
         with:      
@@ -83,14 +97,12 @@ jobs:
         run: wget -q https://github.com/HL7/fhir-ig-publisher/releases/latest/download/publisher.jar
         
   
-      - name: Install modules
-        run: npm install -g fsh-sushi
       - name: Build and test with Rake        
         run: |
           sudo apt-get install ruby-full
           sudo gem install jekyll
       # Builds the HTML page for the IG.
       - name: 🏃‍♂️ Run IG Publisher
-        run : java -Xmx8192m -jar publisher.jar publisher -ig igRepo/.  -publish https://github.io/
+        run : java -Xmx8192m -jar publisher.jar publisher -ig igRepo/.  
         
         
