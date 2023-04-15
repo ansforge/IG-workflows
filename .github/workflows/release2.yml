@@ -106,7 +106,15 @@ jobs:
         run : java -Xmx8192m -jar publisher.jar publisher -ig igRepo/.  
         
       - name: 🏃‍♂️ Run  Publisher to release
-        run :   java -jar publisher.jar -go-publish -go-publish -source igRepo  -web  ./IG-website-release/IG-website-release/www/ig -registry ./IG-website-release/ig-registry/fhir-ig-list.json -history ./IG-website-release/fhir-ig-history-template -templates ./IG-website-release/templates -temp ./tmp    
-        
+        run :   java -jar publisher.jar -go-publish -go-publish -source igRepo  -web  ./IG-website-release/IG-website-release/www/ig/fhir -registry ./IG-website-release/ig-registry/fhir-ig-list.json -history ./IG-website-release/fhir-ig-history-template -templates ./IG-website-release/templates -temp ./tmp    
+      
+      - name: Pushes to another repository
+        uses: cpina/github-action-push-to-another-repository@main
+        with:
+          source-directory: 'IG-website-release'
+          destination-github-username: 'AUTO'
+          destination-repository-name: 'ansforge/IG-website-release'
+          target-branch: TEST-release
+          
 
         
