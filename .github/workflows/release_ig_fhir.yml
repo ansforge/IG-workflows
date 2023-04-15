@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Get IG-website-release
-        uses: actions/checkout@maine
+        uses: actions/checkout@main
         with:
           repository: ansforge/IG-website-release
           ref: M-Priour-test-release
