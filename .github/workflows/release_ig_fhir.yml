@@ -103,7 +103,7 @@ jobs:
         env:
           API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}         
         with:
-          source-directory: 'IG-website-release'
+          source-directory: IG-website-release/
           destination-github-username: 'AUTO'
           destination-repository-name: 'ansforge/IG-website-release'
           target-branch: M-Priour-test-release
