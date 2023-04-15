@@ -106,6 +106,6 @@ jobs:
           source-directory: 'IG-website-release'
           destination-github-username: 'AUTO'
           destination-repository-name: 'ansforge/IG-website-release'
-          target-branch: TEST-release
+          target-branch: M-Priour-test-release
           
         
