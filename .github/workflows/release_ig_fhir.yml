@@ -70,7 +70,7 @@ jobs:
       - name: Install modules
         run: npm install -g fsh-sushi
       - name: Run sushi
-        run: sushi .
+        run: sushi release_ig_fhir
         
       # Persist the IG Publisher input-cache between runners.
       # Doc: https://build.fhir.org/ig/FHIR/ig-guidance/using-templates.html#igroot-input-cache
