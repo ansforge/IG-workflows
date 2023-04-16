@@ -25,9 +25,6 @@ jobs:
         with:      
           path: igRepo
 
-      - uses: actions/checkout@v3
-        with:      
-          path: igRepo
           
       # Install .NET runtime
       - name: Setup .NET Core SDK
@@ -71,15 +68,7 @@ jobs:
         run: npm install -g fsh-sushi
       - name: Run sushi
         run: sushi igRepo
-        
-      # Persist the IG Publisher input-cache between runners.
-      # Doc: https://build.fhir.org/ig/FHIR/ig-guidance/using-templates.html#igroot-input-cache
-      - name: 🗂️ Cache IG Publisher input-cache
-        uses: actions/cache@v2
-        with:
-          path: |
-            igs/${{ env.IG }}/input-cache
-          key: ig-publisher-input-cache           
+                
 
       # Downloads the newest version of the IG Publisher, this could probable be cached.
       - name: 📥 Download IG Publisher
@@ -107,3 +96,17 @@ jobs:
           destination-repository-name: 'M-Priour/IG-website-release-test'
           
         
+      - name: Commit change
+        run: |
+          cd  IG-website-release
+          git config user.name github-actions
+          git config user.email github-actions@esante.gouv.de
+          git add -A 
+          git commit -m updated
+          
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.API_TOKEN_GITHUB }}
+          directory: IG-website-release
+          repository : M-Priour/IG-website-release-test
