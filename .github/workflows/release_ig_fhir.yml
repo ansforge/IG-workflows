@@ -97,7 +97,7 @@ jobs:
           git add -A 
           git commit -m updated
           
-      - name: Push changes
+      - name: Push changes 
         uses: ad-m/github-push-action@master
         with:
           github_token: ${{ secrets.API_TOKEN_GITHUB }}
