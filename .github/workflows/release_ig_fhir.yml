@@ -12,8 +12,7 @@ jobs:
       - name: Get IG-website-release
         uses: actions/checkout@main
         with:
-          repository: ansforge/IG-website-release
-          ref: M-Priour-test-release
+          repository: M-Priour/IG-website-release-test
           path: IG-website-release
   
       - name: Init        
@@ -105,7 +104,6 @@ jobs:
         with:
           source-directory: IG-website-release/
           destination-github-username: 'AUTO'
-          destination-repository-name: 'ansforge/IG-website-release'
-          target-branch: M-Priour-test-release
+          destination-repository-name: 'M-Priour/IG-website-release-test'
           
         
