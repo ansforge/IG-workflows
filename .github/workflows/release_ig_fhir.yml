@@ -13,7 +13,7 @@ jobs:
         uses: actions/checkout@main
         with:
           persist-credentials: false
-          repository: M-Priour/IG-website-release-test
+          repository: ansforge/IG-website-release
           path: IG-website-release
   
       - name: Init        
@@ -102,4 +102,4 @@ jobs:
         with:
           github_token: ${{ secrets.API_TOKEN_GITHUB }}
           directory: IG-website-release
-          repository : M-Priour/IG-website-release-test
+          repository : ansforge/IG-website-release
