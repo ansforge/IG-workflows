@@ -105,3 +105,4 @@ jobs:
           github_token: ${{ secrets.ANS_IG_API_TOKEN }}
           directory: IG-website-release
           repository : ansforge/IG-website-release
+          force_with_lease: true
