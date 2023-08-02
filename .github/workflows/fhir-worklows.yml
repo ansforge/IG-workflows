@@ -58,5 +58,5 @@ jobs:
         run: sushi .
 
   call-Publish:
-    needs :  call-Test-Unitaire
+    needs :  Call-Sushi
     uses: ansforge/FIG_ans.workflows/.github/workflows/gh-pages.yml@main
