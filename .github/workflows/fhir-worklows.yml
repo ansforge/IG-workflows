@@ -56,7 +56,12 @@ jobs:
         run: npm install -g fsh-sushi
       - name: Run sushi
         run: sushi .
-
-  call-Publish:
+        
+  call-Test-Unitaire:
     needs :  Call-Sushi
+    uses: ansforge/FIG_ans.workflows/.github/workflows/fhir-validator-engine.yaml@main
+
+    
+  call-Publish:
+    needs :  call-Test-Unitaire
     uses: ansforge/FIG_ans.workflows/.github/workflows/gh-pages.yml@main
