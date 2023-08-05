@@ -1,0 +1,58 @@
+name: fhir-validator-engine
+
+on:
+  workflow_call:
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+jobs:
+  Test-Unitaire:
+    runs-on: ubuntu-latest
+    steps:
+
+
+      - uses: actions/checkout@v3
+        with:      
+          path: ig
+
+      # Install .NET runtime
+      - name: Setup .NET Core SDK
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: '6.x.x'
+
+      # Install Java runtime (only needed if you want to run the offical HL7 Java validator)
+      - name: Setup Java JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'microsoft'
+          java-version: '17'    
+      - name : firely 
+        run : dotnet tool install --global Firely.Terminal --version 3.0.0
+
+      - name: Check Firely Terminal Version
+        run: |
+          CHECK_FIRELY_TERMINAL_VERSION=$(fhir -v | tr '\n' ' ') # Print everything in a single line
+          echo "FIRELY_TERMINAL_VERSION: $CHECK_FIRELY_TERMINAL_VERSION"
+        
+      - name: Run bake  ans.annuaire.fhir.r4
+        run: |
+          fhir install ans.annuaire.fhir.r4 0.2.0
+          fhir bake --package ans.annuaire.fhir.r4
+      - name: Run bake hl7.fhir.fr.core
+        run: |
+          fhir install hl7.fhir.fr.core 1.1.0
+          fhir bake --package hl7.fhir.fr.core
+          
+
+      - name: 🍣 Run SUSHI
+        run: |
+          npm install -g fsh-sushi
+          sushi ./ig
+      - name: 📥 Download test tools
+        run: |
+          wget -q https://github.com/hapifhir/org.hl7.fhir.core/releases/latest/download/validator_cli.jar
+          
+      - name: ✔️ Run tests
+        run: java -jar validator_cli.jar -f ../../ig/fsh-generated/resources -tx https://r4.ontoserver.csiro.au/
+        continue-on-error: true
