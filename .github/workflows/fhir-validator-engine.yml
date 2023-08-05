@@ -54,5 +54,5 @@ jobs:
           wget -q https://github.com/hapifhir/org.hl7.fhir.core/releases/latest/download/validator_cli.jar
           
       - name: ✔️ Run tests
-        run: java -jar validator_cli.jar -f ../../ig/fsh-generated/resources -tx https://r4.ontoserver.csiro.au/
+        run: java -jar validator_cli.jar  ../../ig/fsh-generated/resources -tx https://r4.ontoserver.csiro.au/
         continue-on-error: true
