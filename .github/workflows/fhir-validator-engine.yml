@@ -55,11 +55,12 @@ jobs:
 
       - name : Install NOS
         run: |
+          mkdir /home/runner/.fhir/packages/nos
           wget -q https://esante.gouv.fr/sites/default/files/media_entity/documents/NOS-Fichiers_Publics-Versions_json_fhir.zip
-          cp NOS-Fichiers_Publics-Versions_json_fhir.zip /home/runner/.fhir/packages 
-          unzip /home/runner/.fhir/packages/NOS-Fichiers_Publics-Versions_json_fhir.zip           
+          cp NOS-Fichiers_Publics-Versions_json_fhir.zip /home/runner/.fhir/packages/nos 
+          unzip /home/runner/.fhir/packages/nos/NOS-Fichiers_Publics-Versions_json_fhir.zip           
 
           
       - name: ✔️ Run tests
-        run: java -jar validator_cli.jar  ./ig/fsh-generated/resources -ig /home/runner/.fhir/packages  -recurse
+        run: java -jar validator_cli.jar  ./ig/fsh-generated/resources -ig ans.annuaire.fhir.r4#0.2.0 -ig hl7.fhir.fr.core#1.1.0 -ig /home/runner/.fhir/packages/nos -recurse
         continue-on-error: true
