@@ -55,7 +55,7 @@ jobs:
 
       - name : Install dependance
         run: |
-          sudo mkdir dependance
+          sudo mkdir ./dependance
           apt-get install unzip
           cp -R /home/runner/.fhir/packages  dependance
           wget -q https://esante.gouv.fr/sites/default/files/media_entity/documents/NOS-Fichiers_Publics-Versions_json_fhir.zip
