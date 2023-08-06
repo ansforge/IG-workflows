@@ -66,6 +66,6 @@ jobs:
 
       - name: Generate list using Markdown
         run: |
-          echo "### Rapport de validation :rocket:" >> $GITHUB_STEP_SUMMARY
+          echo "### Rapport de validation (validator_cli)  :rocket:" >> $GITHUB_STEP_SUMMARY
           cat rapport.html >> $GITHUB_STEP_SUMMARY
         
