@@ -55,12 +55,12 @@ jobs:
 
       - name : Install dependance
         run: |
-          mkdir dependance
+          sudo mkdir dependance
           apt-get install unzip
-          cp -R ~/.fhir/packages  dependance
+          cp -R /home/runner/.fhir/packages  dependance
           wget -q https://esante.gouv.fr/sites/default/files/media_entity/documents/NOS-Fichiers_Publics-Versions_json_fhir.zip
           cp NOS-Fichiers_Publics-Versions_json_fhir.zip dependance
-          nzip dependance/NOS-Fichiers_Publics-Versions_json_fhir.zip           
+          unzip dependance/NOS-Fichiers_Publics-Versions_json_fhir.zip           
 
           
       - name: ✔️ Run tests
