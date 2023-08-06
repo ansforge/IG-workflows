@@ -53,16 +53,13 @@ jobs:
         run: |
           wget -q https://github.com/hapifhir/org.hl7.fhir.core/releases/latest/download/validator_cli.jar
 
-      - name : Install dependance
+      - name : Install NOS
         run: |
-          sudo mkdir ./dependance
-          apt-get install unzip
-          cp -R /home/runner/.fhir/packages  dependance
           wget -q https://esante.gouv.fr/sites/default/files/media_entity/documents/NOS-Fichiers_Publics-Versions_json_fhir.zip
-          cp NOS-Fichiers_Publics-Versions_json_fhir.zip dependance
-          unzip dependance/NOS-Fichiers_Publics-Versions_json_fhir.zip           
+          cp NOS-Fichiers_Publics-Versions_json_fhir.zip /home/runner/.fhir/packages 
+          unzip /home/runner/.fhir/packages/NOS-Fichiers_Publics-Versions_json_fhir.zip           
 
           
       - name: ✔️ Run tests
-        run: java -jar validator_cli.jar  ./ig/fsh-generated/resources -ig ./dependance -recurse
+        run: java -jar validator_cli.jar  ./ig/fsh-generated/resources -ig /home/runner/.fhir/packages  -recurse
         continue-on-error: true
