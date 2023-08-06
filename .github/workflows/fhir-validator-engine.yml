@@ -57,8 +57,7 @@ jobs:
         run: |
           mkdir /home/runner/.fhir/packages/nos
           wget -q https://esante.gouv.fr/sites/default/files/media_entity/documents/NOS-Fichiers_Publics-Versions_json_fhir.zip
-          cp NOS-Fichiers_Publics-Versions_json_fhir.zip /home/runner/.fhir/packages/nos 
-          unzip /home/runner/.fhir/packages/nos/NOS-Fichiers_Publics-Versions_json_fhir.zip           
+          unzip NOS-Fichiers_Publics-Versions_json_fhir.zip -d /home/runner/.fhir/packages/nos          
 
           
       - name: ✔️ Run tests
