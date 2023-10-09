@@ -47,8 +47,6 @@ jobs:
 
       - name: Install modules
         run: npm install -g fsh-sushi
-      - name: Run sushi
-        run: sushi .
               
 
       # Downloads the newest version of the IG Publisher, this could probable be cached.
