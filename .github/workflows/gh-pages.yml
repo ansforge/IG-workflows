@@ -17,7 +17,7 @@ jobs:
 
       # Install .NET runtime
       - name: Setup .NET Core SDK
-        uses: actions/setup-dotnet@v2
+        uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '6.x.x'
       
@@ -43,51 +43,33 @@ jobs:
         run: |
           fhir install hl7.fhir.fr.core 1.1.0
           fhir bake --package hl7.fhir.fr.core
-          
-      # Persist the FHIR Package Cache between runners.
-      # Doc: https://confluence.hl7.org/display/FHIR/FHIR+Package+Cache
-      - name: 🗂️ Cache FHIR Packages
-        uses: actions/cache@v2
-        with:
-          path: |
-            ~/.fhir/packages
-          key: fhir-packages
 
       - name: Install modules
         run: npm install -g fsh-sushi
+
       - name: Run sushi
         run: sushi .
-        
-      # Persist the IG Publisher input-cache between runners.
-      # Doc: https://build.fhir.org/ig/FHIR/ig-guidance/using-templates.html#igroot-input-cache
-      - name: 🗂️ Cache IG Publisher input-cache
-        uses: actions/cache@v2
-        with:
-          path: |
-            igs/${{ env.IG }}/input-cache
-          key: ig-publisher-input-cache           
-
+              
       # Downloads the newest version of the IG Publisher, this could probable be cached.
       - name: 📥 Download IG Publisher
         run: wget -q https://github.com/HL7/fhir-ig-publisher/releases/latest/download/publisher.jar
 
 
-      - name: Install modules
-        run: npm install -g fsh-sushi
-
       - name: Build and test with Rake        
         run: |
           sudo apt-get install ruby-full
           sudo gem install jekyll
-          
+
       # Builds the HTML page for the IG.
       - name: 🏃‍♂️ Run IG Publisher
-        run : java -Xmx8192m -jar publisher.jar publisher -ig .  -publish https://github.io/
+        run : java -Xmx8192m -jar publisher.jar  -ig .  
 
       - name: Get branch names
         id: branch-name
-        uses: tj-actions/branch-names@v4.3
-        
+        uses: tj-actions/branch-names@v8
+
+
+
         
       # Publishes the HTML page to a seperate branch in order to host it using GitHub-Pages.
       # This will overwrite the currently published HTML page.
@@ -106,3 +88,7 @@ jobs:
           git branch --list
           branches=$(git branch --list)
           for ELEMENT in $branches; do echo $ELEMENT; done
+
+# for dossier in */; do [[ ! " ${{ steps.branch-name.outputs }} " =~ " ${dossier%/} " ]] && echo "$dossier" && rm -r "$dossier"; done
+
+curl "https://github.com/ansforge/IG-documentation/branches" | jq -r '.[].name'
