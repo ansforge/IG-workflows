@@ -86,7 +86,7 @@ jobs:
       - name: show active branches
         run: |
           echo "ig/${{ steps.branch-name.outputs }}"
-          echo ${{ steps.branch-name.outputs }}
+          echo ${{ steps.branch-name.outputs.branch-names }}
           echo ${steps.branch-name.outputs}
           echo $steps.branch-name.outputs
           cat ${{ steps.branch-name.outputs }}
