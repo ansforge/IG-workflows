@@ -68,15 +68,6 @@ jobs:
         id: branch-name
         uses: tj-actions/branch-names@v4.3
 
-      - name: show active branches
-        run: |
-          echo "ig/${{ steps.branch-name.outputs }}"
-          values=($(echo "${{ steps.branch-name.outputs }}" | jq -r '.[]'))
-          for ELEMENT in ${{ steps.branch-name.outputs }}; do echo $ELEMENT; done
-          for value in "${values[@]}"; do echo "$value" done
-
-
-# for dossier in */; do [[ ! " ${{ steps.branch-name.outputs }} " =~ " ${dossier%/} " ]] && echo "$dossier" && rm -r "$dossier"; done
 
 
         
@@ -90,3 +81,15 @@ jobs:
           destination_dir: ig/${{ steps.branch-name.outputs.current_branch }}
           exclude_assets: '**.zip,**.tgz,**.pack'
           commit_message: ' ${{ github.event.head_commit.message }}'
+
+
+      - name: show active branches
+        run: |
+          echo "ig/${{ steps.branch-name.outputs }}"
+          echo ${{ steps.branch-name.outputs }}
+          cat ${{ steps.branch-name.outputs }}
+          values=($(echo "${{ steps.branch-name.outputs }}" | jq -r '.[]'))
+          for ELEMENT in ${{ steps.branch-name.outputs }}; do echo $ELEMENT; done
+          for value in "${values[@]}"; do echo "$value" done
+
+# for dossier in */; do [[ ! " ${{ steps.branch-name.outputs }} " =~ " ${dossier%/} " ]] && echo "$dossier" && rm -r "$dossier"; done
