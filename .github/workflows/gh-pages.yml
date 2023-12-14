@@ -70,8 +70,8 @@ jobs:
 
       - name: show active branches
         run: |
-        git fetch
-        git branch -list
+          git fetch
+          git branch -list
           
         
       # Publishes the HTML page to a seperate branch in order to host it using GitHub-Pages.
