@@ -71,13 +71,7 @@ jobs:
       - name: show active branches
         run: |
           echo "ig/${{ steps.branch-name.outputs }}"
-          values=($(echo "${{ steps.branch-name.outputs }}" | jq -r '.[]'))
-          for ELEMENT in ${{ steps.branch-name.outputs }}; do echo $ELEMENT; done
-          for value in "${values[@]}"; do echo "$value" done
-
-
-# for dossier in */; do [[ ! " ${{ steps.branch-name.outputs }} " =~ " ${dossier%/} " ]] && echo "$dossier" && rm -r "$dossier"; done
-
+          for ELEMENT in ${{ steps.branch-name.outputs }}; do echo File: $ELEMENT; done
 
         
       # Publishes the HTML page to a seperate branch in order to host it using GitHub-Pages.
