@@ -14,7 +14,7 @@ jobs:
     
       # Install .NET runtime
       - name: Setup .NET Core SDK
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v2
         with:
           dotnet-version: '6.x.x'
       
@@ -45,6 +45,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 16
+          
       - name: 📥 Download patch fr-core
         run: |
           wget -q https://github.com/ansforge/FIG_ans.workflows/blob/main/dependency/hl7.fhir.fr.core-1.1.0.tgz?raw=true -O ./hl7.fhir.fr.core-1.1.0.tgz
