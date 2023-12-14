@@ -70,7 +70,7 @@ jobs:
 
       - name: show active branches
         run: |
-          echo ig/${{ steps.branch-name.outputs.current_branch }}
+        echo ig/${{ steps.branch-name.outputs.current_branch }}
           
         
       # Publishes the HTML page to a seperate branch in order to host it using GitHub-Pages.
