@@ -66,7 +66,7 @@ jobs:
 
       - name: Get branch names
         id: branch-name
-        uses: tj-actions/branch-names@v4.3
+        uses: tj-actions/branch-names@v8
 
 
 
@@ -85,13 +85,11 @@ jobs:
 
       - name: show active branches
         run: |
-          echo "ig/${{ steps.branch-name.outputs }}"
-          echo ${{ steps.branch-name.outputs.branch-names }}
-          echo ${steps.branch-name.outputs}
-          echo $steps.branch-name.outputs
-          cat ${{ steps.branch-name.outputs }}
-          values=($(echo "${{ steps.branch-name.outputs }}" | jq -r '.[]'))
-          for ELEMENT in ${{ steps.branch-name.outputs }}; do echo $ELEMENT; done
+          git branch --list
+          branches=$(git branch --list)
+          for ELEMENT in $branches; do echo $ELEMENT; done
           for value in "${values[@]}"; do echo "$value" done
 
 # for dossier in */; do [[ ! " ${{ steps.branch-name.outputs }} " =~ " ${dossier%/} " ]] && echo "$dossier" && rm -r "$dossier"; done
+
+curl "https://github.com/ansforge/IG-documentation/branches" | jq -r '.[].name'
