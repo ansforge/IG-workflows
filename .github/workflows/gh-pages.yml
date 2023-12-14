@@ -70,6 +70,7 @@ jobs:
 
       - name: show active branches
         run: |
+          git status
           git fetch
           git branch -list
           
