@@ -87,7 +87,6 @@ jobs:
         run: |
           echo "ig/${{ steps.branch-name.outputs }}"
           echo ${{ steps.branch-name.outputs }}
-          echo $steps.branch-name.outputs
           cat ${{ steps.branch-name.outputs }}
           values=($(echo "${{ steps.branch-name.outputs }}" | jq -r '.[]'))
           for ELEMENT in ${{ steps.branch-name.outputs }}; do echo $ELEMENT; done
