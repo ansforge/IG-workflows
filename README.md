@@ -30,7 +30,8 @@ jobs:
           nos: "true"
           validator_cli: "true"
           publish_repo: "ansforge/IG-website-release"
-          publish_repo_token :  ${{ secrets.GITHUB_TOKEN }} 
+          publish_repo_token :  ${{ secrets.GITHUB_TOKEN }}
+          publish_path_outpout : "./IG-website-release/www/ig/fhir"
 ```
 
 
