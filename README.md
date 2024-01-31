@@ -3,7 +3,7 @@
 GitHub Action pour les IG FHIR : 
 - Lancement de sushi
 - Tests avec le validateur_cli 
-- Incorporation des projets de simplifier (Metode bake)
+- Incorporation des projets de simplifier (Methode bake)
 - Publication sur les pages github
 - Publication des releases sur un repo github
 
