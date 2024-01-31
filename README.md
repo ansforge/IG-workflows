@@ -21,7 +21,7 @@ jobs:
       - uses: actions/checkout@v3
         with:      
           path: igSource
-      - uses: M-Priour/IG-workflows@main
+      - uses: ansforge/IG-workflows@addAction
         with:      
           repo_ig: "./igSource"   
           github_page: "true"
@@ -43,8 +43,8 @@ jobs:
 | github_page                | boolean | false                 | Publication de l'IG dans les GitHub pages                                                                                                                                                                                                                                                                          |
 | repo_ig             | string  |             | Chemin d'accés au repertoire des sources de l'IG                                                                                                                                                                                                                          |
 | bake              | boolean | false                 | Permet d'inclure les les projets annuaires et FrCore qui sont sur simplifier                                                                                                                                                                                                                                                                               |
-| nos   | boolean | false                 | Pour la vérification. Permet d'installer le NOS (A partie du ZIP)  a                                                                                                                                          |
-| validator_cli             | boolean | False                  | Permet de lancer les tests aevc le validatorècli d'HL7                                                                                                                                                                                                  |
+| nos   | boolean | false                 | Pour la vérification. Permet d'installer le NOS (à partie du ZIP)                                                                                                                                            |
+| validator_cli             | boolean | False                  | Permet de lancer les tests avec le validator_cli d'HL7                                                                                                                                                                                                  |
 | termino_server | string  | 'http://tx.fhir.org'           | Permet la verification sur le serveur de terminologie passé en paramètre.                                                                                                                                                                                                                     |
 | publish_repo               | string | ''                 | Permet d'indiquer le repo git de publication  de l'IG                
 | publish_path_outpout               | string | ''                 | Chemin de publication de l'IG                 |
