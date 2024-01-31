@@ -1,0 +1,225 @@
+name: "FHIR IG Action"
+description: "Worklow pour les IG de l'ANS"
+inputs:
+  github_page_token:
+    description: 'Set a generated GITHUB_TOKEN for pushing to the remote branch.'
+    required: false
+  github_page:
+    description: 'Publish to github page'
+    default: "false"
+    required: false    
+  repo_ig:
+    description: 'Chemin d acces au repertoire de l IG'
+    required: true
+  bake:
+    description: "Permet de mettre reprendre les projets annuaire et FrCore de simplifier"
+    required: false
+    default: "false"
+  nos:
+    description: "Permet d'installer le nos a partir du ZIP"
+    required: false
+    default: "false"
+  validator_cli:
+    description: "Permet de lancer le validator CLI"
+    required: false
+    default: "false"
+  termino_server:
+    description: "Url du serveur de terminologie"
+    required: false
+    default: "http://tx.fhir.org"
+  publish_repo:
+    description: "Repo de publciation de l'IG"
+    required: false
+    default: ""
+  publish_repo_token:
+    description: "Token pour publier sur le repo"
+    required: false
+    default: ""
+runs:
+  using: "composite"
+  steps:
+
+      - name: Setup Java JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'microsoft'
+          java-version: '17'    
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+          
+      # Install .NET runtime     
+      - name: Setup .NET Core SDK
+        if: ${{ inputs.bake == 'true' }}       
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '6.x.x'
+
+          
+      - name : firely 
+        if: ${{ inputs.bake == 'true' }}   
+        shell: bash      
+        run : dotnet tool install --global Firely.Terminal --version 3.0.0  
+
+  
+      - name: Check Firely Terminal Version
+        if: ${{ inputs.bake == 'true' }} 
+        shell: bash      
+        run: |
+          CHECK_FIRELY_TERMINAL_VERSION=$(fhir -v | tr '\n' ' ') # Print everything in a single line
+          echo "FIRELY_TERMINAL_VERSION: $CHECK_FIRELY_TERMINAL_VERSION"
+
+
+      - name: Run bake  ans.annuaire.fhir.r4
+        if: ${{ inputs.bake == 'true' }}   
+        shell: bash            
+        run: |
+          fhir install ans.annuaire.fhir.r4 0.2.0
+          fhir bake --package ans.annuaire.fhir.r4
+
+      
+      - name: Run bake hl7.fhir.fr.core
+        if: ${{ inputs.bake == 'true' }}       
+        shell: bash            
+        run: |
+          fhir install hl7.fhir.fr.core 1.1.0
+          fhir bake --package hl7.fhir.fr.core
+
+ 
+      - name: 📥 Download pacth fr-core
+        if: ${{ inputs.bake == 'true' }}    
+        shell: bash            
+        run: |
+          wget -q https://github.com/ansforge/FIG_ans.workflows/blob/main/dependency/hl7.fhir.fr.core-1.1.0.tgz?raw=true -O ./hl7.fhir.fr.core-1.1.0.tgz
+          cp hl7.fhir.fr.core-1.1.0.tgz ~/.fhir/packages
+          tar -xzvf ~/.fhir/packages/hl7.fhir.fr.core-1.1.0.tgz     
+
+         
+      - name : Install NOS
+        if: ${{ inputs.nos == 'true' }}    
+        shell: bash       
+        run: |
+          mkdir /home/runner/.fhir/packages/nos
+          wget -q https://esante.gouv.fr/sites/default/files/media_entity/documents/NOS-Fichiers_Publics-Versions_json_fhir.zip
+          unzip NOS-Fichiers_Publics-Versions_json_fhir.zip -d /home/runner/.fhir/packages/nos         
+
+          
+      - name: Install modules
+        shell: bash            
+        run: npm install -g fsh-sushi
+       
+      - name: Run sushi
+        shell: bash      
+        run: sushi  ${{ inputs.repo_ig}}
+
+
+      # Downloads the newest version of the IG Publisher, this could probable be cached.
+      - name: 📥 Download IG Publisher
+        shell: bash          
+        run: wget -q https://github.com/HL7/fhir-ig-publisher/releases/latest/download/publisher.jar
+
+
+      - name: Install ruby, jekyll and graphviz        
+        shell: bash          
+        run: |
+          sudo apt-get install ruby-full
+          sudo gem install jekyll
+          sudo apt-get install graphviz
+
+      # Builds the HTML page for the IG.
+      - name: 🏃‍♂️ Run IG Publisher
+        shell: bash          
+        run : |
+              cd  ${{ inputs.repo_ig}}
+              java -Xmx8192m -jar ../publisher.jar  -ig . -tx  ${{ inputs.termino_server }}
+
+      - name: Get branch names
+        id: branch-name
+        uses: tj-actions/branch-names@v4.3
+
+      # Publishes the HTML page to a seperate branch in order to host it using GitHub-Pages.
+      # This will overwrite the currently published HTML page.
+      - name: 🚀 Deploy to GitHub-Pages
+        if: ${{ inputs.github_page == 'true' }}          
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ inputs.github_page_token }}
+          publish_dir: ./ig/output
+          destination_dir: ig/${{ steps.branch-name.outputs.current_branch }}
+          exclude_assets: '**.zip,**.tgz,**.pack'
+          commit_message: ' ${{ github.event.head_commit.message }}'
+          
+  
+      - name: 📥 Download test tools
+        if: ${{ inputs.validator_cli == 'true' }}   
+        shell: bash            
+        run: |
+          wget -q https://github.com/hapifhir/org.hl7.fhir.core/releases/latest/download/validator_cli.jar
+
+           
+      - name: ✔️ Run tests
+        if: ${{ inputs.validator_cli == 'true' }}  
+        shell: bash       
+        run: |
+              cd  ${{ inputs.repo_ig}}
+              java -jar ../validator_cli.jar  ./fsh-generated/resources -ig ans.annuaire.fhir.r4#0.2.0 -ig hl7.fhir.fr.core#1.1.0 -ig /home/runner/.fhir/packages/nos -recurse -verbose -output-style compact -output ../rapport.html
+        continue-on-error: true
+
+      
+      - name: Generate list using Markdown
+        if: ${{ inputs.validator_cli == 'true' }}     
+        shell: bash       
+        run: |
+          echo "### Rapport de validation (validator_cli)  :rocket:" >> $GITHUB_STEP_SUMMARY
+          cat rapport.html >> $GITHUB_STEP_SUMMARY
+
+
+#####Release###########
+      - name: Get publish_repo
+        if: ${{ inputs.publish_repo != '' }}       
+        uses: actions/checkout@main
+        with:
+          persist-credentials: false
+          repository:  ${{ inputs.publish_repo}}
+          path: IG-website-release
+  
+      - name: Init   publish_repo  
+        if: ${{ inputs.publish_repo != '' }}             
+        shell: bash        
+        run: |
+          cd  IG-website-release
+          git submodule update --init --recursive
+          
+      - name: 🏃‍♂️ Run  Publisher to release
+        if: ${{ inputs.publish_repo != '' }}  
+        shell: bash                
+        run :   java -jar publisher.jar -go-publish  -source  ${{ inputs.repo_ig}}  -web  ./IG-website-release/www/ig/fhir -registry ./IG-website-release/ig-registry/fhir-ig-list.json -history ./IG-website-release/fhir-ig-history-template -templates ./IG-website-release/templates 
+                
+
+
+      - name: Commit change
+        if: ${{ inputs.publish_repo != '' }}  
+        shell: bash              
+        run: |
+          cd  IG-website-release
+          git config user.name github-actions
+          git config user.email github-actions@esante.gouv.fr
+          git add -A 
+          git commit -m updated
+          
+      - name: Push changes 
+        if: ${{ inputs.publish_repo != '' }}          
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ inputs.publish_repo_token}}
+          directory: IG-website-release
+          repository : ${{ inputs.publish_repo}}
+
+
+branding:
+  icon: 'check'
+  color: 'blue'
+
+          
