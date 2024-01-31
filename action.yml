@@ -199,7 +199,7 @@ runs:
       - name: 🏃‍♂️ Run  Publisher to release
         if: ${{ inputs.publish_repo != '' }}  
         shell: bash                
-        run :   java -jar publisher.jar -go-publish  -source  ${{ inputs.repo_ig}}  -web  ${{  publish_path_outpout }} -registry ./IG-website-release/ig-registry/fhir-ig-list.json -history ./IG-website-release/fhir-ig-history-template -templates ./IG-website-release/templates 
+        run :   java -jar publisher.jar -go-publish  -source  ${{ inputs.repo_ig}}  -web  ${{  inputs.publish_path_outpout }} -registry ./IG-website-release/ig-registry/fhir-ig-list.json -history ./IG-website-release/fhir-ig-history-template -templates ./IG-website-release/templates 
                 
 
 
