@@ -35,6 +35,10 @@ inputs:
     description: "Token pour publier sur le repo"
     required: false
     default: ""
+  publish_path_outpout:
+    description: "Chemin de publication de l'IG"
+    required: false
+    default: ""    
 runs:
   using: "composite"
   steps:
@@ -195,7 +199,7 @@ runs:
       - name: 🏃‍♂️ Run  Publisher to release
         if: ${{ inputs.publish_repo != '' }}  
         shell: bash                
-        run :   java -jar publisher.jar -go-publish  -source  ${{ inputs.repo_ig}}  -web  ./IG-website-release/www/ig/fhir -registry ./IG-website-release/ig-registry/fhir-ig-list.json -history ./IG-website-release/fhir-ig-history-template -templates ./IG-website-release/templates 
+        run :   java -jar publisher.jar -go-publish  -source  ${{ inputs.repo_ig}}  -web  ${{  publish_path_outpout }} -registry ./IG-website-release/ig-registry/fhir-ig-list.json -history ./IG-website-release/fhir-ig-history-template -templates ./IG-website-release/templates 
                 
 
 
