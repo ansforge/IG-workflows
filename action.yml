@@ -213,13 +213,13 @@ runs:
           git add -A 
           git commit -m updated
           
-#      - name: Push changes 
-#        if: ${{ inputs.publish_repo != '' }}          
-#        uses: ad-m/github-push-action@master
-#        with:
-#          github_token: ${{ inputs.publish_repo_token}}
-#          directory: IG-website-release
-#          repository : ${{ inputs.publish_repo}}
+      - name: Push changes 
+        if: ${{ inputs.publish_repo != '' }}          
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ inputs.publish_repo_token}}
+          directory: IG-website-release
+          repository : ${{ inputs.publish_repo}}
 
 
 branding:
