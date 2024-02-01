@@ -49,9 +49,9 @@ runs:
           distribution: 'microsoft'
           java-version: '17'    
 
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
-          node-version: 16
+          node-version: 20
 
           
       # Install .NET runtime     
