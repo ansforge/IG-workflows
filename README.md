@@ -59,7 +59,7 @@ jobs:
 
 
 
-Un exemple pour publier une release sur le repo "ansforge/IG-website-release" dans les IG
+Un exemple pour publier une release sur le repo "ansforge/IG-website-release" dans les ig
 
 ```yaml
 jobs:
