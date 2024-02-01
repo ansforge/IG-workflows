@@ -163,21 +163,6 @@ runs:
         run: |
           wget -q https://github.com/hapifhir/org.hl7.fhir.core/releases/latest/download/validator_cli.jar
 
-      - name: ✔️ Run tests
-        if: ${{ inputs.validator_cli == 'true' }}  
-        shell: bash       
-        run: |
-              cd  ${{ inputs.repo_ig}}
-              java -jar ../validator_cli.jar -tx https://smt.esante.gouv.fr/fhir/ ./fsh-generated/resources -ig ans.annuaire.fhir.r4#0.2.0 -ig hl7.fhir.fr.core#1.1.0  -recurse -verbose -output-style compact -output ../rapport.html
-        continue-on-error: true
-
-      
-      - name: Generate list using Markdown
-        if: ${{ inputs.validator_cli == 'true' }}     
-        shell: bash       
-        run: |
-          echo "### Rapport de validation avec https://smt.esante.gouv.fr/fhir/   (validator_cli)  :rocket:" >> $GITHUB_STEP_SUMMARY
-          cat rapport.html >> $GITHUB_STEP_SUMMARY
 
            
       - name: ✔️ Run tests
@@ -193,7 +178,7 @@ runs:
         if: ${{ inputs.validator_cli == 'true' }}     
         shell: bash       
         run: |
-          echo "### Rapport de validation avec l'IG du NOS (validator_cli)  :rocket:" >> $GITHUB_STEP_SUMMARY
+          echo "### Rapport de validation (validator_cli)  :rocket:" >> $GITHUB_STEP_SUMMARY
           cat rapport.html >> $GITHUB_STEP_SUMMARY
 
 
