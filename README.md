@@ -33,8 +33,33 @@ jobs:
           publish_repo_token :  ${{ secrets.ANS_IG_API_TOKEN }}
           publish_path_outpout : "./IG-website-release/www/ig/fhir"
 ```
+Un exemple pour publier une release sur le repo "ansforge/IG-website-release" dans les ig/fhir
 
-Un exemple pour publier une release sur le repo "ansforge/IG-website-release"
+```yaml
+jobs:
+  run-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:      
+          path: igSource
+      - uses: ansforge/IG-workflows@addAction
+        with:      
+          repo_ig: "./igSource"   
+          github_page: "true"
+          github_page_token: ${{ secrets.GITHUB_TOKEN }}
+          bake: "true"
+          nos: "true"
+          validator_cli: "true"
+          publish_repo: "ansforge/IG-website-release"
+          publish_repo_token :  ${{ secrets.ANS_IG_API_TOKEN }} 
+          publish_path_outpout : "./IG-website-release/www/ig"
+```
+
+
+
+
+Un exemple pour publier une release sur le repo "ansforge/IG-website-release" dans les IG
 
 ```yaml
 jobs:
