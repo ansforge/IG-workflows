@@ -140,6 +140,7 @@ runs:
               java -Xmx8192m -jar ../publisher.jar  -ig . -tx  ${{ inputs.termino_server }}
 
       - name: Get branch names
+        if: ${{ inputs.github_page == 'true' }}        
         id: branch-name
         uses: tj-actions/branch-names@v4.3
 
