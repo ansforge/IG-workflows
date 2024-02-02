@@ -148,11 +148,11 @@ runs:
         with:
           python-version: '3.10' 
 
-      - name: Run script python
-        shell: bash            
-        run : |
-              mkdir ./plantuml
-              python ./PlantUML/construct.py './${{ inputs.repo_ig}}/package.db' '../plantuml/graph.puml'
+#      - name: Run script python
+#        shell: bash            
+#        run : |
+#              mkdir ./plantuml
+#              python ./PlantUML/construct.py './${{ inputs.repo_ig}}/package.db' '../plantuml/graph.puml'
 
 
       - name: Get branch names
