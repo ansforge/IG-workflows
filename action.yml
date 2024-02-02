@@ -54,16 +54,6 @@ runs:
           node-version: 20
 
 
-      - name: Setup Python # Set Python version
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10' 
-
-      - name: Run script python
-        shell: bash            
-        run : |
-              mkdir ./plantuml
-              python ./PlantUML/construct.py './${{ inputs.repo_ig}}/package.db' '../plantuml/graph.puml'
 
 
 
@@ -152,6 +142,18 @@ runs:
         run : |
               cd  ${{ inputs.repo_ig}}
               java -Xmx8192m -jar ../publisher.jar  -ig . -tx  ${{ inputs.termino_server }}
+
+      - name: Setup Python # Set Python version
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10' 
+
+      - name: Run script python
+        shell: bash            
+        run : |
+              mkdir ./plantuml
+              python ./PlantUML/construct.py './${{ inputs.repo_ig}}/package.db' '../plantuml/graph.puml'
+
 
       - name: Get branch names
         if: ${{ inputs.github_page == 'true' }}        
