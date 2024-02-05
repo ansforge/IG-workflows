@@ -197,7 +197,7 @@ runs:
         shell: bash       
         run: |
               cd  ${{ inputs.repo_ig}}
-              java -jar ../validator_cli.jar ./fsh-generated/resources -ig ans.annuaire.fhir.r4#0.2.0 -ig hl7.fhir.fr.core#1.1.0 -ig /home/runner/.fhir/packages/nos -recurse -verbose -output-style compact -output ../rapport.html
+              java -jar ../validator_cli.jar ./fsh-generated/resources -tx  ${{ inputs.termino_server }} -ig ans.annuaire.fhir.r4#0.2.0 -ig hl7.fhir.fr.core#1.1.0 -ig /home/runner/.fhir/packages/nos -recurse -verbose -output-style compact -output ../rapport.html
         continue-on-error: true
 
       
