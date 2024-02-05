@@ -152,7 +152,7 @@ runs:
         shell: bash            
         run : |
               mkdir ./plantuml
-               python ${{ github.action_path }}/PlantUML/construct.py './${{ inputs.repo_ig}}/package.db' '../plantuml/graph.puml'
+               python ${{ github.action_path }}/PlantUML/construct.py './${{ inputs.repo_ig}}/output/package.db' '../plantuml/graph.puml'
 
 
       - name: Get branch names
@@ -167,7 +167,7 @@ runs:
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ inputs.github_page_token }}
-          publish_dir: ./ig/output
+          publish_dir: ./ ${{ inputs.repo_ig}}/output
           destination_dir: ig/${{ steps.branch-name.outputs.current_branch }}
           exclude_assets: '**.zip,**.tgz,**.pack'
           commit_message: ' ${{ github.event.head_commit.message }}'
