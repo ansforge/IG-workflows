@@ -150,7 +150,7 @@ runs:
 
       - name: Run script python
         shell: bash            
-         run : |
+        run : |
               mkdir ./plantuml
                python ${{ github.action_path }}/PlantUML/construct.py './${{ inputs.repo_ig}}/package.db' '../plantuml/graph.puml'
 
