@@ -166,8 +166,8 @@ runs:
           REPO: self
           BRANCH: plantuml
           FOLDER: plantuml
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-         TARGET_DIR: ${{ steps.branch-name.outputs.current_branch }}
+          GITHUB_TOKEN: ${{ inputs.github_page_token }}
+          TARGET_DIR: ${{ steps.branch-name.outputs.current_branch }}
 
 
 
