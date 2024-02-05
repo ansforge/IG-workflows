@@ -152,7 +152,7 @@ runs:
         shell: bash            
         run : |
               mkdir ./plantuml
-               python ${{ github.action_path }}/PlantUML/construct.py './${{ inputs.repo_ig}}/output/package.db' '../plantuml/graph.puml'
+               python ${{ github.action_path }}/PlantUML/construct.py './${{ inputs.repo_ig}}/output/package.db' './plantuml/graph.puml'
 
 
       - name: Get branch names
