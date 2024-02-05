@@ -129,7 +129,7 @@ def write_to_plantuml_file(data, file_path):
 
         f.write("\n@enduml")
 
-data = get_data_from_dbdir_path_db)
+data = get_data_from_db(dir_path_db)
 write_to_plantuml_file(data, file_output)
 
 
