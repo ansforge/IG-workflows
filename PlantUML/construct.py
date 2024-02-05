@@ -1,5 +1,6 @@
 #python3.12 importplan.py 
 import sqlite3
+import sys
 from contextlib import closing
 
 dir_path_db =  sys.argv[1] 
