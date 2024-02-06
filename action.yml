@@ -127,6 +127,7 @@ runs:
       - name: 📥 Download IG Publisher
         shell: bash          
         run: wget -q https://github.com/HL7/fhir-ig-publisher/releases/latest/download/publisher.jar
+        
 
       - name: Get branch names
         if: ${{ inputs.github_page == 'true' }}        
@@ -157,17 +158,21 @@ runs:
         shell: bash            
         run : |
               mkdir ./plantuml
-               python ${{ github.action_path }}/PlantUML/construct.py './${{ inputs.repo_ig}}/output/package.db' './plantuml/graph.puml'
+              python ${{ github.action_path }}/PlantUML/construct.py './${{ inputs.repo_ig}}/output/package.db' './plantuml/graph.puml'
+              wget -q https://github.com/plantuml/plantuml/releases/download/v1.2024.0/plantuml-1.2024.0.jar
+              java -jar plantuml-1.2024.0.jar "./plantuml"
 
-      # Deploy to local repo
-      - name: Deploy
-        uses: s0/git-publish-subdir-action@develop
-        env:
-          REPO: self
-          BRANCH: plantuml
-          FOLDER: plantuml
-          GITHUB_TOKEN: ${{ inputs.github_page_token }}
-          TARGET_DIR: ${{ steps.branch-name.outputs.current_branch }}
+
+      # Publishes the HTML page to a seperate branch in order to host it using GitHub-Pages.
+      # This will overwrite the currently published HTML page.
+      - name: 🚀 Deploy to GitHub-Pages
+        if: ${{ inputs.github_page == 'true' }}          
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ inputs.github_page_token }}
+          publish_dir: ./plantuml
+          destination_dir: ig/${{ steps.branch-name.outputs.current_branch }}
+          commit_message: ' ${{ github.event.head_commit.message }}'
 
 
 
