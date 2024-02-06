@@ -6,6 +6,7 @@ GitHub Action pour les IG FHIR :
 - Incorporation des projets de simplifier (Methode bake)
 - Publication sur les pages github
 - Publication des releases sur un repo github
+- Génération du diagramme plantuml à partir de des données de l'IG
 
 ## Usage
 
@@ -32,6 +33,7 @@ jobs:
           publish_repo: "ansforge/IG-website-release"
           publish_repo_token :  ${{ secrets.ANS_IG_API_TOKEN }}
           publish_path_outpout : "./IG-website-release/www/ig/fhir"
+          generate_plantuml : "true"
 ```
 Un exemple pour publier une release sur le repo "ansforge/IG-website-release" dans les ig/fhir
 
@@ -95,4 +97,5 @@ jobs:
 | publish_repo               | string | ''                 | Permet d'indiquer le repo git de publication  de l'IG                
 | publish_path_outpout               | string | ''                 | Chemin de publication de l'IG                 |
 | publish_repo_token          | string  |                   | Token pour publier sur le repo GIT de publication                                                                                                                                                                                                                                                                  |
+| generate_plantuml          | string  | false                  | Génération de diagramme plantuml                                                                                                                                                                                                                                                                  |
 
