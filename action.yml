@@ -8,6 +8,10 @@ inputs:
     description: 'Publish to github page'
     default: "false"
     required: false    
+  generate_plantuml:
+    description: 'generation du diagramme plant uml'
+    default: "false"
+    required: false        
   repo_ig:
     description: 'Chemin d acces au repertoire de l IG'
     required: true
@@ -150,11 +154,13 @@ runs:
               java -Xmx8192m -jar ../publisher.jar  -ig . -tx  ${{ inputs.termino_server }}
 
       - name: Setup Python # Set Python version
+        if: ${{ inputs.generate_plantuml == 'true' }}  
         uses: actions/setup-python@v4
         with:
           python-version: '3.10' 
 
-      - name: Run script python
+      - name: Run script plantuml
+        if: ${{ inputs.generate_plantuml == 'true' }}        
         shell: bash            
         run : |
               mkdir ./plantuml
