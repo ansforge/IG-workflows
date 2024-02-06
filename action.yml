@@ -178,7 +178,7 @@ runs:
         with:
           github_token: ${{ inputs.github_page_token }}
           publish_dir: ./plantuml
-          destination_dir: ig/${{ steps.branch-name.outputs.current_branch }}
+          destination_dir: ${{ steps.branch-name.outputs.current_branch }}/plantuml
           commit_message: ' ${{ github.event.head_commit.message }}'
 
 
@@ -191,7 +191,7 @@ runs:
         with:
           github_token: ${{ inputs.github_page_token }}
           publish_dir: ./${{ inputs.repo_ig}}/output
-          destination_dir: ig/${{ steps.branch-name.outputs.current_branch }}
+          destination_dir: ${{ steps.branch-name.outputs.current_branch }}/ig
           exclude_assets: '**.zip,**.tgz,**.pack'
           commit_message: ' ${{ github.event.head_commit.message }}'
           
