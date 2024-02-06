@@ -161,7 +161,8 @@ runs:
 
       - name: Run script plantuml
         if: ${{ inputs.generate_plantuml == 'true' }}        
-        shell: bash            
+        shell: bash   
+        continue-on-error: true
         run : |
               mkdir ./plantuml
               python ${{ github.action_path }}/PlantUML/construct.py './${{ inputs.repo_ig}}/output/package.db' './plantuml/graph.puml'
