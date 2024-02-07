@@ -7,6 +7,34 @@ from contextlib import closing
 dir_path_db =  sys.argv[1] 
 file_output = sys.argv[2] 
 
+sqlQuery = """ 
+ select a.*,b.name,c.name
+ from (
+    select
+            json_extract(Resources.json,'$.name') as resource,
+            json_extract(Resources.json,'$.baseDefinition') as base,
+            replace(json_extract(Resources.json,'$.baseDefinition'),'http://hl7.org/fhir/StructureDefinition/','') as baseSimple,
+            value as element ,
+            json_extract(Resources.json,fullkey) as id,
+            json_extract(Resources.json, REPLACE(fullkey,'id', 'short')) as commentaire,
+            json_extract(Resources.json, REPLACE(fullkey,'id', 'min')) as min,
+            json_extract(Resources.json, REPLACE(fullkey,'id', 'max')) as max,
+            json_extract(Resources.json, REPLACE(fullkey,'id', 'binding.valueSet')) as Valueset,
+            json_extract(Resources.json, REPLACE(fullkey,'id', 'type')) as type,
+            json_extract(Resources.json, REPLACE(fullkey,'id', 'mapping')) as mapping,
+            url,
+            json_extract(Resources.json, REPLACE(fullkey,'id', 'type[0].profile[0]')) as profileExtension
+    from   
+            Resources,
+            json_tree(Resources.json,'$.differential.element') as jtree
+    where   
+            Resources.type='StructureDefinition'
+            --and json_extract(Resources.json,'$.type')!='Extension'
+            and (jtree.key='id' )
+) a 
+LEFT OUTER JOIN resources b ON a.profileExtension = b.url
+LEFT OUTER JOIN resources c ON a.Valueset = c.url;
+"""
 
 
 def get_data_from_db(db_path):
