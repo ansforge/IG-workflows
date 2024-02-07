@@ -1,41 +1,13 @@
 #python3.12 importplan.py 
 import sqlite3
 import sys
+import hashlib
 from contextlib import closing
 
 dir_path_db =  sys.argv[1] 
 file_output = sys.argv[2] 
 
 
-
-sqlQuery = """ 
- select a.*,b.name,c.name
- from (
-    select
-            json_extract(Resources.json,'$.name') as resource,
-            json_extract(Resources.json,'$.baseDefinition') as base,
-            replace(json_extract(Resources.json,'$.baseDefinition'),'http://hl7.org/fhir/StructureDefinition/','') as baseSimple,
-            value as element ,
-            json_extract(Resources.json,fullkey) as id,
-            json_extract(Resources.json, REPLACE(fullkey,'id', 'short')) as commentaire,
-            json_extract(Resources.json, REPLACE(fullkey,'id', 'min')) as min,
-            json_extract(Resources.json, REPLACE(fullkey,'id', 'max')) as max,
-            json_extract(Resources.json, REPLACE(fullkey,'id', 'binding.valueSet')) as Valueset,
-            json_extract(Resources.json, REPLACE(fullkey,'id', 'type')) as type,
-            json_extract(Resources.json, REPLACE(fullkey,'id', 'mapping')) as mapping,
-            url,
-            json_extract(Resources.json, REPLACE(fullkey,'id', 'type[0].profile[0]')) as profileExtension
-    from   
-            Resources,
-            json_tree(Resources.json,'$.differential.element') as jtree
-    where   
-            Resources.type='StructureDefinition'
-            --and json_extract(Resources.json,'$.type')!='Extension'
-            and (jtree.key='id' )
-) a 
-LEFT OUTER JOIN resources b ON a.profileExtension = b.url
-LEFT OUTER JOIN resources c ON a.Valueset = c.url;
-"""
 
 def get_data_from_db(db_path):
     data = []
@@ -83,7 +55,7 @@ def write_to_plantuml_file(data, file_path):
         cptClass = 0
         for count,row in enumerate(data):
             if(row[2]!='Extension'):
-                if(row[2] != row[3]) :  
+                if((row[2] != row[3]) and (str(row[13]) != 'None')) :  
                     if( "extension:" in row[4]) :
                         f.write('\n     ' + row[0] + ' -[#black,dashed,thickness=2]-> ' +  str(row[13]) +"") 
             resource = row[0]
@@ -111,20 +83,21 @@ def write_to_plantuml_file(data, file_path):
         #Ecritures des dépendances aevc les valueset
         f.write("\n     package valueset #PaleVioletRed{\n")
         for count,row in enumerate(data):
-            if(row[8]) : 
+            if(row[8] and (str(row[14])!='None')) : 
+                print (row[14])
                 f.write( '\n        class ' +   str(row[14]) +"  \n")
                 f.write('\n     ' + row[0] + ''+  ' -[#black,dotted,thickness=2]-> ' +  str(row[14])  +"\n") 
         f.write("       }\n")
-        f.write("}\n")
+   
         #Ecritures des dépendances avec  les ressources de base
-        f.write("\npackage fhir #palegreen {\n")
+        f.write('\npackage "Ressources de base" #palegreen {\n')
         resource = ""
         for count,row in enumerate(data):
 
             if(resource!=row[0]) :
                 if(row[2] != 'Extension') : 
-                    f.write( "\n    class " +   row[2] +"\n")
-                    f.write( "\n    "  + row[2] + ' --> ' +  row[0] +"\n")
+                    f.write( '\n class "' +   row[2] +'" as  ' +  f"class{hashlib.md5(row[2].encode()).hexdigest()}" +" \n")
+                    f.write( "\n    "  +  f"class{hashlib.md5((row[2].encode())).hexdigest()}"  + " --> " +  row[0] +"\n")
             resource = row[0]
         f.write("}")
 
