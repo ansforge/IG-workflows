@@ -167,7 +167,7 @@ runs:
               mkdir ./plantuml
               python ${{ github.action_path }}/PlantUML/construct.py './${{ inputs.repo_ig}}/output/package.db' './plantuml/graph.puml'
               wget -q https://github.com/plantuml/plantuml/releases/download/v1.2024.0/plantuml-1.2024.0.jar
-              java -jar plantuml-1.2024.0.jar "./plantuml"
+              java -jar plantuml-1.2024.0.jar  -tsvg -tpng  "./plantuml"
 
 
       # Publishes the HTML page to a seperate branch in order to host it using GitHub-Pages.
