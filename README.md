@@ -1,3 +1,5 @@
+![Logo_LEF_CI-SIS](https://user-images.githubusercontent.com/48218773/227532484-eff82649-4e42-49c6-966a-dc3ea78cf59c.png)
+
 # GitHub Action pour la publication d'IG FHIR
 
 GitHub Action pour les IG FHIR : 
