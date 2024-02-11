@@ -2,11 +2,11 @@
 
 GitHub Action pour les IG FHIR : 
 - [Lancement de sushi](#Sushi)
-- Tests avec le validateur_cli 
-- Incorporation des projets de simplifier (Methode bake)
-- Publication des releases sur un repo github
-- Génération du diagramme plantuml à partir de des données de l'IG
-- Publication sur les pages github :
+- [Tests avec le validateur_cli](#Tests avec le validator_cli) 
+- Incorporation des projets de simplifier (Methode bake) (#Incorporation des projets de simplifier)
+- [Publication des releases sur un repo github](#Génération de release pour publication)
+- [Génération du diagramme plantuml à partir de des données de l'IG](#Génaration du diagramme plantUML de l'IG)
+- [Publication sur les pages github](#Publication sur les pages de github) :
   - IG
   - Diagramme de class plantuml généré à partir des données de l'IG
   - Rapport de validation du validator_cli
@@ -117,6 +117,13 @@ Principes  :
 - Résulats accéssibles via le terminal
   - ![image](https://github.com/ansforge/IG-workflows/assets/101335975/e8c0b772-b6a9-4006-be8e-403319996346)
 
+### Incorporation des projets de simplifier
+Pour installer les dépendances à des projets simplifier, il faut utiliser la methode bake de simplifier : 
+- Installation de .NET
+- Installation du terminal firely
+- Installation des porjets :
+  - ans.annuaire.fhir.r4
+  - hl7.fhir.fr.core
 
 ### Tests avec le validator_cli
 
