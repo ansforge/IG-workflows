@@ -1,7 +1,7 @@
 # GitHub Action pour la publication d'IG FHIR
 
 GitHub Action pour les IG FHIR : 
-- [Lancement de sushi](###Sushi)
+- [Lancement de sushi](#Sushi)
 - Tests avec le validateur_cli 
 - Incorporation des projets de simplifier (Methode bake)
 - Publication des releases sur un repo github
