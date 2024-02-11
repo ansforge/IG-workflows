@@ -5,7 +5,7 @@ inputs:
     description: 'Clé GITHUB_TOKEN pour pousser dans les pages github (branche gh-pages).'
     required: false
   github_page:
-    description: 'Publication de l'IG sur les pages gh-pages.'
+    description: "Publication de l'IG sur les pages gh-pages."
     default: "false"
     required: false    
   generate_plantuml:
