@@ -3,7 +3,7 @@
 GitHub Action pour les IG FHIR : 
 - [Lancement de sushi](#Sushi)
 - [Tests avec le validateur_cli](#Tests-avec-le-validator_cli) 
-- Incorporation des projets de simplifier (Methode bake)(#Incorporation-des-projets-de-simplifier)
+- [Incorporation des projets de simplifier (Methode bake)](#Incorporation-des-projets-de-simplifier)
 - [Publication des releases sur un repo github](#Génération-de-release-pour-publication)
 - [Génération du diagramme plantuml à partir de des données de l'IG](#Génaration-du-diagramme-plantUML-de-l'IG)
 - [Publication sur les pages github](#Publication-sur-les-pages-de-github) :
