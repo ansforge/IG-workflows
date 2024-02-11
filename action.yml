@@ -56,6 +56,8 @@ runs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+
+
           
       # Install .NET runtime la methode bake   
       - name: Setup .NET Core SDK
@@ -142,6 +144,11 @@ runs:
           sudo gem install jekyll
           sudo apt-get install graphviz
 
+    - uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: '3.3' # Not needed with a .ruby-version file
+        bundler-cache: true # runs 'bundle install' and caches installed gems automatically
+        
       # Creation de l'IG
       - name: 🏃‍♂️ Run IG Publisher
         shell: bash          
@@ -161,7 +168,6 @@ runs:
         shell: bash          
         run : |
               cd  testscript
-              gem install bundler
               bundle install
               bundle exec bin/testscript_generator read
 
