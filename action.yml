@@ -149,6 +149,21 @@ runs:
               cd  ${{ inputs.repo_ig}}
               java -Xmx8192m -jar ../publisher.jar  -ig . -tx  ${{ inputs.termino_server }}
 
+     # Get testscript-generator
+      - name: Get testscript-generator
+        uses: actions/checkout@main
+        with:
+          persist-credentials: false
+          repository: fhir-crucible/testscript-generator
+          path: testscript     
+
+      - name: 🏃‍♂️ Run testscript-generator
+        shell: bash          
+        run : |
+              cd  testscript
+              bundle install
+              bundle exec bin/testscript_generator read
+
       #Install de python pour la génération du graph plantUml
       - name: Setup Python # Set Python version
         if: ${{ inputs.generate_plantuml == 'true' }}  
