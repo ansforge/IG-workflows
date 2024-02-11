@@ -11,17 +11,6 @@ GitHub Action pour les IG FHIR :
   - Diagramme de class plantuml généré à partir des données de l'IG
   - Rapport de validation du validator_cli
 
-## Fonctionnalités
-
-### Sushi
-
-### Tests avec le validator_cli
-
-### Génaration du diagramme plantUML de l'IG
-
-### Publication sur les pages de github 
-
-### Génération de release pour publication
 
 ## Usage
 
@@ -113,4 +102,50 @@ jobs:
 | publish_path_outpout               | string | ''                 | Chemin de publication de l'IG                 |
 | publish_repo_token          | string  |                   | Token pour publier sur le repo GIT de publication                                                                                                                                                                                                                                                                  |
 | generate_plantuml          | string  | false                  | Génération de diagramme plantuml                                                                                                                                                                                                                                                                  |
+
+
+
+
+
+## Fonctionnalités
+
+### Sushi
+
+Principes  :
+- Installation de sushi
+- Lancement de sushi
+- Résulats accéssibles via le terminal
+  - ![image](https://github.com/ansforge/IG-workflows/assets/101335975/e8c0b772-b6a9-4006-be8e-403319996346)
+
+
+### Tests avec le validator_cli
+
+Principes : 
+- Téléchargement de la dernière version du valitor_cli
+- Lancemennt des tests
+- Affichage des resultats dans la sortie de l'action
+- Publication des résultats dans les pages github (branch gh-pages)
+
+### Génaration du diagramme plantUML de l'IG
+
+Principes : 
+- Installation de python
+- Lancement du script python de génération :
+  - Requête sqlite sur la base de données sqlite générée par l'IG
+  - Création du fichier plantuml
+  - Génération du diagramme png et plantuml
+- Publication des diagrammes dans les pages github (branch gh-pages)
+
+### Publication sur les pages de github 
+
+Les élément générés sont publiés sur les pages github (branch gh-pages) avec une sous-aborescence avec le nom de la branche : 
+ ![image](https://github.com/ansforge/IG-workflows/assets/101335975/660a6558-525b-4361-bbde-e74de4c1525d)
+
+Les pages sont accéssible via : De publier les pages : https://ansforge.github.io/{nom du repo}/ig/{nom de la branche} 
+### Génération de release pour publication
+Principes : 
+- Création de la version courrante
+- Creation la release pour publication
+- Push de la release dans le repo distant
+
 
