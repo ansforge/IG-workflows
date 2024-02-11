@@ -1,0 +1,282 @@
+name: "FHIR IG Action"
+description: "Worklow pour les IG de l'ANS"
+inputs:
+  github_page_token:
+    description: 'Clé GITHUB_TOKEN pour pousser dans les pages github (branche gh-pages).'
+    required: false
+  github_page:
+    description: "Publication de l'IG sur les pages gh-pages."
+    default: "false"
+    required: false    
+  generate_plantuml:
+    description: 'Génération  du diagramme plant uml dans gh-pages.'
+    default: "false"
+    required: false        
+  repo_ig:
+    description: "Chemin d'accés au repertoire de l'IG"
+    required: true
+  bake:
+    description: "Permet de mettre reprendre les projets annuaire et FrCore de simplifier."
+    required: false
+    default: "false"
+  nos:
+    description: "Permet d'installer le nos a partir du ZIP afin de faire des verifications sur les JDV."
+    required: false
+    default: "false"
+  validator_cli:
+    description: "Permet de lancer le validator CLI et d'accéder au résultat de validation dans la sortie du workflow."
+    required: false
+    default: "false"
+  termino_server:
+    description: "Url du serveur de terminologie."
+    required: false
+    default: "http://tx.fhir.org"
+  publish_repo:
+    description: "Repo de publciation de l'IG pour la publication des releases."
+    required: false
+    default: ""
+  publish_repo_token:
+    description: "Token pour publier sur le repo de publication."
+    required: false
+    default: ""
+  publish_path_outpout:
+    description: "Chemin de publication de l'IG."
+    required: false
+    default: ""    
+runs:
+  using: "composite"
+  steps:
+
+      #Install  JAVA
+      - name: Setup Java JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'microsoft'
+          java-version: '17'    
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          
+      # Install .NET runtime la methode bake   
+      - name: Setup .NET Core SDK
+        if: ${{ inputs.bake == 'true' }}       
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '6.x.x'
+
+      #Install  Firely pour la méthode bake   
+      - name : firely 
+        if: ${{ inputs.bake == 'true' }}   
+        shell: bash      
+        run : dotnet tool install --global Firely.Terminal --version 3.0.0  
+
+      #Verif de la configuration pour la méthode bake
+      - name: Check Firely Terminal Version
+        if: ${{ inputs.bake == 'true' }} 
+        shell: bash      
+        run: |
+          CHECK_FIRELY_TERMINAL_VERSION=$(fhir -v | tr '\n' ' ') # Print everything in a single line
+          echo "FIRELY_TERMINAL_VERSION: $CHECK_FIRELY_TERMINAL_VERSION"
+
+      #Install de l'annuiare depuis simplifier (methode bake)
+      - name: Run bake  ans.annuaire.fhir.r4
+        if: ${{ inputs.bake == 'true' }}   
+        shell: bash            
+        run: |
+          fhir install ans.annuaire.fhir.r4 0.2.0
+          fhir bake --package ans.annuaire.fhir.r4
+
+      #Install du frcore depuis simplifier (methode bake)      
+      - name: Run bake hl7.fhir.fr.core
+        if: ${{ inputs.bake == 'true' }}       
+        shell: bash            
+        run: |
+          fhir install hl7.fhir.fr.core 1.1.0
+          fhir bake --package hl7.fhir.fr.core
+
+     #Patch sur l'installation du frcore 
+      - name: 📥 Download pacth fr-core
+        if: ${{ inputs.bake == 'true' }}    
+        shell: bash            
+        run: |
+          wget -q https://github.com/ansforge/FIG_ans.workflows/blob/main/dependency/hl7.fhir.fr.core-1.1.0.tgz?raw=true -O ./hl7.fhir.fr.core-1.1.0.tgz
+          cp hl7.fhir.fr.core-1.1.0.tgz ~/.fhir/packages
+          tar -xzvf ~/.fhir/packages/hl7.fhir.fr.core-1.1.0.tgz     
+
+      #Install du NOS à partir du ZIP   
+      - name : Install NOS
+        if: ${{ inputs.nos == 'true' }}    
+        shell: bash       
+        run: |
+          mkdir /home/runner/.fhir/packages/nos
+          wget -q https://esante.gouv.fr/sites/default/files/media_entity/documents/NOS-Fichiers_Publics-Versions_json_fhir.zip
+          unzip NOS-Fichiers_Publics-Versions_json_fhir.zip -d /home/runner/.fhir/packages/nos         
+
+      #Install de sushi    
+      - name: Install modules
+        shell: bash            
+        run: npm install -g fsh-sushi
+
+      #Lancement de sushi 
+      - name: Run sushi
+        shell: bash      
+        run: sushi  ${{ inputs.repo_ig}}
+
+
+      # Téléchargement de la dernière version du publisher
+      - name: 📥 Download IG Publisher
+        shell: bash          
+        run: wget -q https://github.com/HL7/fhir-ig-publisher/releases/latest/download/publisher.jar
+        
+      #Récupération du nom de la branche afin de publier dans gh-pages
+      - name: Get branch names
+        if: ${{ inputs.github_page == 'true' }}        
+        id: branch-name
+        uses: tj-actions/branch-names@v8
+
+      #Install ruby, jekyll, graphviz
+      - name: Install ruby, jekyll and graphviz        
+        shell: bash          
+        run: |
+          sudo apt-get install ruby-full
+          sudo gem install jekyll
+          sudo apt-get install graphviz
+
+      # Creation de l'IG
+      - name: 🏃‍♂️ Run IG Publisher
+        shell: bash          
+        run : |
+              cd  ${{ inputs.repo_ig}}
+              java -Xmx8192m -jar ../publisher.jar  -ig . -tx  ${{ inputs.termino_server }}
+
+      #Install de python pour la génération du graph plantUml
+      - name: Setup Python # Set Python version
+        if: ${{ inputs.generate_plantuml == 'true' }}  
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10' 
+
+      #Creation du graphique plantUML et publication dans gh-pages
+      - name: Run script plantuml
+        if: ${{ inputs.generate_plantuml == 'true' }}        
+        shell: bash   
+        continue-on-error: true
+        run : |
+              mkdir ./plantuml
+              python ${{ github.action_path }}/PlantUML/construct.py './${{ inputs.repo_ig}}/output/package.db' './plantuml/graph.puml'
+              wget -q https://github.com/plantuml/plantuml/releases/download/v1.2024.0/plantuml-1.2024.0.jar
+              java -jar plantuml-1.2024.0.jar  -tsvg -tpng  "./plantuml"
+
+
+      # Publication dans gh-pages du graph plantUML
+      - name: 🚀 Deploy to GitHub-Pages
+        if: ${{ inputs.github_page == 'true' }}          
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ inputs.github_page_token }}
+          publish_dir: ./plantuml
+          destination_dir: ${{ steps.branch-name.outputs.current_branch }}/plantuml
+          commit_message: ' ${{ github.event.head_commit.message }}'
+
+
+
+      # Publication de l'IG dans gh-pages
+      - name: 🚀 Deploy to GitHub-Pages
+        if: ${{ inputs.github_page == 'true' }}          
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ inputs.github_page_token }}
+          publish_dir: ./${{ inputs.repo_ig}}/output
+          destination_dir: ${{ steps.branch-name.outputs.current_branch }}/ig
+          exclude_assets: '**.zip,**.tgz,**.pack'
+          commit_message: ' ${{ github.event.head_commit.message }}'
+          
+
+      #Téléchargement de la dernière version du validator_cli
+      - name: 📥 Download test tools
+        if: ${{ inputs.validator_cli == 'true' }}   
+        shell: bash            
+        run: |
+          wget -q https://github.com/hapifhir/org.hl7.fhir.core/releases/latest/download/validator_cli.jar
+
+
+      #Lancement des tests avec le validator_cli    
+      - name: ✔️ Run tests
+        if: ${{ inputs.validator_cli == 'true' }}  
+        shell: bash       
+        run: |
+              mkdir ./validator_cli
+              cd  ${{ inputs.repo_ig}}
+              java -jar ../validator_cli.jar ./fsh-generated/resources -tx  ${{ inputs.termino_server }} -ig ans.annuaire.fhir.r4#0.2.0 -ig hl7.fhir.fr.core#1.1.0 -ig /home/runner/.fhir/packages/nos -recurse -verbose -output-style compact -output ../validator_cli/rapport.html
+        continue-on-error: true
+
+      #Creation de la sortie du validator_cli dans le workflow
+      - name: Generate list using Markdown
+        if: ${{ inputs.validator_cli == 'true' }}     
+        shell: bash       
+        run: |
+          echo "### Rapport de validation (validator_cli)  :rocket:" >> $GITHUB_STEP_SUMMARY
+          cat ./validator_cli/rapport.html >> $GITHUB_STEP_SUMMARY
+
+      # Publication dans gh-pages du rapport de validator_cli
+      - name: 🚀 Deploy to GitHub-Pages
+        if: ${{ inputs.github_page == 'true' }}          
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ inputs.github_page_token }}
+          publish_dir: ./validator_cli
+          destination_dir: ${{ steps.branch-name.outputs.current_branch }}/validator_cli
+          commit_message: ' ${{ github.event.head_commit.message }}'          
+
+#####Release###########
+
+      #Récupération du repo de publication
+      - name: Get publish_repo
+        if: ${{ inputs.publish_repo != '' }}       
+        uses: actions/checkout@main
+        with:
+          persist-credentials: false
+          repository:  ${{ inputs.publish_repo}}
+          path: IG-website-release
+
+      #Initialisation du repo
+      - name: Init   publish_repo  
+        if: ${{ inputs.publish_repo != '' }}             
+        shell: bash        
+        run: |
+          cd  IG-website-release
+          git submodule update --init --recursive
+
+      #Lancement de la release dans le repo
+      - name: 🏃‍♂️ Run  Publisher to release
+        if: ${{ inputs.publish_repo != '' }}  
+        shell: bash                
+        run :   java -jar publisher.jar -go-publish  -source  ${{ inputs.repo_ig}}  -web  ${{  inputs.publish_path_outpout }} -registry ./IG-website-release/ig-registry/fhir-ig-list.json -history ./IG-website-release/fhir-ig-history-template -templates ./IG-website-release/templates 
+                
+
+      #Commit de la release
+      - name: Commit change
+        if: ${{ inputs.publish_repo != '' }}  
+        shell: bash              
+        run: |
+          cd  IG-website-release
+          git config user.name github-actions
+          git config user.email github-actions@esante.gouv.fr
+          git add -A 
+          git commit -m updated
+
+      #Push de la release
+      - name: Push changes 
+        if: ${{ inputs.publish_repo != '' }}          
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ inputs.publish_repo_token}}
+          directory: IG-website-release
+          repository : ${{ inputs.publish_repo}}
+
+
+branding:
+  icon: 'check'
+  color: 'blue'
+
+          
