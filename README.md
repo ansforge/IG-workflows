@@ -144,6 +144,8 @@ Principes :
   - Création du fichier plantuml
   - Génération du diagramme png et plantuml
 - Publication des diagrammes dans les pages github (branch gh-pages)
+  - ![image](https://github.com/ansforge/IG-workflows/assets/101335975/34ac663a-3c35-4da5-b7a1-883b20881eea)
+
 
 ### Publication sur les pages de github 
 
