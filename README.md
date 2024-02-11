@@ -1,12 +1,15 @@
-# GitHub Action pour la publication d'IG
+# GitHub Action pour la publication d'IG FHIR
 
 GitHub Action pour les IG FHIR : 
 - Lancement de sushi
 - Tests avec le validateur_cli 
 - Incorporation des projets de simplifier (Methode bake)
-- Publication sur les pages github
 - Publication des releases sur un repo github
 - Génération du diagramme plantuml à partir de des données de l'IG
+- Publication sur les pages github :
+  - IG
+  - Diagramme de class plantuml généré à partir des données de l'IG
+  - Rapport de validation du validator_cli
 
 ## Usage
 
