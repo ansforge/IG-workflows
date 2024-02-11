@@ -161,6 +161,7 @@ runs:
         shell: bash          
         run : |
               cd  testscript
+              gem install bundler
               bundle install
               bundle exec bin/testscript_generator read
 
