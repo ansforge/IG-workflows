@@ -225,7 +225,7 @@ runs:
         with:
           github_token: ${{ inputs.github_page_token }}
           publish_dir: ./validator_cli
-          destination_dir: ${{ steps.branch-name.outputs.current_branch }}/plantuml
+          destination_dir: ${{ steps.branch-name.outputs.current_branch }}/validator_cli
           commit_message: ' ${{ github.event.head_commit.message }}'          
 
 #####Release###########
