@@ -11,6 +11,18 @@ GitHub Action pour les IG FHIR :
   - Diagramme de class plantuml généré à partir des données de l'IG
   - Rapport de validation du validator_cli
 
+## Fonctionnalités
+
+### Sushi
+
+### Tests avec le validator_cli
+
+### Génaration du diagramme plantUML de l'IG
+
+### Publication sur les pages de github 
+
+### Génération de release pour publication
+
 ## Usage
 
 ### Example Workflow file
