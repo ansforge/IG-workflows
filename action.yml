@@ -11,7 +11,11 @@ inputs:
   generate_plantuml:
     description: 'Génération  du diagramme plant uml dans gh-pages.'
     default: "false"
-    required: false        
+    required: false   
+  generate_testscript:
+    description: "Génération  des fichiers testsscripts à partir de l'ig."
+    default: "false"
+    required: false  
   repo_ig:
     description: "Chemin d'accés au repertoire de l'IG"
     required: true
@@ -47,6 +51,12 @@ runs:
   using: "composite"
   steps:
 
+      #Creation du repertoire to_publish
+      - name : Create to_publish   
+        shell: bash      
+        run : mkdir to_publish
+
+
       #Install  JAVA
       - name: Setup Java JDK
         uses: actions/setup-java@v4
@@ -56,6 +66,8 @@ runs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+
+
           
       # Install .NET runtime la methode bake   
       - name: Setup .NET Core SDK
@@ -134,20 +146,52 @@ runs:
         id: branch-name
         uses: tj-actions/branch-names@v8
 
-      #Install ruby, jekyll, graphviz
-      - name: Install ruby, jekyll and graphviz        
+      #Install ruby,
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+          bundler-cache: true # runs 'bundle install' and caches installed gems automatically
+          
+      #Install  jekyll, graphviz
+      - name: Install  jekyll and graphviz        
         shell: bash          
         run: |
-          sudo apt-get install ruby-full
           sudo gem install jekyll
           sudo apt-get install graphviz
 
+
+        
       # Creation de l'IG
       - name: 🏃‍♂️ Run IG Publisher
         shell: bash          
         run : |
               cd  ${{ inputs.repo_ig}}
               java -Xmx8192m -jar ../publisher.jar  -ig . -tx  ${{ inputs.termino_server }}
+              mkdir ../to_publish/ig
+              cp -r ./output/.  ../to_publish/ig
+
+     # Get testscript-generator
+      - name: Get testscript-generator
+        if: ${{ inputs.generate_testscript == 'true' }} 
+        uses: actions/checkout@main
+        with:
+          persist-credentials: false
+          repository: M-Priour/testscript-generator
+          path: testscript     
+
+      - name: 🏃‍♂️ Run testscript-generator
+        shell: bash      
+        if: ${{ inputs.generate_testscript == 'true' }} 
+        run : |
+              cd  testscript
+              mkdir ./igs
+              cp ../${{ inputs.repo_ig}}/output/package.tgz ./igs
+              bundle install
+              bundle exec bin/testscript_generator read mustSupport search interaction  ig_directory./igs output_path=./generated_testscripts
+              mkdir ../to_publish/testscript
+              cp -r ./generated_testscripts/.  ../to_publish/testscript
+
+
 
       #Install de python pour la génération du graph plantUml
       - name: Setup Python # Set Python version
@@ -166,31 +210,14 @@ runs:
               python ${{ github.action_path }}/PlantUML/construct.py './${{ inputs.repo_ig}}/output/package.db' './plantuml/graph.puml'
               wget -q https://github.com/plantuml/plantuml/releases/download/v1.2024.0/plantuml-1.2024.0.jar
               java -jar plantuml-1.2024.0.jar  -tsvg -tpng  "./plantuml"
+              mkdir ./to_publish/plantuml
+              cp -r ./plantuml/.  ./to_publish/plantuml
 
 
-      # Publication dans gh-pages du graph plantUML
-      - name: 🚀 Deploy to GitHub-Pages
-        if: ${{ inputs.github_page == 'true' }}          
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ inputs.github_page_token }}
-          publish_dir: ./plantuml
-          destination_dir: ${{ steps.branch-name.outputs.current_branch }}/plantuml
-          commit_message: ' ${{ github.event.head_commit.message }}'
-
-
-
-      # Publication de l'IG dans gh-pages
-      - name: 🚀 Deploy to GitHub-Pages
-        if: ${{ inputs.github_page == 'true' }}          
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ inputs.github_page_token }}
-          publish_dir: ./${{ inputs.repo_ig}}/output
-          destination_dir: ${{ steps.branch-name.outputs.current_branch }}/ig
-          exclude_assets: '**.zip,**.tgz,**.pack'
-          commit_message: ' ${{ github.event.head_commit.message }}'
           
+
+
+
 
       #Téléchargement de la dernière version du validator_cli
       - name: 📥 Download test tools
@@ -215,18 +242,21 @@ runs:
         if: ${{ inputs.validator_cli == 'true' }}     
         shell: bash       
         run: |
+          mkdir ./to_publish/validator_cli
+          cp -r ./validator_cli/.  ./to_publish/validator_cli
           echo "### Rapport de validation (validator_cli)  :rocket:" >> $GITHUB_STEP_SUMMARY
           cat ./validator_cli/rapport.html >> $GITHUB_STEP_SUMMARY
-
-      # Publication dans gh-pages du rapport de validator_cli
+          
+       
       - name: 🚀 Deploy to GitHub-Pages
         if: ${{ inputs.github_page == 'true' }}          
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ inputs.github_page_token }}
-          publish_dir: ./validator_cli
-          destination_dir: ${{ steps.branch-name.outputs.current_branch }}/validator_cli
-          commit_message: ' ${{ github.event.head_commit.message }}'          
+          publish_dir: ./to_publish
+          destination_dir: ${{ steps.branch-name.outputs.current_branch }}
+          exclude_assets: '**.zip,**.tgz,**.pack'
+          commit_message: ' ${{ github.event.head_commit.message }}'
 
 #####Release###########
 
