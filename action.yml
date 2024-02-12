@@ -172,7 +172,7 @@ runs:
               cd  testscript
               cp ../${{ inputs.repo_ig}}/output/package.tgz ./igs
               bundle install
-              bundle exec bin/testscript_generator ig_directory=../${{ inputs.repo_ig}}/output 
+              bundle exec bin/testscript_generator ig_directory./igs 
 
       # Publication dans gh-pages des scripts
       - name: 🚀 Deploy to GitHub-Pages
