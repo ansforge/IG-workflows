@@ -170,6 +170,7 @@ runs:
         shell: bash          
         run : |
               cd  testscript
+              mkdir ./igs
               cp ../${{ inputs.repo_ig}}/output/package.tgz ./igs
               bundle install
               bundle exec bin/testscript_generator ig_directory./igs output_path=./generated_testscripts
