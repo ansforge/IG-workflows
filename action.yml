@@ -220,7 +220,7 @@ runs:
               wget -q https://github.com/plantuml/plantuml/releases/download/v1.2024.0/plantuml-1.2024.0.jar
               java -jar plantuml-1.2024.0.jar  -tsvg -tpng  "./plantuml"
               mkdir ../to_publish/plantuml
-              cp -r ./plantuml/.  ../to_publish/plantuml
+              cp -r ./plantuml/.  ./to_publish/plantuml
 
 
       # Publication dans gh-pages du graph plantUML
