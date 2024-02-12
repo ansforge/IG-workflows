@@ -168,7 +168,7 @@ runs:
               cd  ${{ inputs.repo_ig}}
               java -Xmx8192m -jar ../publisher.jar  -ig . -tx  ${{ inputs.termino_server }}
               mkdir ../to_publish/ig
-              cp ./output/.  ../to_publish/ig
+              cp -r ./output/.  ../to_publish/ig
 
      # Get testscript-generator
       - name: Get testscript-generator
@@ -189,7 +189,7 @@ runs:
               bundle install
               bundle exec bin/testscript_generator read mustSupport search interaction  ig_directory./igs output_path=./generated_testscripts
               mkdir ../to_publish/testscript
-              cp ./generated_testscripts/.  ../to_publish/testscript
+              cp -r ./generated_testscripts/.  ../to_publish/testscript
 
       # Publication dans gh-pages des scripts
       #- name: 🚀 Deploy to GitHub-Pages
@@ -220,7 +220,7 @@ runs:
               wget -q https://github.com/plantuml/plantuml/releases/download/v1.2024.0/plantuml-1.2024.0.jar
               java -jar plantuml-1.2024.0.jar  -tsvg -tpng  "./plantuml"
               mkdir ../to_publish/plantuml
-              cp ./plantuml/.  ../to_publish/plantuml
+              cp -r ./plantuml/.  ../to_publish/plantuml
 
 
       # Publication dans gh-pages du graph plantUML
