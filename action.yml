@@ -173,7 +173,7 @@ runs:
               mkdir ./igs
               cp ../${{ inputs.repo_ig}}/output/package.tgz ./igs
               bundle install
-              bundle exec bin/testscript_generator read  ig_directory./igs output_path=./generated_testscripts
+              bundle exec bin/testscript_generator read mustSupport search interaction  ig_directory./igs output_path=./generated_testscripts
 
       # Publication dans gh-pages des scripts
       - name: 🚀 Deploy to GitHub-Pages
