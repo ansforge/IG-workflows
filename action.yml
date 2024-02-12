@@ -136,18 +136,20 @@ runs:
         id: branch-name
         uses: tj-actions/branch-names@v8
 
-      #Install ruby, jekyll, graphviz
-      - name: Install ruby, jekyll and graphviz        
+      #Install ruby,
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+          bundler-cache: true # runs 'bundle install' and caches installed gems automatically
+          
+      #Install  jekyll, graphviz
+      - name: Install  jekyll and graphviz        
         shell: bash          
         run: |
-          sudo apt-get install ruby-full
           sudo gem install jekyll
           sudo apt-get install graphviz
 
-      - uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: '2.7.1' # Not needed with a .ruby-version file
-          bundler-cache: true # runs 'bundle install' and caches installed gems automatically
+
         
       # Creation de l'IG
       - name: 🏃‍♂️ Run IG Publisher
@@ -170,6 +172,17 @@ runs:
               cd  testscript
               bundle install
               bundle exec bin/testscript_generator ig_directory=./${{ inputs.repo_ig}}/output 
+
+      # Publication dans gh-pages des scripts
+      - name: 🚀 Deploy to GitHub-Pages
+        if: ${{ inputs.github_page == 'true' }}          
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ inputs.github_page_token }}
+          publish_dir: ./testscript/generated_testscripts
+          destination_dir: ${{ steps.branch-name.outputs.current_branch }}/testscript
+          commit_message: ' ${{ github.event.head_commit.message }}'
+
 
       #Install de python pour la génération du graph plantUml
       - name: Setup Python # Set Python version
