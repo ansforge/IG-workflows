@@ -191,15 +191,6 @@ runs:
               mkdir ../to_publish/testscript
               cp -r ./generated_testscripts/.  ../to_publish/testscript
 
-      # Publication dans gh-pages des scripts
-      #- name: 🚀 Deploy to GitHub-Pages
-      #  if: ${{ inputs.github_page == 'true' }}          
-      #  uses: peaceiris/actions-gh-pages@v3
-      #  with:
-      #    github_token: ${{ inputs.github_page_token }}
-      #    publish_dir: ./testscript/generated_testscripts
-      #    destination_dir: ${{ steps.branch-name.outputs.current_branch }}/testscript
-      #    commit_message: ' ${{ github.event.head_commit.message }}'
 
 
       #Install de python pour la génération du graph plantUml
@@ -219,32 +210,10 @@ runs:
               python ${{ github.action_path }}/PlantUML/construct.py './${{ inputs.repo_ig}}/output/package.db' './plantuml/graph.puml'
               wget -q https://github.com/plantuml/plantuml/releases/download/v1.2024.0/plantuml-1.2024.0.jar
               java -jar plantuml-1.2024.0.jar  -tsvg -tpng  "./plantuml"
-              mkdir ../to_publish/plantuml
+              mkdir ./to_publish/plantuml
               cp -r ./plantuml/.  ./to_publish/plantuml
 
 
-      # Publication dans gh-pages du graph plantUML
-      ##- name: 🚀 Deploy to GitHub-Pages
-      #  if: ${{ inputs.github_page == 'true' }}          
-      #  uses: peaceiris/actions-gh-pages@v3
-      #  with:
-      #    github_token: ${{ inputs.github_page_token }}
-      #    publish_dir: ./plantuml
-      #    destination_dir: ${{ steps.branch-name.outputs.current_branch }}/plantuml
-      #    commit_message: ' ${{ github.event.head_commit.message }}'
-
-
-
-      # Publication de l'IG dans gh-pages
-      #- name: 🚀 Deploy to GitHub-Pages
-      #  if: ${{ inputs.github_page == 'true' }}          
-      #  uses: peaceiris/actions-gh-pages@v3
-      #  with:
-      #    github_token: ${{ inputs.github_page_token }}
-      #    publish_dir: ./${{ inputs.repo_ig}}/output
-      #    destination_dir: ${{ steps.branch-name.outputs.current_branch }}/ig
-      #    exclude_assets: '**.zip,**.tgz,**.pack'
-      #    commit_message: ' ${{ github.event.head_commit.message }}'
           
 
 
@@ -266,8 +235,6 @@ runs:
               mkdir ./validator_cli
               cd  ${{ inputs.repo_ig}}
               java -jar ../validator_cli.jar ./fsh-generated/resources -tx  ${{ inputs.termino_server }} -ig ans.annuaire.fhir.r4#0.2.0 -ig hl7.fhir.fr.core#1.1.0 -ig /home/runner/.fhir/packages/nos -recurse -verbose -output-style compact -output ../validator_cli/rapport.html
-              mkdir ../to_publish/validator_cli
-              cp -r ../validator_cli/.  ../to_publish/validator_cli
         continue-on-error: true
 
       #Creation de la sortie du validator_cli dans le workflow
@@ -275,20 +242,12 @@ runs:
         if: ${{ inputs.validator_cli == 'true' }}     
         shell: bash       
         run: |
+          mkdir ./to_publish/validator_cli
+          cp -r ./validator_cli/.  ./to_publish/validator_cli
           echo "### Rapport de validation (validator_cli)  :rocket:" >> $GITHUB_STEP_SUMMARY
           cat ./validator_cli/rapport.html >> $GITHUB_STEP_SUMMARY
-
-      # Publication dans gh-pages du rapport de validator_cli
-      #- name: 🚀 Deploy to GitHub-Pages
-      #  if: ${{ inputs.github_page == 'true' }}          
-      #  uses: peaceiris/actions-gh-pages@v3
-      #  with:
-      #    github_token: ${{ inputs.github_page_token }}
-      #    publish_dir: ./validator_cli
-      #    destination_dir: ${{ steps.branch-name.outputs.current_branch }}/validator_cli
-      #    commit_message: ' ${{ github.event.head_commit.message }}'          
-
-
+          
+       
       - name: 🚀 Deploy to GitHub-Pages
         if: ${{ inputs.github_page == 'true' }}          
         uses: peaceiris/actions-gh-pages@v3
