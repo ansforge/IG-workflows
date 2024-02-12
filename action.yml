@@ -11,7 +11,11 @@ inputs:
   generate_plantuml:
     description: 'Génération  du diagramme plant uml dans gh-pages.'
     default: "false"
-    required: false        
+    required: false   
+  generate_testscript:
+    description: 'Génération  des fichiers testsscripts à partir de l'ig.'
+    default: "false"
+    required: false  
   repo_ig:
     description: "Chemin d'accés au repertoire de l'IG"
     required: true
@@ -46,6 +50,12 @@ inputs:
 runs:
   using: "composite"
   steps:
+
+      #Creation du repertoire to_publish
+      - name : Create to_publish   
+        shell: bash      
+        run : mkdir to_publish
+
 
       #Install  JAVA
       - name: Setup Java JDK
@@ -157,9 +167,12 @@ runs:
         run : |
               cd  ${{ inputs.repo_ig}}
               java -Xmx8192m -jar ../publisher.jar  -ig . -tx  ${{ inputs.termino_server }}
+              mkdir ../to_publish/ig
+              cp ./output/.  ../to_publish/ig
 
      # Get testscript-generator
       - name: Get testscript-generator
+        if: ${{ inputs.generate_testscript == 'true' }} 
         uses: actions/checkout@main
         with:
           persist-credentials: false
@@ -167,23 +180,26 @@ runs:
           path: testscript     
 
       - name: 🏃‍♂️ Run testscript-generator
-        shell: bash          
+        shell: bash      
+        if: ${{ inputs.generate_testscript == 'true' }} 
         run : |
               cd  testscript
               mkdir ./igs
               cp ../${{ inputs.repo_ig}}/output/package.tgz ./igs
               bundle install
               bundle exec bin/testscript_generator read mustSupport search interaction  ig_directory./igs output_path=./generated_testscripts
+              mkdir ../to_publish/testscript
+              cp ./generated_testscripts/.  ../to_publish/testscript
 
       # Publication dans gh-pages des scripts
-      - name: 🚀 Deploy to GitHub-Pages
-        if: ${{ inputs.github_page == 'true' }}          
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ inputs.github_page_token }}
-          publish_dir: ./testscript/generated_testscripts
-          destination_dir: ${{ steps.branch-name.outputs.current_branch }}/testscript
-          commit_message: ' ${{ github.event.head_commit.message }}'
+      #- name: 🚀 Deploy to GitHub-Pages
+      #  if: ${{ inputs.github_page == 'true' }}          
+      #  uses: peaceiris/actions-gh-pages@v3
+      #  with:
+      #    github_token: ${{ inputs.github_page_token }}
+      #    publish_dir: ./testscript/generated_testscripts
+      #    destination_dir: ${{ steps.branch-name.outputs.current_branch }}/testscript
+      #    commit_message: ' ${{ github.event.head_commit.message }}'
 
 
       #Install de python pour la génération du graph plantUml
@@ -203,31 +219,44 @@ runs:
               python ${{ github.action_path }}/PlantUML/construct.py './${{ inputs.repo_ig}}/output/package.db' './plantuml/graph.puml'
               wget -q https://github.com/plantuml/plantuml/releases/download/v1.2024.0/plantuml-1.2024.0.jar
               java -jar plantuml-1.2024.0.jar  -tsvg -tpng  "./plantuml"
+              mkdir ../to_publish/plantuml
+              cp ./plantuml/.  ../to_publish/plantuml
 
 
       # Publication dans gh-pages du graph plantUML
-      - name: 🚀 Deploy to GitHub-Pages
-        if: ${{ inputs.github_page == 'true' }}          
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ inputs.github_page_token }}
-          publish_dir: ./plantuml
-          destination_dir: ${{ steps.branch-name.outputs.current_branch }}/plantuml
-          commit_message: ' ${{ github.event.head_commit.message }}'
+      ##- name: 🚀 Deploy to GitHub-Pages
+      #  if: ${{ inputs.github_page == 'true' }}          
+      #  uses: peaceiris/actions-gh-pages@v3
+      #  with:
+      #    github_token: ${{ inputs.github_page_token }}
+      #    publish_dir: ./plantuml
+      #    destination_dir: ${{ steps.branch-name.outputs.current_branch }}/plantuml
+      #    commit_message: ' ${{ github.event.head_commit.message }}'
 
 
 
       # Publication de l'IG dans gh-pages
+      #- name: 🚀 Deploy to GitHub-Pages
+      #  if: ${{ inputs.github_page == 'true' }}          
+      #  uses: peaceiris/actions-gh-pages@v3
+      #  with:
+      #    github_token: ${{ inputs.github_page_token }}
+      #    publish_dir: ./${{ inputs.repo_ig}}/output
+      #    destination_dir: ${{ steps.branch-name.outputs.current_branch }}/ig
+      #    exclude_assets: '**.zip,**.tgz,**.pack'
+      #    commit_message: ' ${{ github.event.head_commit.message }}'
+          
+
       - name: 🚀 Deploy to GitHub-Pages
         if: ${{ inputs.github_page == 'true' }}          
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ inputs.github_page_token }}
-          publish_dir: ./${{ inputs.repo_ig}}/output
-          destination_dir: ${{ steps.branch-name.outputs.current_branch }}/ig
+          publish_dir: ./to_publish
+          destination_dir: ${{ steps.branch-name.outputs.current_branch }}
           exclude_assets: '**.zip,**.tgz,**.pack'
           commit_message: ' ${{ github.event.head_commit.message }}'
-          
+
 
       #Téléchargement de la dernière version du validator_cli
       - name: 📥 Download test tools
