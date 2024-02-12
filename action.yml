@@ -161,7 +161,7 @@ runs:
         uses: actions/checkout@main
         with:
           persist-credentials: false
-          repository: fhir-crucible/testscript-generator
+          repository: M-Priour/testscript-generator
           path: testscript     
 
       - name: 🏃‍♂️ Run testscript-generator
