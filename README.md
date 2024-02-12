@@ -8,6 +8,7 @@ GitHub Action pour les IG FHIR :
 - [Incorporation des projets de simplifier (Methode bake)](#Incorporation-des-projets-de-simplifier)
 - [Publication des releases sur un repo github](#Génération-de-release-pour-publication)
 - [Génération du diagramme plantuml à partir de des données de l'IG](#Génaration-du-diagramme-plantUML-de-lIG)
+- [Génération des testscripts avec le projet testscript-generator](#Génération-des-fichiers-testscripts)
 - [Publication sur les pages github](#Publication-sur-les-pages-de-github) :
   - IG
   - Diagramme de class plantuml généré à partir des données de l'IG
@@ -18,7 +19,7 @@ GitHub Action pour les IG FHIR :
 
 ### Example Workflow file
 
-Un exemple pour publier sur les pages github avec lancement des tests
+Un exemple pour publier sur les pages github avec lancement des tests, generation du diagramme pantuml et des testscripts
 
 ```yaml
 jobs:
@@ -40,6 +41,7 @@ jobs:
           publish_repo_token :  ${{ secrets.ANS_IG_API_TOKEN }}
           publish_path_outpout : "./IG-website-release/www/ig/fhir"
           generate_plantuml : "true"
+          generate_testscript : "true"
 ```
 Un exemple pour publier une release sur le repo "ansforge/IG-website-release" dans les ig/fhir
 
@@ -104,6 +106,7 @@ jobs:
 | publish_path_outpout               | string | ''                 | Chemin de publication de l'IG                 |
 | publish_repo_token          | string  |                   | Token pour publier sur le repo GIT de publication                                                                                                                                                                                                                                                                  |
 | generate_plantuml          | string  | false                  | Génération de diagramme plantuml                                                                                                                                                                                                                                                                  |
+| generate_testscript          | string  | false                  | Génération des fichiers testscripts                                                                                                                                                                                                                                                                  |
 
 
 
@@ -135,7 +138,7 @@ Principes :
 - Affichage des resultats dans la sortie de l'action
 - Publication des résultats dans les pages github (branch gh-pages)
 
-### Génaration du diagramme plantUML de l'IG
+### Génération du diagramme plantUML de l'IG
 
 Principes : 
 - Installation de python
@@ -146,6 +149,14 @@ Principes :
 - Publication des diagrammes dans les pages github (branch gh-pages)
   - ![image](https://github.com/ansforge/IG-workflows/assets/101335975/34ac663a-3c35-4da5-b7a1-883b20881eea)
 
+### Génaration des fichiers testscripts
+
+Principes : 
+- Installation du projet testscript-generator
+- Lancement de la génération des testscripts :
+  - bundle exec bin/testscript_generator read mustSupport search interaction 
+- Publication des testscriots dans les pages github (branch gh-pages)
+  - Les fichiers sont présents dans le sous repertoire testscript
 
 ### Publication sur les pages de github 
 
