@@ -29,7 +29,7 @@ jobs:
       - uses: actions/checkout@v4
         with:      
           path: igSource
-      - uses: ansforge/IG-workflows@v0.1.0
+      - uses: ansforge/IG-workflows@v0.2.0
         with:      
           repo_ig: "./igSource"   
           github_page: "true"
@@ -53,7 +53,7 @@ jobs:
       - uses: actions/checkout@v3
         with:      
           path: igSource
-      - uses: ansforge/IG-workflows@v0.1.0
+      - uses: ansforge/IG-workflows@v0.2.0
         with:      
           repo_ig: "./igSource"   
           github_page: "true"
@@ -79,7 +79,7 @@ jobs:
       - uses: actions/checkout@v3
         with:      
           path: igSource
-      - uses: ansforge/IG-workflows@v0.1.0
+      - uses: ansforge/IG-workflows@v0.2.0
         with:      
           repo_ig: "./igSource"   
           github_page: "true"
