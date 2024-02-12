@@ -149,7 +149,7 @@ Principes :
 - Publication des diagrammes dans les pages github (branch gh-pages)
   - ![image](https://github.com/ansforge/IG-workflows/assets/101335975/34ac663a-3c35-4da5-b7a1-883b20881eea)
 
-### Génaration des fichiers testscripts
+### Génération des fichiers testscripts
 
 Principes : 
 - Installation du projet testscript-generator
