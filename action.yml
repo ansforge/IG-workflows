@@ -169,7 +169,7 @@ runs:
         run : |
               cd  testscript
               bundle install
-              bundle exec bin/testscript_generator read
+              bundle exec bin/testscript_generator ig_directory=./${{ inputs.repo_ig}}/output 
 
       #Install de python pour la génération du graph plantUml
       - name: Setup Python # Set Python version
