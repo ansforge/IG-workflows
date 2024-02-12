@@ -13,7 +13,7 @@ inputs:
     default: "false"
     required: false   
   generate_testscript:
-    description: 'Génération  des fichiers testsscripts à partir de l'ig.'
+    description: "Génération  des fichiers testsscripts à partir de l'ig."
     default: "false"
     required: false  
   repo_ig:
