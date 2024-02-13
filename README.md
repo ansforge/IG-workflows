@@ -17,7 +17,7 @@ GitHub Action pour les IG FHIR :
 
 ## Usage
 
-### Example Workflow file
+### Exemple Workflow file
 
 Un exemple pour publier sur les pages github avec lancement des tests, generation du diagramme pantuml et des testscripts
 
@@ -126,15 +126,15 @@ Principes  :
 Pour installer les dépendances à des projets simplifier, il faut utiliser la methode bake de simplifier : 
 - Installation de .NET
 - Installation du terminal firely
-- Installation des porjets :
+- Installation des projets :
   - ans.annuaire.fhir.r4
   - hl7.fhir.fr.core
 
 ### Tests avec le validator_cli
 
 Principes : 
-- Téléchargement de la dernière version du valitor_cli
-- Lancemennt des tests
+- Téléchargement de la dernière version du validator_cli
+- Lancement des tests
 - Affichage des resultats dans la sortie de l'action
 - Publication des résultats dans les pages github (branch gh-pages)
 
@@ -156,7 +156,7 @@ Principes :
 - Lancement de la génération des testscripts :
   - bundle exec bin/testscript_generator read mustSupport search interaction 
 - Publication des testscriots dans les pages github (branch gh-pages)
-  - Les fichiers sont présents dans le sous repertoire testscript
+  - Les fichiers sont présents dans le sous repertoire testscript dans la branch gh-pages
 
 ### Publication sur les pages de github 
 
@@ -166,7 +166,7 @@ Les élément générés sont publiés sur les pages github (branch gh-pages) av
 Les pages sont accéssible via : De publier les pages : https://ansforge.github.io/{nom du repo}/ig/{nom de la branche} 
 ### Génération de release pour publication
 Principes : 
-- Création de la version courrante
+- Création de la version courante
 - Creation la release pour publication
 - Push de la release dans le repo distant
 
