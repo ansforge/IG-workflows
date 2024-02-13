@@ -12,7 +12,7 @@ Veuillez indiquer une description du bug
 
 
 **Copies d'ecran**
-If applicable, add screenshots to help explain your problem.
+Copies d'ecrans permettant d'expliquer l'anomalie
 
 
 **Autres informations**
