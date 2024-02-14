@@ -37,9 +37,6 @@ jobs:
           bake: "true"
           nos: "true"
           validator_cli: "true"
-          publish_repo: "ansforge/IG-website-release"
-          publish_repo_token :  ${{ secrets.ANS_IG_API_TOKEN }}
-          publish_path_outpout : "./IG-website-release/www/ig/fhir"
           generate_plantuml : "true"
           generate_testscript : "true"
 ```
