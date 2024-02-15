@@ -20,7 +20,7 @@ jobs:
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '6.x.x'
-      
+
       # Install Java runtime (only needed if you want to run the offical HL7 Java validator)
       - name: Setup Java JDK
         uses: actions/setup-java@v3
@@ -29,7 +29,7 @@ jobs:
           java-version: '17'    
       - name : firely 
         run : dotnet tool install --global Firely.Terminal --version 3.0.0
-        
+
       - name: Check Firely Terminal Version
         run: |
           CHECK_FIRELY_TERMINAL_VERSION=$(fhir -v | tr '\n' ' ') # Print everything in a single line
@@ -43,32 +43,31 @@ jobs:
         run: |
           fhir install hl7.fhir.fr.core 1.1.0
           fhir bake --package hl7.fhir.fr.core
-
       - name: Install modules
         run: npm install -g fsh-sushi
 
       - name: Run sushi
         run: sushi .
-              
+
       # Downloads the newest version of the IG Publisher, this could probable be cached.
       - name: 📥 Download IG Publisher
         run: wget -q https://github.com/HL7/fhir-ig-publisher/releases/latest/download/publisher.jar
 
 
-      - name: Build and test with Rake        
+      - name: Install ruby, jekyll and graphviz        
         run: |
           sudo apt-get install ruby-full
           sudo gem install jekyll
-
+          sudo apt-get install graphviz
       # Builds the HTML page for the IG.
       - name: 🏃‍♂️ Run IG Publisher
         run : java -Xmx8192m -jar publisher.jar  -ig .  
 
       - name: Get branch names
         id: branch-name
-        uses: tj-actions/branch-names@v7.0.7
-          
-        
+        uses: tj-actions/branch-names@v4.3
+
+
       # Publishes the HTML page to a seperate branch in order to host it using GitHub-Pages.
       # This will overwrite the currently published HTML page.
       - name: 🚀 Deploy to GitHub-Pages
@@ -79,9 +78,3 @@ jobs:
           destination_dir: ig/${{ steps.branch-name.outputs.current_branch }}
           exclude_assets: '**.zip,**.tgz,**.pack'
           commit_message: ' ${{ github.event.head_commit.message }}'
-
-
-      # - name: show active branches
-      #   run: |
-      #     git checkout gh-pages
-      #     for branch in $(git for-each-ref --format='%(refname)' refs/heads/); do echo "${branch#"refs/heads/"}"; done
