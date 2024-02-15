@@ -3,7 +3,7 @@ name: Workflow sushi/test/Publish
 on:
   workflow_call:
   push:
-      
+
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 jobs:
@@ -11,13 +11,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    
+
       # Install .NET runtime
       - name: Setup .NET Core SDK
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '6.x.x'
-      
+
       # Install Java runtime (only needed if you want to run the offical HL7 Java validator)
       - name: Setup Java JDK
         uses: actions/setup-java@v3
@@ -26,7 +26,7 @@ jobs:
           java-version: '17'    
       - name : firely 
         run : dotnet tool install --global Firely.Terminal --version 3.0.0
-        
+
       - name: Check Firely Terminal Version
         run: |
           CHECK_FIRELY_TERMINAL_VERSION=$(fhir -v | tr '\n' ' ') # Print everything in a single line
@@ -56,12 +56,12 @@ jobs:
         run: npm install -g fsh-sushi
       - name: Run sushi
         run: sushi .
-        
+
   call-Test-Unitaire:
     needs :  Call-Sushi
     uses: ansforge/FIG_ans.workflows/.github/workflows/fhir-validator-engine.yml@main
 
-    
+
   call-Publish:
     needs :  call-Test-Unitaire
     uses: ansforge/FIG_ans.workflows/.github/workflows/gh-pages.yml@main
