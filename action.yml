@@ -106,7 +106,7 @@ runs:
           git clone https://github.com/ansforge/IG-workflows.git
           cd IG-workflows
           git checkout nr-update-deps
-          cp  -r dependency/hl7.fhir.fr.core#1.1.0 ~/.fhir/packages/hl7.fhir.fr.core#1.1.0
+          cp  -r dependency/hl7.fhir.fr.core#1.1.0 ~/.fhir/packages
           cd ..
 
       #Install du NOS à partir du ZIP   
