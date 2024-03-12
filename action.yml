@@ -103,12 +103,7 @@ runs:
         if: ${{ inputs.bake == 'true' }}    
         shell: bash            
         run: |
-          wget -q https://github.com/ansforge/FIG_ans.workflows/blob/main/dependency/hl7.fhir.fr.core#1.1.0?raw=true -O ./hl7.fhir.fr.core-1.1.0.tgz
-          cp hl7.fhir.fr.core-1.1.0.tgz ~/.fhir/packages
-          tar -xzvf ~/.fhir/packages/hl7.fhir.fr.core-1.1.0.tgz
-          mkdir ~/.fhir/packages/hl7.fhir.fr.core#1.1.0
-          mv ~/.fhir/packages/package ~/.fhir/packages/hl7.fhir.fr.core#1.1.0
-          ls  ~/.fhir/packages
+          cp  ${{ inputs.repo_ig }}/dependency/hl7.fhir.fr.core#1.1.0.tgz ~/.fhir/packages/hl7.fhir.fr.core#1.1.0
 
       #Install du NOS à partir du ZIP   
       - name : Install NOS
