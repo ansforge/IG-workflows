@@ -99,11 +99,17 @@ runs:
           fhir bake --package ans.annuaire.fhir.r4
 
      #Patch sur l'installation du frcore 
-      - name: 📥 Download patch fr-core
+      - name: 📥 Clone IG-workflows
         if: ${{ inputs.bake == 'true' }}    
         shell: bash            
         run: |
           git clone https://github.com/ansforge/IG-workflows.git
+          cp  IG-workflows/dependency/hl7.fhir.fr.core#1.1.0 ~/.fhir/packages/hl7.fhir.fr.core#1.1.0
+
+      - name: 📥 Move hl7.fhir.fr.core#1.1.0
+        if: ${{ inputs.bake == 'true' }}    
+        shell: bash            
+        run: |
           cp  IG-workflows/dependency/hl7.fhir.fr.core#1.1.0 ~/.fhir/packages/hl7.fhir.fr.core#1.1.0
 
       #Install du NOS à partir du ZIP   
