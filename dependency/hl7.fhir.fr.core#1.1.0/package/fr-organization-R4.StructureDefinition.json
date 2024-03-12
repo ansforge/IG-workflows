@@ -1315,10 +1315,6 @@
                     {
                         "identity": "rim",
                         "map": ".code"
-                    },
-                    {
-                        "identity": "servd",
-                        "map": "n/a"
                     }
                 ]
             },
@@ -1393,10 +1389,6 @@
                     {
                         "identity": "rim",
                         "map": ".code"
-                    },
-                    {
-                        "identity": "servd",
-                        "map": "n/a"
                     }
                 ]
             },
@@ -2017,10 +2009,6 @@
                     {
                         "identity": "rim",
                         "map": ".code"
-                    },
-                    {
-                        "identity": "servd",
-                        "map": "n/a"
                     }
                 ]
             },
@@ -2641,10 +2629,6 @@
                     {
                         "identity": "rim",
                         "map": ".code"
-                    },
-                    {
-                        "identity": "servd",
-                        "map": "n/a"
                     }
                 ]
             },
@@ -3490,10 +3474,6 @@
                     {
                         "identity": "rim",
                         "map": ".playedBy[classCode=Part].scoper"
-                    },
-                    {
-                        "identity": "servd",
-                        "map": "n/a"
                     }
                 ]
             },
