@@ -90,8 +90,8 @@ runs:
           CHECK_FIRELY_TERMINAL_VERSION=$(fhir -v | tr '\n' ' ') # Print everything in a single line
           echo "FIRELY_TERMINAL_VERSION: $CHECK_FIRELY_TERMINAL_VERSION"
 
-      #Install de l'annuiare depuis simplifier (methode bake)
-      - name: Run bake  ans.annuaire.fhir.r4
+      #Install de l'annuaire depuis simplifier (methode bake)
+      - name: Run bake ans.annuaire.fhir.r4
         if: ${{ inputs.bake == 'true' }}   
         shell: bash            
         run: |
@@ -99,7 +99,7 @@ runs:
           fhir bake --package ans.annuaire.fhir.r4
 
      #Patch sur l'installation du frcore 
-      - name: 📥 Clone IG-workflows
+      - name: 📥 Get FrCore dependency
         if: ${{ inputs.bake == 'true' }}    
         shell: bash            
         run: |
