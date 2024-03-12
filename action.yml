@@ -104,12 +104,10 @@ runs:
         shell: bash            
         run: |
           git clone https://github.com/ansforge/IG-workflows.git
-
-      - name: 📥 Move hl7.fhir.fr.core#1.1.0
-        if: ${{ inputs.bake == 'true' }}    
-        shell: bash            
-        run: |
-          cp  IG-workflows/dependency/hl7.fhir.fr.core#1.1.0 ~/.fhir/packages/hl7.fhir.fr.core#1.1.0
+          cd IG-workflows
+          git checkout nr-update-deps
+          cp  dependency/hl7.fhir.fr.core#1.1.0 ~/.fhir/packages/hl7.fhir.fr.core#1.1.0
+          cd ..
 
       #Install du NOS à partir du ZIP   
       - name : Install NOS
