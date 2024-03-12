@@ -36,16 +36,13 @@ jobs:
         run: |
           fhir install ans.annuaire.fhir.r4 0.2.0
           fhir bake --package ans.annuaire.fhir.r4
-      - name: Run bake hl7.fhir.fr.core
-        run: |
-          fhir install hl7.fhir.fr.core 1.1.0
-          fhir bake --package hl7.fhir.fr.core
  
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
           node-version: 16
-      - name: 📥 Download pacth fr-core
+
+      - name: 📥 Download patch fr-core
         run: |
           wget -q https://github.com/ansforge/FIG_ans.workflows/blob/main/dependency/hl7.fhir.fr.core-1.1.0.tgz?raw=true -O ./hl7.fhir.fr.core-1.1.0.tgz
           cp hl7.fhir.fr.core-1.1.0.tgz ~/.fhir/packages
