@@ -859,10 +859,6 @@
                 },
                 "mapping": [
                     {
-                        "identity": "v2",
-                        "map": "N/A"
-                    },
-                    {
                         "identity": "rim",
                         "map": "Role.code or implied by context"
                     }
