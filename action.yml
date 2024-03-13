@@ -90,30 +90,31 @@ runs:
           CHECK_FIRELY_TERMINAL_VERSION=$(fhir -v | tr '\n' ' ') # Print everything in a single line
           echo "FIRELY_TERMINAL_VERSION: $CHECK_FIRELY_TERMINAL_VERSION"
 
-      #Install de l'annuiare depuis simplifier (methode bake)
-      - name: Run bake  ans.annuaire.fhir.r4
+      #Install de l'annuaire depuis simplifier (methode bake)
+      - name: Run bake ans.annuaire.fhir.r4
         if: ${{ inputs.bake == 'true' }}   
         shell: bash            
         run: |
           fhir install ans.annuaire.fhir.r4 0.2.0
           fhir bake --package ans.annuaire.fhir.r4
 
-      #Install du frcore depuis simplifier (methode bake)      
       - name: Run bake hl7.fhir.fr.core
-        if: ${{ inputs.bake == 'true' }}       
+        if: ${{ inputs.bake == 'true' }}   
         shell: bash            
         run: |
           fhir install hl7.fhir.fr.core 1.1.0
           fhir bake --package hl7.fhir.fr.core
 
      #Patch sur l'installation du frcore 
-      - name: 📥 Download pacth fr-core
+      - name: 📥 Get FrCore dependency
         if: ${{ inputs.bake == 'true' }}    
         shell: bash            
         run: |
-          wget -q https://github.com/ansforge/FIG_ans.workflows/blob/main/dependency/hl7.fhir.fr.core-1.1.0.tgz?raw=true -O ./hl7.fhir.fr.core-1.1.0.tgz
-          cp hl7.fhir.fr.core-1.1.0.tgz ~/.fhir/packages
-          tar -xzvf ~/.fhir/packages/hl7.fhir.fr.core-1.1.0.tgz     
+          git clone https://github.com/ansforge/IG-workflows.git
+          cd IG-workflows
+          git checkout nr-update-deps
+          cp  -r dependency/hl7.fhir.fr.core#1.1.0 ~/.fhir/packages
+          cd ..
 
       #Install du NOS à partir du ZIP   
       - name : Install NOS
