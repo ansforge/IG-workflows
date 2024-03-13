@@ -98,6 +98,13 @@ runs:
           fhir install ans.annuaire.fhir.r4 0.2.0
           fhir bake --package ans.annuaire.fhir.r4
 
+      - name: Run bake hl7.fhir.fr.core
+        if: ${{ inputs.bake == 'true' }}   
+        shell: bash            
+        run: |
+          fhir install hl7.fhir.fr.core 1.1.0
+          fhir bake --package hl7.fhir.fr.core
+
      #Patch sur l'installation du frcore 
       - name: 📥 Get FrCore dependency
         if: ${{ inputs.bake == 'true' }}    
