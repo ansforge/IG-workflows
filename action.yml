@@ -12,6 +12,10 @@ inputs:
     description: 'Génération  du diagramme plant uml dans gh-pages.'
     default: "false"
     required: false   
+  generate_mapping_plantuml:
+    description: 'Génération des schemas plantuml de mapping dans gh-pages.'
+    default: "false"
+    required: false   
   generate_testscript:
     description: "Génération  des fichiers testsscripts à partir de l'ig."
     default: "false"
@@ -212,6 +216,29 @@ runs:
               java -jar plantuml-1.2024.0.jar  -tsvg -tpng  "./plantuml"
               mkdir ./to_publish/plantuml
               cp -r ./plantuml/.  ./to_publish/plantuml
+
+
+
+      #Install de python pour la génération du graph plantUml
+      - name: Setup Python # Set Python version
+        if: ${{ inputs.generate_mapping_plantuml == 'true' }}  
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10' 
+
+      #Creation du graphique plantUML et publication dans gh-pages
+      - name: Run scripts mapping plantuml
+        if: ${{ inputs.generate_mapping_plantuml == 'true' }}        
+        shell: bash   
+        continue-on-error: true
+        run : |
+              mkdir ./plantuml_mapping
+              python ${{ github.action_path }}/PlantUML/construct_mapping_global.py './${{ inputs.repo_ig}}/output/package.db' './plantuml_mapping'
+              python ${{ github.action_path }}/PlantUML/construct_mappings.py './${{ inputs.repo_ig}}/output/package.db' './plantuml_mapping'
+              wget -q https://github.com/plantuml/plantuml/releases/download/v1.2024.0/plantuml-1.2024.0.jar
+              java -jar plantuml-1.2024.0.jar  -tsvg -tpng  "./plantuml"
+              mkdir ./to_publish/plantuml_mapping
+              cp -r ./plantuml_mapping/.  ./to_publish/plantuml_mapping
 
 
           
