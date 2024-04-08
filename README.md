@@ -36,7 +36,6 @@ jobs:
           github_page: "true"
           github_page_token: ${{ secrets.GITHUB_TOKEN }}
           bake: "true"
-          nos: "true"
           validator_cli: "true"
           generate_plantuml : "true"
           generate_mapping_plantuml : "true"
@@ -58,7 +57,6 @@ jobs:
           github_page: "true"
           github_page_token: ${{ secrets.GITHUB_TOKEN }}
           bake: "true"
-          nos: "true"
           validator_cli: "true"
           publish_repo: "ansforge/IG-website-release"
           publish_repo_token :  ${{ secrets.ANS_IG_API_TOKEN }} 
@@ -84,7 +82,6 @@ jobs:
           github_page: "true"
           github_page_token: ${{ secrets.GITHUB_TOKEN }}
           bake: "true"
-          nos: "true"
           validator_cli: "true"
           publish_repo: "ansforge/IG-website-release"
           publish_repo_token :  ${{ secrets.ANS_IG_API_TOKEN }} 
@@ -97,8 +94,7 @@ jobs:
 | github_page_token       | string  |  | Token pour passer les GitHub Pages du repo |
 | github_page                | boolean | false                 | Publication de l'IG dans les GitHub pages                                                                                                                                                                                                                                                                          |
 | repo_ig             | string  |             | Chemin d'accés au repertoire des sources de l'IG                                                                                                                                                                                                                          |
-| bake              | boolean | false                 | Permet d'inclure les les projets annuaires et FrCore qui sont sur simplifier                                                                                                                                                                                                                                                                               |
-| nos   | boolean | false                 | Pour la vérification. Permet d'installer le NOS (à partie du ZIP)                                                                                                                                            |
+| bake              | boolean | false                 | Permet d'inclure les les projets annuaires et FrCore qui sont sur simplifier                                                                                                                                                                                                                                                                               |                                                                                                                                  |
 | validator_cli             | boolean | False                  | Permet de lancer les tests avec le validator_cli d'HL7                                                                                                                                                                                                  |
 | termino_server | string  | 'http://tx.fhir.org'           | Permet la verification sur le serveur de terminologie passé en paramètre.                                                                                                                                                                                                                     |
 | publish_repo               | string | ''                 | Permet d'indiquer le repo git de publication  de l'IG                
