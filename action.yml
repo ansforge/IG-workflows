@@ -142,7 +142,13 @@ runs:
       # Téléchargement de la dernière version du publisher
       - name: 📥 Download IG Publisher
         shell: bash          
-        run: if [ ${{inputs.ig-publisher-version}} == "latest"]; then wget -q https://github.com/HL7/fhir-ig-publisher/releases/latest/download/publisher.jar; else wget -q https://github.com/HL7/fhir-ig-publisher/releases/download/${{inputs.ig-publisher-version}}/publisher.jar; fi```
+        run:  |
+          if [ ${{inputs.ig-publisher-version}} == "latest"]
+          then 
+            wget -q https://github.com/HL7/fhir-ig-publisher/releases/latest/download/publisher.jar
+          else 
+            wget -q https://github.com/HL7/fhir-ig-publisher/releases/download/${{inputs.ig-publisher-version}}/publisher.jar
+          fi
 
         
       #Récupération du nom de la branche afin de publier dans gh-pages
