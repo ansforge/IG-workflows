@@ -1,6 +1,10 @@
 name: "FHIR IG Action"
 description: "Worklow pour les IG de l'ANS"
 inputs:
+  ig-publisher-version:
+    description: "Version de l'IG Publisher version to use. 'latest' | 'x.y.z'"
+    required: false
+    default: "latest"
   github_page_token:
     description: 'Clé GITHUB_TOKEN pour pousser dans les pages github (branche gh-pages).'
     required: false
@@ -138,7 +142,13 @@ runs:
       # Téléchargement de la dernière version du publisher
       - name: 📥 Download IG Publisher
         shell: bash          
-        run: wget -q https://github.com/HL7/fhir-ig-publisher/releases/latest/download/publisher.jar
+        run:  |
+          if [ ${{inputs.ig-publisher-version}} = "latest" ]; then 
+            wget -q https://github.com/HL7/fhir-ig-publisher/releases/latest/download/publisher.jar
+          else 
+            wget -q https://github.com/HL7/fhir-ig-publisher/releases/download/${{inputs.ig-publisher-version}}/publisher.jar
+          fi
+
         
       #Récupération du nom de la branche afin de publier dans gh-pages
       - name: Get branch names
