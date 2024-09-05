@@ -310,6 +310,15 @@ runs:
           cd  IG-website-release
           git submodule update --init --recursive
 
+     #Patch sur l'installation du frcore 
+      - name: 📥 Download pacth fr-core
+        if: ${{ inputs.bake == 'true' }}    
+        shell: bash            
+        run: |
+          wget -q https://github.com/ansforge/FIG_ans.workflows/blob/main/dependency/hl7.fhir.fr.core-1.1.0.tgz?raw=true -O ./hl7.fhir.fr.core-1.1.0.tgz
+          cp hl7.fhir.fr.core-1.1.0.tgz ~/.fhir/packages
+          tar -xzvf ~/.fhir/packages/hl7.fhir.fr.core-1.1.0.tgz     
+          
       #Lancement de la release dans le repo
       - name: 🏃‍♂️ Run  Publisher to release
         if: ${{ inputs.publish_repo != '' }}  
