@@ -31,6 +31,10 @@ inputs:
     description: "Permet de mettre reprendre les projets annuaire et FrCore de simplifier."
     required: false
     default: "false"
+  cda:
+    description: "Permet de copier le dossier CDA."
+    required: false
+    default: "false"
   validator_cli:
     description: "Permet de lancer le validator CLI et d'accéder au résultat de validation dans la sortie du workflow."
     required: false
@@ -179,6 +183,16 @@ runs:
               java -Xmx8192m -jar ../publisher.jar  -ig . -tx  ${{ inputs.termino_server }}
               mkdir ../to_publish/ig
               cp -r ./output/.  ../to_publish/ig
+
+     # CP CDA
+      - name: Copy CDA
+        shell: bash
+        if: ${{ inputs.cda == 'true' }}
+        run : |
+              cd  ${{ inputs.repo_ig}}
+              mkdir ../to_publish/cda
+              cp -r ./input/cda  ../to_publish/ig
+
 
      # Get testscript-generator
       - name: Get testscript-generator
