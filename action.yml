@@ -111,6 +111,8 @@ runs:
         if: ${{ inputs.bake == 'true' }}    
         shell: bash            
         run: |
+          mkdir ~/.fhir
+          mkdir ~/.fhir/packages
           wget -q https://github.com/ansforge/FIG_ans.workflows/blob/main/dependency/hl7.fhir.fr.core-1.1.0.tgz?raw=true -O ./hl7.fhir.fr.core-1.1.0.tgz
           cp hl7.fhir.fr.core-1.1.0.tgz ~/.fhir/packages
           tar -xzvf ~/.fhir/packages/hl7.fhir.fr.core-1.1.0.tgz     
