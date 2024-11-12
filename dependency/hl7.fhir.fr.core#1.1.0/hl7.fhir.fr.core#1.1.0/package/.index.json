@@ -1,0 +1,1055 @@
+{
+  "index-version" : 2,
+  "files" : [
+    {
+      "filename" : "CodeSystem-Type-Organisation-ASIP-R66.json",
+      "resourceType" : "CodeSystem",
+      "id" : "CodeSystem-Types-organisations-ASIP",
+      "url" : "http://terminology.asipsante.fr/CodeSystem/TRE_R66",
+      "version" : "1.0.1",
+      "content" : "complete"
+    },
+    {
+      "filename" : "CodeSystem-Type-Organisation.json",
+      "resourceType" : "CodeSystem",
+      "id" : "CodeSystem-Types-organisations-IS",
+      "url" : "http://interopsante.org/fhir/CodeSystem/fr-v2-3307",
+      "version" : "1.0.1",
+      "content" : "complete"
+    },
+    {
+      "filename" : "CodeSystem-fiabilte-identite.json",
+      "resourceType" : "CodeSystem",
+      "id" : "CodeSystem-Fiabilite-Identite-IS",
+      "url" : "http://interopsante.org/fhir/CodeSystem/fr-v2-0445",
+      "version" : "1.0.1",
+      "content" : "complete"
+    },
+    {
+      "filename" : "FrEncounter.json",
+      "resourceType" : "StructureDefinition",
+      "id" : "fr-encounter",
+      "url" : "http://interopsante.org/fhir/StructureDefinition/FrEncounter",
+      "version" : "1.0.1",
+      "kind" : "resource",
+      "type" : "Encounter",
+      "derivation" : "constraint"
+    },
+    {
+      "filename" : "FrIdentityMethodProduction.json",
+      "resourceType" : "StructureDefinition",
+      "id" : "fr-patient-identity-method-collection",
+      "url" : "http://interopsante.org/fhir/StructureDefinition/FrPatientIdentityMethodCollection",
+      "version" : "1.0.1",
+      "kind" : "complex-type",
+      "type" : "Extension",
+      "derivation" : "constraint"
+    },
+    {
+      "filename" : "FrRelatedPerson-StructureDefinition.json",
+      "resourceType" : "StructureDefinition",
+      "id" : "fr-related-person",
+      "url" : "http://interopsante.org/fhir/StructureDefinition/FrRelatedPerson",
+      "version" : "1.0.1",
+      "kind" : "resource",
+      "type" : "RelatedPerson",
+      "derivation" : "constraint"
+    },
+    {
+      "filename" : "circonstances-sortie.json",
+      "resourceType" : "CodeSystem",
+      "id" : "fr-circonstances-sortie",
+      "url" : "http://interopsante.org/fhir/CodeSystem/fr-circonstances-sortie",
+      "version" : "1.0.1",
+      "content" : "complete"
+    },
+    {
+      "filename" : "contact-relationship.json",
+      "resourceType" : "CodeSystem",
+      "id" : "fr-contact-relationship",
+      "url" : "http://interopsante.org/fhir/CodeSystem/fr-contact-relationship",
+      "version" : "1.0.1",
+      "content" : "complete"
+    },
+    {
+      "filename" : "fr-address-R4.StructureDefinition.json",
+      "resourceType" : "StructureDefinition",
+      "id" : "fr-address",
+      "url" : "http://interopsante.org/fhir/StructureDefinition/FrAddress",
+      "version" : "1.0.1",
+      "kind" : "complex-type",
+      "type" : "Address",
+      "derivation" : "constraint"
+    },
+    {
+      "filename" : "fr-address-insee-code-R4.StructureDefinition.json",
+      "resourceType" : "StructureDefinition",
+      "id" : "fr-address-insee-code",
+      "url" : "http://interopsante.org/fhir/StructureDefinition/FrAddressInseeCode",
+      "version" : "1.0.1",
+      "kind" : "complex-type",
+      "type" : "Extension",
+      "derivation" : "constraint"
+    },
+    {
+      "filename" : "fr-appointment-R4.StructureDefinition.json",
+      "resourceType" : "StructureDefinition",
+      "id" : "fr-appointment",
+      "url" : "http://interopsante.org/fhir/StructureDefinition/FrAppointment",
+      "version" : "1.0.1",
+      "kind" : "resource",
+      "type" : "Appointment",
+      "derivation" : "constraint"
+    },
+    {
+      "filename" : "fr-appointment-operator-R4.StructureDefinition.json",
+      "resourceType" : "StructureDefinition",
+      "id" : "fr-appointment-operator",
+      "url" : "http://interopsante.org/fhir/StructureDefinition/FrAppointmentOperator",
+      "version" : "1.0.1",
+      "kind" : "complex-type",
+      "type" : "Extension",
+      "derivation" : "constraint"
+    },
+    {
+      "filename" : "fr-availability-time-day.json",
+      "resourceType" : "ValueSet",
+      "id" : "fr-availability-time-day",
+      "url" : "http://interopsante.org/fhir/ValueSet/fr-availability-time-day",
+      "version" : "1.0.1"
+    },
+    {
+      "filename" : "fr-availability-time-rule.json",
+      "resourceType" : "ValueSet",
+      "id" : "fr-availability-time-rule",
+      "url" : "http://interopsante.org/fhir/ValueSet/fr-availability-time-rule",
+      "version" : "1.0.1"
+    },
+    {
+      "filename" : "fr-availabilty-time-R4.StructureDefinition.json",
+      "resourceType" : "StructureDefinition",
+      "id" : "fr-availability-time",
+      "url" : "http://interopsante.org/fhir/StructureDefinition/FrScheduleAvailabiltyTime",
+      "version" : "1.0.1",
+      "kind" : "complex-type",
+      "type" : "Extension",
+      "derivation" : "constraint"
+    },
+    {
+      "filename" : "fr-birthdate-update-indicator-R4.StructureDefinition.json",
+      "resourceType" : "StructureDefinition",
+      "id" : "fr-birthdate-update-indicator",
+      "url" : "http://interopsante.org/fhir/StructureDefinition/FrPatientBirthdateUpdateIndicator",
+      "version" : "1.0.1",
+      "kind" : "complex-type",
+      "type" : "Extension",
+      "derivation" : "constraint"
+    },
+    {
+      "filename" : "fr-bp-method.json",
+      "resourceType" : "ValueSet",
+      "id" : "fr-bp-method",
+      "url" : "http://interopsante.org/fhir/ValueSet/fr-bp-measurement-method",
+      "version" : "1.0.1"
+    },
+    {
+      "filename" : "fr-categorieProfessionnelle-R4.json",
+      "resourceType" : "StructureDefinition",
+      "id" : "fr-categorie-professionnelle",
+      "url" : "http://interopsante.org/fhir/StructureDefinition/FrPractitionerRoleCodeCategorieProfessionnelle",
+      "version" : "1.0.1",
+      "kind" : "complex-type",
+      "type" : "Extension",
+      "derivation" : "constraint"
+    },
+    {
+      "filename" : "fr-civility-exercice-rass.json",
+      "resourceType" : "ValueSet",
+      "id" : "fr-civility-exercice-rass",
+      "url" : "http://interopsante.org/fhir/ValueSet/fr-civility-exercice-rass",
+      "version" : "1.0.1"
+    },
+    {
+      "filename" : "fr-civility-rass.json",
+      "resourceType" : "ValueSet",
+      "id" : "fr-civility-rass",
+      "url" : "http://interopsante.org/fhir/ValueSet/fr-civility-rass",
+      "version" : "1.0.1"
+    },
+    {
+      "filename" : "fr-civility.json",
+      "resourceType" : "ValueSet",
+      "id" : "fr-civility",
+      "url" : "http://interopsante.org/fhir/ValueSet/fr-civility",
+      "version" : "1.0.1"
+    },
+    {
+      "filename" : "fr-cog-commune-pays.json",
+      "resourceType" : "ValueSet",
+      "id" : "fr-cog-commune-pays",
+      "url" : "http://interopsante.org/fhir/ValueSet/fr-cog-commune-pays",
+      "version" : "1.0.1"
+    },
+    {
+      "filename" : "fr-comment-R4.structuredefinition.json",
+      "resourceType" : "StructureDefinition",
+      "id" : "fr-comment",
+      "url" : "http://interopsante.org/fhir/StructureDefinition/FrPatientContactComment",
+      "version" : "1.0.1",
+      "kind" : "complex-type",
+      "type" : "Extension",
+      "derivation" : "constraint"
+    },
+    {
+      "filename" : "fr-contact-identifier-R4.structuredefinition.json",
+      "resourceType" : "StructureDefinition",
+      "id" : "fr-contact-identifier",
+      "url" : "http://interopsante.org/fhir/StructureDefinition/FrPatientContactIdentifier",
+      "version" : "1.0.1",
+      "kind" : "complex-type",
+      "type" : "Extension",
+      "derivation" : "constraint"
+    },
+    {
+      "filename" : "fr-contact-point-StructureDefinition.json",
+      "resourceType" : "StructureDefinition",
+      "id" : "fr-contact-point",
+      "url" : "http://interopsante.org/fhir/StructureDefinition/FrContactPoint",
+      "version" : "1.0.1",
+      "kind" : "complex-type",
+      "type" : "ContactPoint",
+      "derivation" : "constraint"
+    },
+    {
+      "filename" : "fr-contact-relationship.json",
+      "resourceType" : "ValueSet",
+      "id" : "fr-contact-relationship",
+      "url" : "http://interopsante.org/fhir/ValueSet/fr-contact-relationship",
+      "version" : "1.0.1"
+    },
+    {
+      "filename" : "fr-cs-identity-method-collection.json",
+      "resourceType" : "CodeSystem",
+      "id" : "fr-cs-identity-method-collection",
+      "url" : "http://interopsante.org/fhir/CodeSystem/fr-cs-identity-method-collection",
+      "version" : "1.0.1",
+      "content" : "complete"
+    },
+    {
+      "filename" : "fr-cs-mode-validation-identite.json",
+      "resourceType" : "CodeSystem",
+      "id" : "fr-cs-mode-validation-identite",
+      "url" : "http://interopsante.org/fhir/CodeSystem/fr-cs-mode-validation-identite",
+      "version" : "1.0.1",
+      "content" : "complete"
+    },
+    {
+      "filename" : "fr-death-place-R4.StructureDefinition.json",
+      "resourceType" : "StructureDefinition",
+      "id" : "fr-death-place",
+      "url" : "http://interopsante.org/fhir/StructureDefinition/FrPatientDeathPlace",
+      "version" : "1.0.1",
+      "kind" : "complex-type",
+      "type" : "Extension",
+      "derivation" : "constraint"
+    },
+    {
+      "filename" : "fr-email-type.json",
+      "resourceType" : "ValueSet",
+      "id" : "fr-email-type",
+      "url" : "http://interopsante.org/fhir/ValueSet/fr-email-type",
+      "version" : "1.0.1"
+    },
+    {
+      "filename" : "fr-email-type.structuredefinition.json",
+      "resourceType" : "StructureDefinition",
+      "id" : "fr-email-type",
+      "url" : "http://interopsante.org/fhir/StructureDefinition/FrContactPointEmailType",
+      "version" : "1.0.1",
+      "kind" : "complex-type",
+      "type" : "Extension",
+      "derivation" : "constraint"
+    },
+    {
+      "filename" : "fr-encounter-class.json",
+      "resourceType" : "ValueSet",
+      "id" : "fr-encounter-class",
+      "url" : "http://interopsante.org/fhir/ValueSet/fr-encounter-class",
+      "version" : "1.0.1"
+    },
+    {
+      "filename" : "fr-encounter-discharge-disposition.json",
+      "resourceType" : "ValueSet",
+      "id" : "fr-encounter-discharge-disposition",
+      "url" : "http://interopsante.org/fhir/ValueSet/fr-encounter-discharge-disposition",
+      "version" : "1.0.1"
+    },
+    {
+      "filename" : "fr-encounter-identifier-type.json",
+      "resourceType" : "ValueSet",
+      "id" : "fr-encounter-identifier-type",
+      "url" : "http://interopsante.org/fhir/ValueSet/fr-encounter-identifier-type",
+      "version" : "1.0.1"
+    },
+    {
+      "filename" : "fr-encounter-type.json",
+      "resourceType" : "ValueSet",
+      "id" : "fr-encounter-type",
+      "url" : "http://interopsante.org/fhir/ValueSet/fr-encounter-type",
+      "version" : "1.0.1"
+    },
+    {
+      "filename" : "fr-estimated-discharge-date-R4.structuredefinition.json",
+      "resourceType" : "StructureDefinition",
+      "id" : "fr-estimated-discharge-date",
+      "url" : "http://interopsante.org/fhir/StructureDefinition/FrEncounterEstimatedDischargeDate",
+      "version" : "1.0.1",
+      "kind" : "complex-type",
+      "type" : "Extension",
+      "derivation" : "constraint"
+    },
+    {
+      "filename" : "fr-healthcare-service-R4.StructureDefinition.json",
+      "resourceType" : "StructureDefinition",
+      "id" : "fr-healthcare-service",
+      "url" : "http://interopsante.org/fhir/StructureDefinition/FrHealthcareService",
+      "version" : "1.0.1",
+      "kind" : "resource",
+      "type" : "HealthcareService",
+      "derivation" : "constraint"
+    },
+    {
+      "filename" : "fr-height-body-position.StructureDefinition-R4.json",
+      "resourceType" : "StructureDefinition",
+      "id" : "fr-height-body-position",
+      "url" : "http://interopsante.org/fhir/StructureDefinition/FrObservationHeightBodyPosition",
+      "version" : "1.0.1",
+      "kind" : "complex-type",
+      "type" : "Extension",
+      "derivation" : "constraint"
+    },
+    {
+      "filename" : "fr-human-name.StructureDefinition.json",
+      "resourceType" : "StructureDefinition",
+      "id" : "fr-human-name",
+      "url" : "http://interopsante.org/fhir/StructureDefinition/FrHumanName",
+      "version" : "1.0.1",
+      "kind" : "complex-type",
+      "type" : "HumanName",
+      "derivation" : "constraint"
+    },
+    {
+      "filename" : "fr-identity-method-collection-v1-0.json",
+      "resourceType" : "ValueSet",
+      "id" : "identity-method-collection",
+      "url" : "http://interopsante.org/fhir/ValueSet/fr-identity-method-collection",
+      "version" : "1.0.1"
+    },
+    {
+      "filename" : "fr-identity-reliability-v1-0.json",
+      "resourceType" : "ValueSet",
+      "id" : "identity-reliability",
+      "url" : "http://interopsante.org/fhir/ValueSet/fr-identity-reliability",
+      "version" : "1.0.1"
+    },
+    {
+      "filename" : "fr-identity-validation-mode-v1-0.json",
+      "resourceType" : "ValueSet",
+      "id" : "identity-validation-mode",
+      "url" : "http://interopsante.org/fhir/ValueSet/fr-mode-validation-identite",
+      "version" : "1.0.1"
+    },
+    {
+      "filename" : "fr-identityreliability-R4.structuredefinition.json",
+      "resourceType" : "StructureDefinition",
+      "id" : "fr-ident-reliability",
+      "url" : "http://interopsante.org/fhir/StructureDefinition/FrPatientIdentReliability",
+      "version" : "1.0.1",
+      "kind" : "complex-type",
+      "type" : "Extension",
+      "derivation" : "constraint"
+    },
+    {
+      "filename" : "fr-insee-code.json",
+      "resourceType" : "ValueSet",
+      "id" : "fr-insee-code",
+      "url" : "http://interopsante.org/fhir/ValueSet/fr-insee-code",
+      "version" : "1.0.1"
+    },
+    {
+      "filename" : "fr-insi-birthplace-R4.StructureDefinition.json",
+      "resourceType" : "StructureDefinition",
+      "id" : "fr-insi-birthplace",
+      "url" : "http://interopsante.org/fhir/StructureDefinition/FrPatientInsiBirthPlace",
+      "version" : "1.0.1",
+      "kind" : "complex-type",
+      "type" : "Extension",
+      "derivation" : "constraint"
+    },
+    {
+      "filename" : "fr-insi-identity-reliability-R4.StructureDefinition.json",
+      "resourceType" : "StructureDefinition",
+      "id" : "fr-insi-identity-reliability",
+      "url" : "http://interopsante.org/fhir/StructureDefinition/FrPatientInsiIdentityReliability",
+      "version" : "1.0.1",
+      "kind" : "complex-type",
+      "type" : "Extension",
+      "derivation" : "constraint"
+    },
+    {
+      "filename" : "fr-level-of-exertion-R4.StructureDefinition.json",
+      "resourceType" : "StructureDefinition",
+      "id" : "fr-level-of-exertion",
+      "url" : "http://interopsante.org/fhir/StructureDefinition/FrObservationLevelOfExertion",
+      "version" : "1.0.1",
+      "kind" : "complex-type",
+      "type" : "Extension",
+      "derivation" : "constraint"
+    },
+    {
+      "filename" : "fr-location-R4.StructureDefinition.json",
+      "resourceType" : "StructureDefinition",
+      "id" : "fr-location",
+      "url" : "http://interopsante.org/fhir/StructureDefinition/FrLocation",
+      "version" : "1.0.1",
+      "kind" : "resource",
+      "type" : "Location",
+      "derivation" : "constraint"
+    },
+    {
+      "filename" : "fr-location-identifier-type.json",
+      "resourceType" : "ValueSet",
+      "id" : "location-identifier-type",
+      "url" : "http://interopsante.org/fhir/ValueSet/fr-location-identifier-type",
+      "version" : "1.0.1"
+    },
+    {
+      "filename" : "fr-location-physical-type.json",
+      "resourceType" : "ValueSet",
+      "id" : "location-physical-type",
+      "url" : "http://interopsante.org/fhir/ValueSet/fr-location-physical-type",
+      "version" : "1.0.1"
+    },
+    {
+      "filename" : "fr-location-position-room-R4.StructureDefinition.json",
+      "resourceType" : "StructureDefinition",
+      "id" : "fr-location-position-room",
+      "url" : "http://interopsante.org/fhir/StructureDefinition/FrLocationPartOfPositionRoom",
+      "version" : "1.0.1",
+      "kind" : "complex-type",
+      "type" : "Extension",
+      "derivation" : "constraint"
+    },
+    {
+      "filename" : "fr-location-position-room.json",
+      "resourceType" : "ValueSet",
+      "id" : "location-position-room",
+      "url" : "http://interopsante.org/fhir/ValueSet/fr-location-position-room",
+      "version" : "1.0.1"
+    },
+    {
+      "filename" : "fr-location-type.json",
+      "resourceType" : "ValueSet",
+      "id" : "location-type",
+      "url" : "http://interopsante.org/fhir/ValueSet/fr-location-type",
+      "version" : "1.0.1"
+    },
+    {
+      "filename" : "fr-lunar-date-R4.structuredefinition.json",
+      "resourceType" : "StructureDefinition",
+      "id" : "fr-lunar-date",
+      "url" : "http://interopsante.org/fhir/StructureDefinition/FrPatientLunarDate",
+      "version" : "1.0.1",
+      "kind" : "complex-type",
+      "type" : "Extension",
+      "derivation" : "constraint"
+    },
+    {
+      "filename" : "fr-medicationAdministration-inhaledOxygen-R4.StructureDefinition.json",
+      "resourceType" : "StructureDefinition",
+      "id" : "fr-medication-administration-inhaled-oxygen",
+      "url" : "http://interopsante.org/fhir/StructureDefinition/FrMedicationAdministrationInhaledOxygen",
+      "version" : "1.0",
+      "kind" : "resource",
+      "type" : "MedicationAdministration",
+      "derivation" : "constraint"
+    },
+    {
+      "filename" : "fr-observation-bmi-R4.StructureDefinition.json",
+      "resourceType" : "StructureDefinition",
+      "id" : "fr-observation-bmi",
+      "url" : "http://interopsante.org/fhir/StructureDefinition/FrObservationBmi",
+      "version" : "1.0.1",
+      "kind" : "resource",
+      "type" : "Observation",
+      "derivation" : "constraint"
+    },
+    {
+      "filename" : "fr-observation-body-height-R4.StructureDefinition.json",
+      "resourceType" : "StructureDefinition",
+      "id" : "fr-observation-body-height",
+      "url" : "http://interopsante.org/fhir/StructureDefinition/FrObservationBodyHeight",
+      "version" : "1.0.1",
+      "kind" : "resource",
+      "type" : "Observation",
+      "derivation" : "constraint"
+    },
+    {
+      "filename" : "fr-observation-body-position-ext-R4.StructureDefinition.json",
+      "resourceType" : "StructureDefinition",
+      "id" : "fr-observation-body-position",
+      "url" : "http://interopsante.org/fhir/StructureDefinition/FrObservationBodyPositionExt",
+      "version" : "1.0.1",
+      "kind" : "complex-type",
+      "type" : "Extension",
+      "derivation" : "constraint"
+    },
+    {
+      "filename" : "fr-observation-body-temperature-R4.StructureDefinition.json",
+      "resourceType" : "StructureDefinition",
+      "id" : "fr-observation-body-temperature",
+      "url" : "http://interopsante.org/fhir/StructureDefinition/FrObservationBodyTemperature",
+      "version" : "1.0.1",
+      "kind" : "resource",
+      "type" : "Observation",
+      "derivation" : "constraint"
+    },
+    {
+      "filename" : "fr-observation-body-weight-R4.StructureDefinition.json",
+      "resourceType" : "StructureDefinition",
+      "id" : "fr-observation-body-weight",
+      "url" : "http://interopsante.org/fhir/StructureDefinition/FrObservationBodyWeight",
+      "version" : "1.0.1",
+      "kind" : "resource",
+      "type" : "Observation",
+      "derivation" : "constraint"
+    },
+    {
+      "filename" : "fr-observation-bp-R4.StructureDefinition.json",
+      "resourceType" : "StructureDefinition",
+      "id" : "fr-observation-bp",
+      "url" : "http://interopsante.org/fhir/StructureDefinition/FrObservationBp",
+      "version" : "1.0.1",
+      "kind" : "resource",
+      "type" : "Observation",
+      "derivation" : "constraint"
+    },
+    {
+      "filename" : "fr-observation-headcircum-R4.StructureDefinition.json",
+      "resourceType" : "StructureDefinition",
+      "id" : "fr-observation-head-circum",
+      "url" : "http://interopsante.org/fhir/StructureDefinition/FrObservationHeadCircum",
+      "version" : "1.0.1",
+      "kind" : "resource",
+      "type" : "Observation",
+      "derivation" : "constraint"
+    },
+    {
+      "filename" : "fr-observation-heartrate-R4.StructureDefinition.json",
+      "resourceType" : "StructureDefinition",
+      "id" : "fr-observation-heartrate",
+      "url" : "http://interopsante.org/fhir/StructureDefinition/FrObservationHeartrate",
+      "version" : "1.0.1",
+      "kind" : "resource",
+      "type" : "Observation",
+      "derivation" : "constraint"
+    },
+    {
+      "filename" : "fr-observation-resprate-R4.StructureDefinition.json",
+      "resourceType" : "StructureDefinition",
+      "id" : "fr-observation-resp-rate",
+      "url" : "http://interopsante.org/fhir/StructureDefinition/FrOservationRespRate",
+      "version" : "1.0.1",
+      "kind" : "resource",
+      "type" : "Observation",
+      "derivation" : "constraint"
+    },
+    {
+      "filename" : "fr-observation-saturation-oxygen-R4.StructureDefinition.json",
+      "resourceType" : "StructureDefinition",
+      "id" : "fr-observation-saturation-oxygen",
+      "url" : "http://interopsante.org/fhir/StructureDefinition/FrObservationOxygenSaturation",
+      "version" : "1.0.1",
+      "kind" : "resource",
+      "type" : "Observation",
+      "derivation" : "constraint"
+    },
+    {
+      "filename" : "fr-oganization-applicant-act-R4.StructureDefinition.json",
+      "resourceType" : "StructureDefinition",
+      "id" : "fr-organization-applicant-act",
+      "url" : "http://interopsante.org/fhir/StructureDefinition/FrOrganizationApplicantAct",
+      "version" : "1.0.1",
+      "kind" : "complex-type",
+      "type" : "Extension",
+      "derivation" : "constraint"
+    },
+    {
+      "filename" : "fr-oganization-budget-letter-R4.StructureDefinition.json",
+      "resourceType" : "StructureDefinition",
+      "id" : "fr-organization-budget-letter",
+      "url" : "http://interopsante.org/fhir/StructureDefinition/FrOrganizationBudgetLetter",
+      "version" : "1.0.1",
+      "kind" : "complex-type",
+      "type" : "Extension",
+      "derivation" : "constraint"
+    },
+    {
+      "filename" : "fr-organization-R4.StructureDefinition.json",
+      "resourceType" : "StructureDefinition",
+      "id" : "fr-organization",
+      "url" : "http://interopsante.org/fhir/StructureDefinition/FrOrganization",
+      "version" : "1.0.1",
+      "kind" : "resource",
+      "type" : "Organization",
+      "derivation" : "constraint"
+    },
+    {
+      "filename" : "fr-organization-activity-field-R4.StructureDefinition.json",
+      "resourceType" : "StructureDefinition",
+      "id" : "fr-organization-activity-field",
+      "url" : "http://interopsante.org/fhir/StructureDefinition/FrOrganizationActivityField",
+      "version" : "1.0.1",
+      "kind" : "complex-type",
+      "type" : "Extension",
+      "derivation" : "constraint"
+    },
+    {
+      "filename" : "fr-organization-activity-field-R4.json",
+      "resourceType" : "ValueSet",
+      "id" : "fr-organization-activity-field",
+      "url" : "http://interopsante.org/fhir/ValueSet/fr-organization-activity-field",
+      "version" : "1.0.1"
+    },
+    {
+      "filename" : "fr-organization-activity-type-R4.StructureDefinition.json",
+      "resourceType" : "StructureDefinition",
+      "id" : "fr-organization-activity-type",
+      "url" : "http://interopsante.org/fhir/StructureDefinition/FrOrganizationActivityType",
+      "version" : "1.0.1",
+      "kind" : "complex-type",
+      "type" : "Extension",
+      "derivation" : "constraint"
+    },
+    {
+      "filename" : "fr-organization-analysis-section-R4.StructureDefinition.json",
+      "resourceType" : "StructureDefinition",
+      "id" : "fr-organization-analysis-section",
+      "url" : "http://interopsante.org/fhir/StructureDefinition/FrOrganizationAnalysisSection",
+      "version" : "1.0.1",
+      "kind" : "complex-type",
+      "type" : "Extension",
+      "derivation" : "constraint"
+    },
+    {
+      "filename" : "fr-organization-description-R4.StructureDefinition.json",
+      "resourceType" : "StructureDefinition",
+      "id" : "fr-organization-description",
+      "url" : "http://interopsante.org/fhir/StructureDefinition/FrOrganizationDescription",
+      "version" : "1.0.1",
+      "kind" : "complex-type",
+      "type" : "Extension",
+      "derivation" : "constraint"
+    },
+    {
+      "filename" : "fr-organization-executant-R4.StructureDefinition.json",
+      "resourceType" : "StructureDefinition",
+      "id" : "fr-organization-executant",
+      "url" : "http://interopsante.org/fhir/StructureDefinition/FrOrganizationExecutant",
+      "version" : "1.0.1",
+      "kind" : "complex-type",
+      "type" : "Extension",
+      "derivation" : "constraint"
+    },
+    {
+      "filename" : "fr-organization-external-R4.StructureDefinition.json",
+      "resourceType" : "StructureDefinition",
+      "id" : "fr-organization-external",
+      "url" : "http://interopsante.org/fhir/StructureDefinition/FrOrganizationExternal",
+      "version" : "1.0.1",
+      "kind" : "complex-type",
+      "type" : "Extension",
+      "derivation" : "constraint"
+    },
+    {
+      "filename" : "fr-organization-field-R4.StructureDefinition.json",
+      "resourceType" : "StructureDefinition",
+      "id" : "fr-organization-field",
+      "url" : "http://interopsante.org/fhir/StructureDefinition/FrOrganizationField",
+      "version" : "1.0.1",
+      "kind" : "complex-type",
+      "type" : "Extension",
+      "derivation" : "constraint"
+    },
+    {
+      "filename" : "fr-organization-identifier-type-v1-0.json",
+      "resourceType" : "ValueSet",
+      "id" : "fr-organization-identifier-type-v1-0",
+      "url" : "http://interopsante.org/fhir/ValueSet/fr-organization-identifier-type",
+      "version" : "1.0.1"
+    },
+    {
+      "filename" : "fr-organization-pole-R4.StructureDefinition.json",
+      "resourceType" : "StructureDefinition",
+      "id" : "fr-organization-pole",
+      "url" : "http://interopsante.org/fhir/StructureDefinition/FrOrganizationPole",
+      "version" : "1.0.1",
+      "kind" : "resource",
+      "type" : "Organization",
+      "derivation" : "constraint"
+    },
+    {
+      "filename" : "fr-organization-prestation-discipline-R4.StructureDefinition.json",
+      "resourceType" : "StructureDefinition",
+      "id" : "fr-organization-prestation-discipline",
+      "url" : "http://interopsante.org/fhir/StructureDefinition/FrOrganizationPrestationDiscipline",
+      "version" : "1.0.1",
+      "kind" : "complex-type",
+      "type" : "Extension",
+      "derivation" : "constraint"
+    },
+    {
+      "filename" : "fr-organization-shortname-R4.StructureDefinition.json",
+      "resourceType" : "StructureDefinition",
+      "id" : "fr-organization-short-name",
+      "url" : "http://interopsante.org/fhir/StructureDefinition/FrOrganizationShortName",
+      "version" : "1.0.1",
+      "kind" : "complex-type",
+      "type" : "Extension",
+      "derivation" : "constraint"
+    },
+    {
+      "filename" : "fr-organization-total-number-of-theorical-accomodation-space-R4.StructureDefinition.json",
+      "resourceType" : "StructureDefinition",
+      "id" : "fr-organization-total-number-of-theorical-accomadation-space",
+      "url" : "http://interopsante.org/fhir/StructureDefinition/FrOrganizationTotalNumberOfTheoricalAccomodationSpace",
+      "version" : "1.0.1",
+      "kind" : "complex-type",
+      "type" : "Extension",
+      "derivation" : "constraint"
+    },
+    {
+      "filename" : "fr-organization-type.json",
+      "resourceType" : "ValueSet",
+      "id" : "fr-organization-type",
+      "url" : "http://interopsante.org/fhir/ValueSet/fr-organization-type",
+      "version" : "1.0.1"
+    },
+    {
+      "filename" : "fr-organization-uac-R4.StructureDefinition.json",
+      "resourceType" : "StructureDefinition",
+      "id" : "fr-organization-uac",
+      "url" : "http://interopsante.org/fhir/StructureDefinition/FrOrganizationUAC",
+      "version" : "1.0.1",
+      "kind" : "resource",
+      "type" : "Organization",
+      "derivation" : "constraint"
+    },
+    {
+      "filename" : "fr-organization-uf-activity-field-v2.json",
+      "resourceType" : "ValueSet",
+      "id" : "fr-organization-uf-activity-field-v2",
+      "url" : "http://interopsante.org/fhir/ValueSet/fr-organization-uf-activity-field",
+      "version" : "1.0.1"
+    },
+    {
+      "filename" : "fr-patient-birth-place.StructureDefinition.json",
+      "resourceType" : "StructureDefinition",
+      "id" : "fr-patient-birth-place",
+      "url" : "http://interopsante.org/fhir/StructureDefinition/FrPatientBirthPlace",
+      "version" : "1.0.1",
+      "kind" : "complex-type",
+      "type" : "Extension",
+      "derivation" : "constraint"
+    },
+    {
+      "filename" : "fr-patient-identifier-type-v1-0.json",
+      "resourceType" : "ValueSet",
+      "id" : "fr-identifier-type-v1-0",
+      "url" : "http://interopsante.org/fhir/ValueSet/fr-patient-identifier-type",
+      "version" : "1.0.1"
+    },
+    {
+      "filename" : "fr-patient.StructureDefinition.json",
+      "resourceType" : "StructureDefinition",
+      "id" : "fr-patient",
+      "url" : "http://interopsante.org/fhir/StructureDefinition/FrPatient",
+      "version" : "1.0.1",
+      "kind" : "resource",
+      "type" : "Patient",
+      "derivation" : "constraint"
+    },
+    {
+      "filename" : "fr-practioner-identifier-type.json",
+      "resourceType" : "ValueSet",
+      "id" : "fr-practitioner-identifier-type",
+      "url" : "http://interopsante.org/fhir/ValueSet/fr-practioner-identifier-type",
+      "version" : "1.0.1"
+    },
+    {
+      "filename" : "fr-practioner-roleprofession-categorieProfessionnelle.json",
+      "resourceType" : "ValueSet",
+      "id" : "fr-practitioner-role-categorie-professionnelle",
+      "url" : "http://interopsante.org/fhir/ValueSet/fr-practioner-role-categorie-professionnelle",
+      "version" : "1.0.1"
+    },
+    {
+      "filename" : "fr-practitioner--role-exercice..json",
+      "resourceType" : "ValueSet",
+      "id" : "fr-practitioner-role-exercice",
+      "url" : "http://interopsante.org/fhir/ValueSet/fr-practioner-role-exercice",
+      "version" : "1.0.1"
+    },
+    {
+      "filename" : "fr-practitioner-profession-R4.StructureDefinition.json",
+      "resourceType" : "StructureDefinition",
+      "id" : "fr-practitioner-profession",
+      "url" : "http://interopsante.org/fhir/StructureDefinition/FrPractitionerProfession",
+      "version" : "1.0.1",
+      "kind" : "complex-type",
+      "type" : "Extension",
+      "derivation" : "constraint"
+    },
+    {
+      "filename" : "fr-practitioner-profession-role-v401.json",
+      "resourceType" : "ValueSet",
+      "id" : "fr-practitioner-role-profession",
+      "url" : "http://interopsante.org/fhir/ValueSet/fr-practioner-role-profession",
+      "version" : "1.0.1"
+    },
+    {
+      "filename" : "fr-practitioner-qualification.json",
+      "resourceType" : "ValueSet",
+      "id" : "fr-practitioner-qualification",
+      "url" : "http://interopsante.org/fhir/ValueSet/fr-practitioner-qualification",
+      "version" : "1.0.1"
+    },
+    {
+      "filename" : "fr-practitioner-role-exercice-R4.StructureDefinition.json",
+      "resourceType" : "StructureDefinition",
+      "id" : "fr-practitioner-role-exercice",
+      "url" : "http://interopsante.org/fhir/StructureDefinition/FrPractitionerRoleExercice",
+      "version" : "1.0.1",
+      "kind" : "resource",
+      "type" : "PractitionerRole",
+      "derivation" : "constraint"
+    },
+    {
+      "filename" : "fr-practitioner-role-profession-R4.StructureDefinition.json",
+      "resourceType" : "StructureDefinition",
+      "id" : "fr-practitioner-role-profession",
+      "url" : "http://interopsante.org/fhir/StructureDefinition/FrPractionerRoleProfession",
+      "version" : "1.0.1",
+      "kind" : "resource",
+      "type" : "PractitionerRole",
+      "derivation" : "constraint"
+    },
+    {
+      "filename" : "fr-practitioner-specialty-R4.StructureDefinition.json",
+      "resourceType" : "StructureDefinition",
+      "id" : "fr-practitioner-specialty",
+      "url" : "http://interopsante.org/fhir/StructureDefinition/FrPractitionerSpecialty",
+      "version" : "1.0.1",
+      "kind" : "complex-type",
+      "type" : "Extension",
+      "derivation" : "constraint"
+    },
+    {
+      "filename" : "fr-practitioner-specialty-R4.json",
+      "resourceType" : "ValueSet",
+      "id" : "fr-practitioner-specialty",
+      "url" : "http://interopsante.org/fhir/ValueSet/fr-practitioner-specialty",
+      "version" : "1.0.1"
+    },
+    {
+      "filename" : "fr-practitioner.json",
+      "resourceType" : "StructureDefinition",
+      "id" : "fr-practitioner",
+      "url" : "http://interopsante.org/fhir/StructureDefinition/FrPractitioner",
+      "version" : "1.0.1",
+      "kind" : "resource",
+      "type" : "Practitioner",
+      "derivation" : "constraint"
+    },
+    {
+      "filename" : "fr-related-person-role.json",
+      "resourceType" : "ValueSet",
+      "id" : "fr-related-person-role",
+      "url" : "http://interopsante.org/fhir/ValueSet/fr-related-person-role",
+      "version" : "1.0.1"
+    },
+    {
+      "filename" : "fr-related-person.json",
+      "resourceType" : "ValueSet",
+      "id" : "fr-related-person",
+      "url" : "http://interopsante.org/fhir/ValueSet/fr-related-person",
+      "version" : "1.0.1"
+    },
+    {
+      "filename" : "fr-schedule-R4.StructureDefinition.json",
+      "resourceType" : "StructureDefinition",
+      "id" : "fr-schedule",
+      "url" : "http://interopsante.org/fhir/StructureDefinition/FrSchedule",
+      "version" : "1.0.1",
+      "kind" : "resource",
+      "type" : "Schedule",
+      "derivation" : "constraint"
+    },
+    {
+      "filename" : "fr-schedule-type.json",
+      "resourceType" : "ValueSet",
+      "id" : "fr-schedule-type",
+      "url" : "http://interopsante.org/fhir/ValueSet/fr-schedule-type",
+      "version" : "1.0.1"
+    },
+    {
+      "filename" : "fr-service-type-duration-R4.StructureDefinition.json",
+      "resourceType" : "StructureDefinition",
+      "id" : "fr-service-type-duration",
+      "url" : "http://interopsante.org/fhir/StructureDefinition/FrServiceTypeDuration",
+      "version" : "1.0.1",
+      "kind" : "complex-type",
+      "type" : "Extension",
+      "derivation" : "constraint"
+    },
+    {
+      "filename" : "fr-slot-R4-StructureDefinition.json",
+      "resourceType" : "StructureDefinition",
+      "id" : "fr-slot",
+      "url" : "http://interopsante.org/fhir/StructureDefinition/FrSlot",
+      "version" : "1.0.1",
+      "kind" : "resource",
+      "type" : "Slot",
+      "derivation" : "constraint"
+    },
+    {
+      "filename" : "fr-slot-date-R4.StructureDefinition.json",
+      "resourceType" : "StructureDefinition",
+      "id" : "fr-slot-date",
+      "url" : "http://interopsante.org/fhir/StructureDefinition/FrSlotDate",
+      "version" : "1.0.1",
+      "kind" : "complex-type",
+      "type" : "Extension",
+      "derivation" : "constraint"
+    },
+    {
+      "filename" : "fr-title.json",
+      "resourceType" : "ValueSet",
+      "id" : "fr-title",
+      "url" : "http://interopsante.org/fhir/ValueSet/fr-title",
+      "version" : "1.0.1"
+    },
+    {
+      "filename" : "fr-use-period-R4StructureDefinition.json",
+      "resourceType" : "StructureDefinition",
+      "id" : "fr-use-period",
+      "url" : "http://interopsante.org/fhir/StructureDefinition/FrLocationUsePeriod",
+      "version" : "1.0.1",
+      "kind" : "complex-type",
+      "type" : "Extension",
+      "derivation" : "constraint"
+    },
+    {
+      "filename" : "fr_organization-uf-R4.StructureDefinition.json",
+      "resourceType" : "StructureDefinition",
+      "id" : "fr-organization-uf",
+      "url" : "http://interopsante.org/fhir/StructureDefinition/FrOrganizationUf",
+      "version" : "1.0.1",
+      "kind" : "resource",
+      "type" : "Organization",
+      "derivation" : "constraint"
+    },
+    {
+      "filename" : "humannamme-assembly-order-R4.json",
+      "resourceType" : "StructureDefinition",
+      "id" : "humanname-assembly-order",
+      "url" : "http://hl7.org/fhir/StructureDefinition/humanname-assembly-order",
+      "version" : "1.0.1",
+      "kind" : "complex-type",
+      "type" : "Extension",
+      "derivation" : "constraint"
+    },
+    {
+      "filename" : "identifier-type.json",
+      "resourceType" : "CodeSystem",
+      "id" : "fr-identifier-type",
+      "url" : "http://interopsante.org/fhir/CodeSystem/fr-identifier-type",
+      "version" : "1.0.1",
+      "content" : "complete"
+    },
+    {
+      "filename" : "location-identifier-type.json",
+      "resourceType" : "CodeSystem",
+      "id" : "fr-location-identifier-type",
+      "url" : "http://interopsante.org/fhir/CodeSystem/fr-location-identifier-type",
+      "version" : "1.0.1",
+      "content" : "complete"
+    },
+    {
+      "filename" : "location-physical-type.json",
+      "resourceType" : "CodeSystem",
+      "id" : "fr-location-physical-type",
+      "url" : "http://interopsante.org/fhir/CodeSystem/fr-location-physical-type",
+      "version" : "1.0.1",
+      "content" : "complete"
+    },
+    {
+      "filename" : "location-position-room.json",
+      "resourceType" : "CodeSystem",
+      "id" : "fr-location-position-room",
+      "url" : "http://interopsante.org/fhir/CodeSystem/fr-location-position-room",
+      "version" : "1.0.1",
+      "content" : "complete"
+    },
+    {
+      "filename" : "location-type.json",
+      "resourceType" : "CodeSystem",
+      "id" : "fr-location-type",
+      "url" : "http://interopsante.org/fhir/CodeSystem/fr-location-type",
+      "version" : "1.0.1",
+      "content" : "complete"
+    },
+    {
+      "filename" : "patient-nationality.json",
+      "resourceType" : "StructureDefinition",
+      "id" : "patient-nationality",
+      "url" : "http://hl7.org/fhir/StructureDefinition/patient-nationality",
+      "version" : "1.0.1",
+      "kind" : "complex-type",
+      "type" : "Extension",
+      "derivation" : "constraint"
+    },
+    {
+      "filename" : "schedule-type.json",
+      "resourceType" : "CodeSystem",
+      "id" : "fr-schedule-type",
+      "url" : "http://interopsante.org/fhir/CodeSystem/fr-schedule-type",
+      "version" : "1.0.1",
+      "content" : "complete"
+    },
+    {
+      "filename" : "type-admission.json",
+      "resourceType" : "CodeSystem",
+      "id" : "fr-type-admission",
+      "url" : "http://interopsante.org/fhir/CodeSystem/fr-type-admission",
+      "version" : "1.0.1",
+      "content" : "complete"
+    },
+    {
+      "filename" : "v2-0203.json",
+      "resourceType" : "CodeSystem",
+      "id" : "fr-v2-0203",
+      "url" : "http://interopsante.org/fhir/CodeSystem/fr-v2-0203",
+      "version" : "1.0.1",
+      "content" : "complete"
+    },
+    {
+      "filename" : "v2-3311.json",
+      "resourceType" : "CodeSystem",
+      "id" : "fr-v2-3311",
+      "url" : "http://interopsante.org/fhir/CodeSystem/fr-v2-3311",
+      "version" : "1.0.1",
+      "content" : "complete"
+    }
+  ]
+}
