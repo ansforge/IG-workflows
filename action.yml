@@ -113,7 +113,8 @@ runs:
         run: |
           mkdir ~/.fhir
           mkdir ~/.fhir/packages
-          wget -q https://github.com/ansforge/IG-workflows/tree/nriss-simplify-workflow/dependency/hl7.fhir.fr.core%231.1.0 -O ~/.fhir/packages
+          cd ~/.fhir/packages
+          wget -q https://github.com/ansforge/IG-workflows/tree/nriss-simplify-workflow/dependency/hl7.fhir.fr.core%231.1.0
 
       #Install du NOS à partir du ZIP
 #      - name : Install NOS
