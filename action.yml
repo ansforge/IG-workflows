@@ -35,10 +35,6 @@ inputs:
     description: "Permet de lancer le validator CLI et d'accéder au résultat de validation dans la sortie du workflow."
     required: false
     default: "false"
-  termino_server:
-    description: "Url du serveur de terminologie."
-    required: false
-    default: "http://tx.fhir.org"
   publish_repo:
     description: "Repo de publciation de l'IG pour la publication des releases."
     required: false
@@ -74,44 +70,44 @@ runs:
 
           
       # Install .NET runtime la methode bake   
-      - name: Setup .NET Core SDK
-        if: ${{ inputs.bake == 'true' }}       
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: '6.x.x'
+#      - name: Setup .NET Core SDK
+#        if: ${{ inputs.bake == 'true' }}       
+#        uses: actions/setup-dotnet@v3
+#        with:
+#          dotnet-version: '6.x.x'
 
       #Install  Firely pour la méthode bake   
-      - name : firely 
-        if: ${{ inputs.bake == 'true' }}   
-        shell: bash      
-        run : dotnet tool install --global Firely.Terminal --version 3.0.0  
-
+#      - name : firely 
+#        if: ${{ inputs.bake == 'true' }}   
+#        shell: bash      
+#        run : dotnet tool install --global Firely.Terminal --version 3.0.0  
+#
       #Verif de la configuration pour la méthode bake
-      - name: Check Firely Terminal Version
-        if: ${{ inputs.bake == 'true' }} 
-        shell: bash      
-        run: |
-          CHECK_FIRELY_TERMINAL_VERSION=$(fhir -v | tr '\n' ' ') # Print everything in a single line
-          echo "FIRELY_TERMINAL_VERSION: $CHECK_FIRELY_TERMINAL_VERSION"
+#      - name: Check Firely Terminal Version
+#        if: ${{ inputs.bake == 'true' }} 
+#        shell: bash      
+#        run: |
+#          CHECK_FIRELY_TERMINAL_VERSION=$(fhir -v | tr '\n' ' ') # Print everything in a single line
+#          echo "FIRELY_TERMINAL_VERSION: $CHECK_FIRELY_TERMINAL_VERSION"
 
       #Install de l'annuiare depuis simplifier (methode bake)
-      - name: Run bake  ans.annuaire.fhir.r4
-        if: ${{ inputs.bake == 'true' }}   
-        shell: bash            
-        run: |
-          fhir install ans.annuaire.fhir.r4 0.2.0
-          fhir bake --package ans.annuaire.fhir.r4
+#      - name: Run bake  ans.annuaire.fhir.r4
+#        if: ${{ inputs.bake == 'true' }}   
+#        shell: bash            
+#        run: |
+#          fhir install ans.annuaire.fhir.r4 0.2.0
+#          fhir bake --package ans.annuaire.fhir.r4
 
-      #Install du frcore depuis simplifier (methode bake)      
-      - name: Run bake hl7.fhir.fr.core
-        if: ${{ inputs.bake == 'true' }}       
-        shell: bash            
-        run: |
-          fhir install hl7.fhir.fr.core 1.1.0
-          fhir bake --package hl7.fhir.fr.core
+      #Install du frcore depuis simplifier (methode bake)
+#      - name: Run bake hl7.fhir.fr.core
+#        if: ${{ inputs.bake == 'true' }}       
+#        shell: bash            
+#        run: |
+#          fhir install hl7.fhir.fr.core 1.1.0
+#          fhir bake --package hl7.fhir.fr.core
 
      #Patch sur l'installation du frcore 
-      - name: 📥 Download pacth fr-core
+      - name: 📥 Download patch fr-core
         if: ${{ inputs.bake == 'true' }}    
         shell: bash            
         run: |
@@ -119,14 +115,14 @@ runs:
           cp hl7.fhir.fr.core-1.1.0.tgz ~/.fhir/packages
           tar -xzvf ~/.fhir/packages/hl7.fhir.fr.core-1.1.0.tgz     
 
-      #Install du NOS à partir du ZIP   
-      - name : Install NOS
-        if: ${{ inputs.nos == 'true' }}    
-        shell: bash       
-        run: |
-          mkdir /home/runner/.fhir/packages/nos
-          wget -q https://esante.gouv.fr/sites/default/files/media_entity/documents/NOS-Fichiers_Publics-Versions_json_fhir.zip
-          unzip NOS-Fichiers_Publics-Versions_json_fhir.zip -d /home/runner/.fhir/packages/nos         
+      #Install du NOS à partir du ZIP
+#      - name : Install NOS
+#        if: ${{ inputs.nos == 'true' }}    
+#        shell: bash       
+#        run: |
+#          mkdir /home/runner/.fhir/packages/nos
+#          wget -q https://esante.gouv.fr/sites/default/files/media_entity/documents/NOS-Fichiers_Publics-Versions_json_fhir.zip
+#          unzip NOS-Fichiers_Publics-Versions_json_fhir.zip -d /home/runner/.fhir/packages/nos         
 
       #Install de sushi    
       - name: Install modules
@@ -138,7 +134,6 @@ runs:
         shell: bash      
         run: sushi  ${{ inputs.repo_ig}}
 
-
       # Téléchargement de la dernière version du publisher
       - name: 📥 Download IG Publisher
         shell: bash          
@@ -148,7 +143,6 @@ runs:
           else 
             wget -q https://github.com/HL7/fhir-ig-publisher/releases/download/${{inputs.ig-publisher-version}}/publisher.jar
           fi
-
         
       #Récupération du nom de la branche afin de publier dans gh-pages
       - name: Get branch names
@@ -176,7 +170,7 @@ runs:
         shell: bash          
         run : |
               cd  ${{ inputs.repo_ig}}
-              java -Xmx8192m -jar ../publisher.jar  -ig . -tx  ${{ inputs.termino_server }}
+              java -Xmx8192m -jar ../publisher.jar  -ig .
               mkdir ../to_publish/ig
               cp -r ./output/.  ../to_publish/ig
 
@@ -205,7 +199,7 @@ runs:
 
       #Install de python pour la génération du graph plantUml
       - name: Setup Python # Set Python version
-        if: ${{ inputs.generate_plantuml == 'true' }}  
+        if: ${{ inputs.generate_plantuml == 'true' || inputs.generate_mapping_plantuml == 'true'}}  
         uses: actions/setup-python@v4
         with:
           python-version: '3.10' 
@@ -223,14 +217,6 @@ runs:
               mkdir ./to_publish/plantuml
               cp -r ./plantuml/.  ./to_publish/plantuml
 
-
-
-      #Install de python pour la génération du graph plantUml
-      - name: Setup Python # Set Python version
-        if: ${{ inputs.generate_mapping_plantuml == 'true' }}  
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10' 
 
       #Creation du graphique plantUML et publication dans gh-pages
       - name: Run scripts mapping plantuml
@@ -267,7 +253,7 @@ runs:
         run: |
               mkdir ./validator_cli
               cd  ${{ inputs.repo_ig}}
-              java -jar ../validator_cli.jar ./fsh-generated/resources -tx  ${{ inputs.termino_server }} -ig ans.annuaire.fhir.r4#0.2.0 -ig hl7.fhir.fr.core#1.1.0 -ig ans.fr.nos -recurse -verbose -output-style compact -output ../validator_cli/rapport.html
+              java -jar ../validator_cli.jar ./fsh-generated/resources -ig ans.annuaire.fhir.r4#0.2.0 -ig hl7.fhir.fr.core#1.1.0 -ig ans.fr.nos -recurse -verbose -output-style compact -output ../validator_cli/rapport.html
         continue-on-error: true
 
       #Creation de la sortie du validator_cli dans le workflow
