@@ -1,0 +1,110 @@
+{
+  "index-version" : 2,
+  "files" : [
+    {
+      "filename" : "Appointment-691823e6-f64f-41f8-9d23-0b36eeccba78.json",
+      "resourceType" : "Appointment",
+      "id" : "691823e6-f64f-41f8-9d23-0b36eeccba78"
+    },
+    {
+      "filename" : "Appointment-cfa15d3d-6c62-40d4-b408-d20dff8aed26.json",
+      "resourceType" : "Appointment",
+      "id" : "cfa15d3d-6c62-40d4-b408-d20dff8aed26"
+    },
+    {
+      "filename" : "Encounter-Mouvement-Cardio-R4.json",
+      "resourceType" : "Encounter",
+      "id" : "fr-encounter-mouvement-cardio-13122019"
+    },
+    {
+      "filename" : "Encounter-Mouvement-Pneumo-R4.json",
+      "resourceType" : "Encounter",
+      "id" : "fr-encounter-mouvement-pneumo-11122019"
+    },
+    {
+      "filename" : "Encounter-Venue-R4.json",
+      "resourceType" : "Encounter",
+      "id" : "fr-encounter-venue-11122019"
+    },
+    {
+      "filename" : "Location-Cardio-R4-v1.json",
+      "resourceType" : "Location",
+      "id" : "exemple-location-cardiologie-12122019"
+    },
+    {
+      "filename" : "Location-Pneumologie-R4-v1.json",
+      "resourceType" : "Location",
+      "id" : "exemple-location-pneumologie-05122019"
+    },
+    {
+      "filename" : "Organisation-Cardiologie-HopitalTest-R4-v1.json",
+      "resourceType" : "Organization",
+      "id" : "exemple-organisation-cardiologie-11122019"
+    },
+    {
+      "filename" : "Organisation-Pneumologie-HopitalTest-R4-v1.json",
+      "resourceType" : "Organization",
+      "id" : "exemple-organisation-pneumologie-05122019"
+    },
+    {
+      "filename" : "Organisation-Uf-hebergement-Cardio-R4-v1.json",
+      "resourceType" : "Organization",
+      "id" : "exemple-uf-hebergement-cardiologie-13122019"
+    },
+    {
+      "filename" : "Organisation-Uf-hebergement-Pneumot-R4-v1.json",
+      "resourceType" : "Organization",
+      "id" : "exemple-uf-hebergement-pneumologie-13122019"
+    },
+    {
+      "filename" : "Organisation-Uf-medicale-Cardio-R4-v1.json",
+      "resourceType" : "Organization",
+      "id" : "exemple-uf-medicale-cardiologie-13122019"
+    },
+    {
+      "filename" : "Organisation-Uf-medicale-Pneumo-R4-v1.json",
+      "resourceType" : "Organization",
+      "id" : "exemple-uf-medicale-pneumologie-13122019"
+    },
+    {
+      "filename" : "Organization-HopitalTest-R4.json",
+      "resourceType" : "Organization",
+      "id" : "exemple-organisation-hopitalTest-05122019"
+    },
+    {
+      "filename" : "Patient avec INSNIR logique.json",
+      "resourceType" : "Patient",
+      "id" : "6106172"
+    },
+    {
+      "filename" : "Patient sans NIR.json",
+      "resourceType" : "Patient",
+      "id" : "6106337"
+    },
+    {
+      "filename" : "Patient-FHIR-Patient-Prenom-FHIR-Patient-Fixtures.json",
+      "resourceType" : "Patient",
+      "id" : "c8f895b7-84a5-488f-bf9b-1eefc0cb3091"
+    },
+    {
+      "filename" : "Patient-Martine-Selfiesante.json",
+      "resourceType" : "Patient",
+      "id" : "f32ace62-4040-44df-9281-4c6844902777"
+    },
+    {
+      "filename" : "Patient-MichelAngelo-Nessi.json",
+      "resourceType" : "Patient",
+      "id" : "1292"
+    },
+    {
+      "filename" : "Schedule-4867edec-e6ef-4ce7-a409-7e32a79a7148.json",
+      "resourceType" : "Schedule",
+      "id" : "4867edec-e6ef-4ce7-a409-7e32a79a7148"
+    },
+    {
+      "filename" : "Slot-6f737746-3abf-4141-977e-fc0f934e2fc9-6377.json",
+      "resourceType" : "Slot",
+      "id" : "6f737746-3abf-4141-977e-fc0f934e2fc9-6377"
+    }
+  ]
+}
