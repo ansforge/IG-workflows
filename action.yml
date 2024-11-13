@@ -179,7 +179,7 @@ runs:
 
       #Install de python pour la génération du graph plantUml
       - name: Setup Python # Set Python version
-        if: ${{ inputs.generate_plantuml == 'true' }}  
+        if: ${{ inputs.generate_plantuml == 'true' || inputs.generate_mapping_plantuml == 'true' }}  
         uses: actions/setup-python@v4
         with:
           python-version: '3.10' 
@@ -196,13 +196,6 @@ runs:
               java -jar plantuml-1.2024.0.jar  -tsvg -tpng  "./plantuml"
               mkdir ./to_publish/plantuml
               cp -r ./plantuml/.  ./to_publish/plantuml
-
-      #Install de python pour la génération du graph plantUml
-      - name: Setup Python # Set Python version
-        if: ${{ inputs.generate_mapping_plantuml == 'true' }}  
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10' 
 
       #Creation du graphique plantUML et publication dans gh-pages
       - name: Run scripts mapping plantuml
