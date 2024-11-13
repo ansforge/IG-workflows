@@ -95,20 +95,19 @@ runs:
           echo "FIRELY_TERMINAL_VERSION: $CHECK_FIRELY_TERMINAL_VERSION"
 
       #Install de l'annuiare depuis simplifier (methode bake)
-      - name: Run bake  ans.annuaire.fhir.r4
-        if: ${{ inputs.bake == 'true' }}   
-        shell: bash            
-        run: |
-          fhir install ans.annuaire.fhir.r4 0.2.0
-          fhir bake --package ans.annuaire.fhir.r4
-
-      #Install du frcore depuis simplifier (methode bake)      
-      # - name: Run bake hl7.fhir.fr.core
-      #   if: ${{ inputs.bake == 'true' }}       
+      # - name: Run bake  ans.annuaire.fhir.r4
+      #   if: ${{ inputs.bake == 'true' }}   
       #   shell: bash            
       #   run: |
-      #     fhir install hl7.fhir.fr.core 1.1.0
-      #     fhir bake --package hl7.fhir.fr.core
+      #     fhir install ans.annuaire.fhir.r4 0.2.0
+      #     fhir bake --package ans.annuaire.fhir.r4
+
+      #Install du frcore depuis simplifier (methode bake)      
+      - name: Run bake hl7.fhir.fr.core
+        if: ${{ inputs.bake == 'true' }}       
+        shell: bash            
+        run: |
+          fhir install hl7.fhir.fr.core 1.1.0
 
      #Patch sur l'installation du frcore 
       - name: 📥 Download patch fr-core
