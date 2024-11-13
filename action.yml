@@ -60,7 +60,6 @@ runs:
         shell: bash      
         run : mkdir to_publish
 
-
       #Install  JAVA
       - name: Setup Java JDK
         uses: actions/setup-java@v4
@@ -71,8 +70,6 @@ runs:
         with:
           node-version: 20
 
-
-          
       # Install .NET runtime la methode bake   
       - name: Setup .NET Core SDK
         if: ${{ inputs.bake == 'true' }}       
@@ -120,7 +117,6 @@ runs:
         shell: bash      
         run: sushi  ${{ inputs.repo_ig}}
 
-
       # Téléchargement de la dernière version du publisher
       - name: 📥 Download IG Publisher
         shell: bash          
@@ -130,7 +126,6 @@ runs:
           else 
             wget -q https://github.com/HL7/fhir-ig-publisher/releases/download/${{inputs.ig-publisher-version}}/publisher.jar
           fi
-
         
       #Récupération du nom de la branche afin de publier dans gh-pages
       - name: Get branch names
@@ -145,7 +140,7 @@ runs:
           bundler-cache: true # runs 'bundle install' and caches installed gems automatically
           
       #Install  jekyll, graphviz
-      - name: Install  jekyll and graphviz        
+      - name: Install  jekyll and graphviz
         shell: bash          
         run: |
           sudo gem install jekyll
@@ -157,6 +152,7 @@ runs:
         run : |
               cd  ${{ inputs.repo_ig}}
               java -Xmx8192m -jar ../publisher.jar  -ig . -tx  ${{ inputs.termino_server }}
+              cat ./output/qa.min.html
               mkdir ../to_publish/ig
               cp -r ./output/.  ../to_publish/ig
 
@@ -181,8 +177,6 @@ runs:
               mkdir ../to_publish/testscript
               cp -r ./generated_testscripts/.  ../to_publish/testscript
 
-
-
       #Install de python pour la génération du graph plantUml
       - name: Setup Python # Set Python version
         if: ${{ inputs.generate_plantuml == 'true' }}  
@@ -202,8 +196,6 @@ runs:
               java -jar plantuml-1.2024.0.jar  -tsvg -tpng  "./plantuml"
               mkdir ./to_publish/plantuml
               cp -r ./plantuml/.  ./to_publish/plantuml
-
-
 
       #Install de python pour la génération du graph plantUml
       - name: Setup Python # Set Python version
@@ -225,9 +217,6 @@ runs:
               java -jar plantuml-1.2024.0.jar  -tsvg -tpng  "./plantuml"
               mkdir ./to_publish/plantuml_mapping
               cp -r ./plantuml_mapping/.  ./to_publish/plantuml_mapping
-
-
-          
 
       #Téléchargement de la dernière version du validator_cli
       - name: 📥 Download test tools
@@ -256,7 +245,6 @@ runs:
           cp -r ./validator_cli/.  ./to_publish/validator_cli
           echo "### Rapport de validation (validator_cli)  :rocket:" >> $GITHUB_STEP_SUMMARY
           cat ./validator_cli/rapport.html >> $GITHUB_STEP_SUMMARY
-          
        
       - name: 🚀 Deploy to GitHub-Pages
         if: ${{ inputs.github_page == 'true' }}          
@@ -282,7 +270,7 @@ runs:
       #Initialisation du repo
       - name: Init   publish_repo  
         if: ${{ inputs.publish_repo != '' }}             
-        shell: bash        
+        shell: bash
         run: |
           cd  IG-website-release
           git submodule update --init --recursive
@@ -313,7 +301,6 @@ runs:
           github_token: ${{ inputs.publish_repo_token}}
           directory: IG-website-release
           repository : ${{ inputs.publish_repo}}
-
 
 branding:
   icon: 'check'
