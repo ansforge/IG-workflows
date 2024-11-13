@@ -337,7 +337,6 @@ runs:
         shell: bash
         if: ${{ inputs.publish_repo != '' && inputs.cda == 'true' }}
         run : |
-              cd  
               mkdir  IG-website-release/cda
               cp -r ${{ inputs.repo_ig}}/input/cda  IG-website-release/cda
 
