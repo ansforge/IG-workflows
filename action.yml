@@ -94,14 +94,6 @@ runs:
           CHECK_FIRELY_TERMINAL_VERSION=$(fhir -v | tr '\n' ' ') # Print everything in a single line
           echo "FIRELY_TERMINAL_VERSION: $CHECK_FIRELY_TERMINAL_VERSION"
 
-      #Install de l'annuiare depuis simplifier (methode bake)
-      # - name: Run bake  ans.annuaire.fhir.r4
-      #   if: ${{ inputs.bake == 'true' }}   
-      #   shell: bash            
-      #   run: |
-      #     fhir install ans.annuaire.fhir.r4 0.2.0
-      #     fhir bake --package ans.annuaire.fhir.r4
-
       #Install du frcore depuis simplifier (methode bake)      
       - name: Run bake hl7.fhir.fr.core
         if: ${{ inputs.bake == 'true' }}       
@@ -158,8 +150,6 @@ runs:
         run: |
           sudo gem install jekyll
           sudo apt-get install graphviz
-
-
         
       # Creation de l'IG
       - name: 🏃‍♂️ Run IG Publisher
@@ -254,7 +244,7 @@ runs:
         run: |
               mkdir ./validator_cli
               cd  ${{ inputs.repo_ig}}
-              java -jar ../validator_cli.jar ./fsh-generated/resources -tx  ${{ inputs.termino_server }} -ig ans.annuaire.fhir.r4#0.2.0 -ig hl7.fhir.fr.core#1.1.0 -ig ans.fr.nos -recurse -verbose -output-style compact -output ../validator_cli/rapport.html
+              java -jar ../validator_cli.jar ./fsh-generated/resources -tx  ${{ inputs.termino_server }} -recurse -verbose -output-style compact -output ../validator_cli/rapport.html
         continue-on-error: true
 
       #Creation de la sortie du validator_cli dans le workflow
