@@ -35,10 +35,6 @@ inputs:
     description: "Permet de lancer le validator CLI et d'accéder au résultat de validation dans la sortie du workflow."
     required: false
     default: "false"
-  termino_server:
-    description: "Url du serveur de terminologie."
-    required: false
-    default: "http://tx.fhir.org"
   publish_repo:
     description: "Repo de publciation de l'IG pour la publication des releases."
     required: false
@@ -151,7 +147,7 @@ runs:
         shell: bash          
         run : |
               cd  ${{ inputs.repo_ig}}
-              java -Xmx8192m -jar ../publisher.jar  -ig . -tx  ${{ inputs.termino_server }}
+              java -Xmx8192m -jar ../publisher.jar  -ig .
               cat ./output/qa.min.html >> $GITHUB_STEP_SUMMARY
               mkdir ../to_publish/ig
               cp -r ./output/.  ../to_publish/ig
@@ -226,7 +222,7 @@ runs:
         run: |
               mkdir ./validator_cli
               cd  ${{ inputs.repo_ig}}
-              java -jar ../validator_cli.jar ./fsh-generated/resources -tx  ${{ inputs.termino_server }} -recurse -verbose -output-style compact -output ../validator_cli/rapport.html
+              java -jar ../validator_cli.jar ./fsh-generated/resources -recurse -verbose -output-style compact -output ../validator_cli/rapport.html
         continue-on-error: true
 
       #Creation de la sortie du validator_cli dans le workflow
