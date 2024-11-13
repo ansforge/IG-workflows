@@ -103,30 +103,21 @@ runs:
           fhir bake --package ans.annuaire.fhir.r4
 
       #Install du frcore depuis simplifier (methode bake)      
-      - name: Run bake hl7.fhir.fr.core
-        if: ${{ inputs.bake == 'true' }}       
-        shell: bash            
-        run: |
-          fhir install hl7.fhir.fr.core 1.1.0
-          fhir bake --package hl7.fhir.fr.core
+      # - name: Run bake hl7.fhir.fr.core
+      #   if: ${{ inputs.bake == 'true' }}       
+      #   shell: bash            
+      #   run: |
+      #     fhir install hl7.fhir.fr.core 1.1.0
+      #     fhir bake --package hl7.fhir.fr.core
 
      #Patch sur l'installation du frcore 
-      - name: 📥 Download pacth fr-core
+      - name: 📥 Download patch fr-core
         if: ${{ inputs.bake == 'true' }}    
         shell: bash            
         run: |
           wget -q https://github.com/ansforge/FIG_ans.workflows/blob/main/dependency/hl7.fhir.fr.core-1.1.0.tgz?raw=true -O ./hl7.fhir.fr.core-1.1.0.tgz
           cp hl7.fhir.fr.core-1.1.0.tgz ~/.fhir/packages
-          tar -xzvf ~/.fhir/packages/hl7.fhir.fr.core-1.1.0.tgz     
-
-      #Install du NOS à partir du ZIP   
-      - name : Install NOS
-        if: ${{ inputs.nos == 'true' }}    
-        shell: bash       
-        run: |
-          mkdir /home/runner/.fhir/packages/nos
-          wget -q https://esante.gouv.fr/sites/default/files/media_entity/documents/NOS-Fichiers_Publics-Versions_json_fhir.zip
-          unzip NOS-Fichiers_Publics-Versions_json_fhir.zip -d /home/runner/.fhir/packages/nos         
+          tar -xzvf ~/.fhir/packages/hl7.fhir.fr.core-1.1.0.tgz             
 
       #Install de sushi    
       - name: Install modules
@@ -248,9 +239,6 @@ runs:
 
 
           
-
-
-
 
       #Téléchargement de la dernière version du validator_cli
       - name: 📥 Download test tools
