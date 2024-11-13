@@ -331,6 +331,16 @@ runs:
         run :   java -jar publisher.jar -go-publish  -source  ${{ inputs.repo_ig}}  -web  ${{  inputs.publish_path_outpout }} -registry ./IG-website-release/ig-registry/fhir-ig-list.json -history ./IG-website-release/fhir-ig-history-template -templates ./IG-website-release/templates 
                 
 
+
+     # CP CDA
+      - name: Copy CDA
+        shell: bash
+        if: ${{ inputs.publish_repo != '' && inputs.cda == 'true' }}
+        run : |
+              cd  
+              mkdir  IG-website-release/cda
+              cp -r ${{ inputs.repo_ig}}/input/cda  IG-website-release/cda
+
       #Commit de la release
       - name: Commit change
         if: ${{ inputs.publish_repo != '' }}  
