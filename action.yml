@@ -51,6 +51,20 @@ runs:
   using: "composite"
   steps:
 
+      #Suppression cache ubuntu
+      - name: Free Disk Space (Ubuntu)
+        uses: insightsengineering/disk-space-reclaimer@v1
+        with:
+          tools-cache: false
+          android: true
+
+      #Affichage des partitions
+      - name: size        
+        run: |
+          df -h
+
+
+
       #Creation du repertoire to_publish
       - name : Create to_publish   
         shell: bash      
