@@ -59,7 +59,8 @@ runs:
           android: true
 
       #Affichage des partitions
-      - name: size        
+      - name: size    
+        shell: bash     
         run: |
           df -h
 
