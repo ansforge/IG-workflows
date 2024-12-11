@@ -51,18 +51,7 @@ runs:
   using: "composite"
   steps:
 
-      #Suppression cache ubuntu
-      - name: Free Disk Space (Ubuntu)
-        uses: insightsengineering/disk-space-reclaimer@v1
-        with:
-          tools-cache: false
-          android: true
 
-      #Affichage des partitions
-      - name: size    
-        shell: bash     
-        run: |
-          df -h
 
 
 
@@ -268,6 +257,22 @@ runs:
           commit_message: ' ${{ github.event.head_commit.message }}'
 
 #####Release###########
+
+
+      #Suppression cache ubuntu
+      - name: Free Disk Space (Ubuntu)
+        if: ${{ inputs.publish_repo != '' }}          
+        uses: insightsengineering/disk-space-reclaimer@v1
+        with:
+          tools-cache: false
+          android: true
+
+      #Affichage des partitions
+      - name: size    
+        if: ${{ inputs.publish_repo != '' }}   
+        shell: bash     
+        run: |
+          df -h
 
       #Récupération du repo de publication
       - name: Get publish_repo
