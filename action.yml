@@ -319,7 +319,10 @@ runs:
           repository : ${{ inputs.publish_repo}}
 
       # recuperation des informations du publication-request.json
-      - run: |
+      - name: Get information from PublicationRequest for GH Release
+        if: ${{ inputs.publish_repo != '' }}  
+        shell: bash       
+        run: |
           echo 'PACKAGE_JSON<<EOF' >> $GITHUB_ENV
           cat ${{ inputs.repo_ig}}/publication-request.json >> $GITHUB_ENV
           echo 'EOF' >> $GITHUB_ENV
