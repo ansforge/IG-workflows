@@ -340,7 +340,8 @@ runs:
           
           gh release upload "${{ fromJson(env.PACKAGE_JSON).version }}" ${{  inputs.publish_path_outpout }}/${file_path}/full-ig.zip  --repo="$GITHUB_REPOSITORY" 
           gh release upload "${{ fromJson(env.PACKAGE_JSON).version }}" ${{  inputs.publish_path_outpout }}${file_path}/package.tgz --repo="$GITHUB_REPOSITORY" 
-
+        env:
+          GH_TOKEN:  ${{ inputs.github_page_token }}
         
 
 branding:
