@@ -159,7 +159,7 @@ runs:
         run : |
               cd  ${{ inputs.repo_ig}}
               java -Xmx8192m -jar ../publisher.jar  -ig .
-              cat ./output/qa.min.html >> $GITHUB_STEP_SUMMARY
+              [ -f ./output/qa.min.html ] && cat ./output/qa.min.html >> $GITHUB_STEP_SUMMARY
               mkdir ../to_publish/ig
               cp -r ./output/.  ../to_publish/ig
 
