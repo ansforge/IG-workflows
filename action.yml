@@ -334,7 +334,7 @@ runs:
         run: |
           gh release create "${{ fromJson(env.PACKAGE_JSON).version }}" -t "Release : ${{  fromJson(env.PACKAGE_JSON).version }}"  --generate-notes  --repo="$GITHUB_REPOSITORY" 
           
-          regex='^https?:\/\/[A-Za-z0-9:.]*([\/]{1}.*\/?)$'
+          regex='^https?:\/\/[A-Za-z0-9:.]*\/(?:.+\/)*?([^\/]+\/[^\/]+)\/?$'
           [[ ${{ fromJson(env.PACKAGE_JSON).path }} =~ $regex ]]
           file_path=${BASH_REMATCH[1]}
           
