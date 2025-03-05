@@ -336,7 +336,7 @@ runs:
           
           regex='^https?:\/\/[A-Za-z0-9:.]*\/(?:.+\/)*?([^\/]+\/[^\/]+)\/?$'
           [[ ${{ fromJson(env.PACKAGE_JSON).path }} =~ $regex ]]
-          file_path=${BASH_REMATCH[1]}
+          file_path=${{ BASH_REMATCH[1] }}
           echo ${{ file_path }}
           echo  "${{inputs.publish_path_outpout }}/${{file_path}}/full-ig.zip"
           gh release upload "${{ fromJson(env.PACKAGE_JSON).version }}" ${{  inputs.publish_path_outpout }}/${{ file_path }}/full-ig.zip  --repo="$GITHUB_REPOSITORY" 
