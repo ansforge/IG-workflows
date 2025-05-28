@@ -158,7 +158,7 @@ runs:
         shell: bash          
         run : |
               cd  ${{ inputs.repo_ig}}
-              java -Xmx8192m -jar ../publisher.jar  -ig .
+              java -Xmx8192m -jar ../publisher.jar  -ig .   -authorise-non-conformant-tx-servers
               [ -f ./output/qa.min.html ] && cat ./output/qa.min.html >> $GITHUB_STEP_SUMMARY
               mkdir ../to_publish/ig
               cp -r ./output/.  ../to_publish/ig
@@ -295,7 +295,7 @@ runs:
       - name: 🏃‍♂️ Run  Publisher to release
         if: ${{ inputs.publish_repo != '' }}  
         shell: bash                
-        run :   java -jar publisher.jar -go-publish  -source  ${{ inputs.repo_ig}}  -web  ${{  inputs.publish_path_outpout }} -registry ./IG-website-release/ig-registry/fhir-ig-list.json -history ./IG-website-release/fhir-ig-history-template -templates ./IG-website-release/templates 
+        run :   java -jar publisher.jar -go-publish    -authorise-non-conformant-tx-servers  -source  ${{ inputs.repo_ig}}  -web  ${{  inputs.publish_path_outpout }} -registry ./IG-website-release/ig-registry/fhir-ig-list.json -history ./IG-website-release/fhir-ig-history-template -templates ./IG-website-release/templates 
                 
 
       #Commit de la release
