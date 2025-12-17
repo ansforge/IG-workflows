@@ -54,7 +54,7 @@ inputs:
   enable_ig_registry_pr:
     description: "Active la création automatique de PR vers FHIR/ig-registry"
     required: false
-    default: "false"
+    default: "true"
 runs:
   using: "composite"
   steps:
