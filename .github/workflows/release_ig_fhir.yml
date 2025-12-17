@@ -18,10 +18,27 @@ jobs:
           repository: ansforge/IG-website-release
           path: IG-website-release
   
-      - name: Init        
+      - name: Init
         run: |
           cd  IG-website-release
           git submodule update --init --recursive
+
+      - name: Sync ig-registry fork with upstream
+        run: |
+          cd IG-website-release/ig-registry
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Add upstream remote (FHIR/ig-registry)
+          git remote add upstream https://github.com/FHIR/ig-registry.git || true
+
+          # Fetch upstream and merge
+          git fetch upstream
+          git checkout main || git checkout master
+          git merge upstream/main --no-edit || git merge upstream/master --no-edit
+
+          # Push to personal fork to keep it synced
+          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/nriss/ig-registry.git HEAD:main
           
           
       - uses: actions/checkout@v3
@@ -87,17 +104,53 @@ jobs:
         run : java -Xmx8192m -jar publisher.jar publisher -ig igRepo/.  
         
       - name: 🏃‍♂️ Run  Publisher to release
-        run :   java -jar publisher.jar -go-publish  -source igRepo  -web  ./IG-website-release/www/ig/fhir -registry ./IG-website-release/ig-registry/fhir-ig-list.json -history ./IG-website-release/fhir-ig-history-template -templates ./IG-website-release/templates 
-        
-          
-        
-      - name: Commit change
+        run :   java -jar publisher.jar -go-publish  -source igRepo  -web  ./IG-website-release/www/ig/fhir -registry ./IG-website-release/ig-registry/fhir-ig-list.json -history ./IG-website-release/fhir-ig-history-template -templates ./IG-website-release/templates
+
+      - name: Commit and push ig-registry changes
+        run: |
+          cd IG-website-release/ig-registry
+
+          # Check if there are changes in fhir-ig-list.json
+          if git diff --quiet fhir-ig-list.json; then
+            echo "No changes in ig-registry, skipping PR creation"
+            echo "CREATE_PR=false" >> $GITHUB_ENV
+          else
+            echo "Changes detected in ig-registry"
+            echo "CREATE_PR=true" >> $GITHUB_ENV
+
+            # Create a new branch for the PR
+            BRANCH_NAME="ans-update-$(date +%Y%m%d-%H%M%S)"
+            echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
+
+            git checkout -b $BRANCH_NAME
+            git add fhir-ig-list.json
+
+            # Commit with multi-line message
+            git commit -m "Update ANS FHIR Implementation Guides" -m "Automated update from ANS IG publication workflow." -m "This commit updates the FHIR IG registry with the latest ANS Implementation Guides."
+
+            # Push to personal fork
+            git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/nriss/ig-registry.git $BRANCH_NAME
+          fi
+
+      - name: Create Pull Request to FHIR/ig-registry
+        if: env.CREATE_PR == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd IG-website-release/ig-registry
+          gh pr create \
+            --repo FHIR/ig-registry \
+            --head nriss:${{ env.BRANCH_NAME }} \
+            --title "Update ANS FHIR Implementation Guides" \
+            --body "Automated PR from ANS Publication Workflow. This PR updates the FHIR IG registry with the latest ANS (Agence du Numérique en Santé) Implementation Guides. Please review and merge if the changes look correct."
+
+      - name: Commit change in IG-website-release
         run: |
           cd  IG-website-release
           git config user.name github-actions
           git config user.email github-actions@esante.gouv.fr
-          git add -A 
-          git commit -m updated
+          git add -A
+          git commit -m updated || echo "No changes to commit"
           
       - name: Push changes 
         uses: ad-m/github-push-action@master
