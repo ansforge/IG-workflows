@@ -305,7 +305,7 @@ runs:
         shell: bash
         env:
           FORK_OWNER: ${{ inputs.ig_registry_fork_owner }}
-          GH_TOKEN: ${{ inputs.github_page_token }}
+          GH_TOKEN: ${{ inputs.publish_repo_token }}
         run: |
           cd IG-website-release/ig-registry
           git config user.name "github-actions[bot]"
@@ -334,7 +334,7 @@ runs:
         shell: bash
         env:
           FORK_OWNER: ${{ inputs.ig_registry_fork_owner }}
-          GH_TOKEN: ${{ inputs.github_page_token }}
+          GH_TOKEN: ${{ inputs.publish_repo_token }}
         run: |
           cd IG-website-release/ig-registry
 
@@ -365,7 +365,7 @@ runs:
         if: ${{ inputs.enable_ig_registry_pr == 'true' && env.CREATE_PR == 'true' }}
         shell: bash
         env:
-          GH_TOKEN: ${{ inputs.github_page_token }}
+          GH_TOKEN: ${{ inputs.publish_repo_token }}
           FORK_OWNER: ${{ inputs.ig_registry_fork_owner }}
           PR_BRANCH: ${{ env.BRANCH_NAME }}
         run: |
