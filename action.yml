@@ -50,7 +50,7 @@ inputs:
   ig_registry_fork_owner:
     description: "Propriétaire du fork ig-registry pour les PRs (ex: ansforge)"
     required: false
-    default: "nriss"
+    default: "ansforge"
   enable_ig_registry_pr:
     description: "Active la création automatique de PR vers FHIR/ig-registry"
     required: false
