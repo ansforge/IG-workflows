@@ -55,6 +55,14 @@ inputs:
     description: "Active la création automatique de PR vers FHIR/ig-registry"
     required: false
     default: "true"
+  ig_registry_authority:
+    description: "Authority pour fhir-ig-list.json (ex: ANS (FR))"
+    required: false
+    default: "ANS (FR)"
+  ig_registry_country:
+    description: "Country code pour fhir-ig-list.json (ex: fr)"
+    required: false
+    default: "fr"
 runs:
   using: "composite"
   steps:
@@ -335,6 +343,8 @@ runs:
         env:
           FORK_OWNER: ${{ inputs.ig_registry_fork_owner }}
           GH_TOKEN: ${{ inputs.publish_repo_token }}
+          IG_AUTHORITY: ${{ inputs.ig_registry_authority }}
+          IG_COUNTRY: ${{ inputs.ig_registry_country }}
         run: |
           cd IG-website-release/ig-registry
 
@@ -344,6 +354,22 @@ runs:
             echo "CREATE_PR=false" >> $GITHUB_ENV
           else
             echo "Changes detected in ig-registry"
+
+            # Extract package ID from publication-request.json
+            PACKAGE_ID=$(jq -r '."package-id"' ../../${{ inputs.repo_ig}}/publication-request.json)
+            echo "Package ID: $PACKAGE_ID"
+
+            # Update authority and country in fhir-ig-list.json using jq
+            jq --arg pkg "$PACKAGE_ID" --arg auth "$IG_AUTHORITY" --arg country "$IG_COUNTRY" '
+              .guides = (.guides | map(
+                if (.["npm-name"] == $pkg) then
+                  .authority = $auth | .country = $country
+                else
+                  .
+                end
+              ))
+            ' fhir-ig-list.json > fhir-ig-list.json.tmp && mv fhir-ig-list.json.tmp fhir-ig-list.json
+
             echo "CREATE_PR=true" >> $GITHUB_ENV
 
             # Create a new branch for the PR
@@ -369,12 +395,16 @@ runs:
           FORK_OWNER: ${{ inputs.ig_registry_fork_owner }}
           PR_BRANCH: ${{ env.BRANCH_NAME }}
         run: |
+          # Extract package ID and version from publication-request.json
+          PACKAGE_ID=$(jq -r '."package-id"' ${{ inputs.repo_ig}}/publication-request.json)
+          VERSION=$(jq -r '.version' ${{ inputs.repo_ig}}/publication-request.json)
+
           cd IG-website-release/ig-registry
           gh pr create \
             --repo FHIR/ig-registry \
             --head "${FORK_OWNER}:${PR_BRANCH}" \
-            --title "Update ANS FHIR Implementation Guides" \
-            --body "Automated PR from ANS Publication Workflow. This PR updates the FHIR IG registry with the latest ANS (Agence du Numérique en Santé) Implementation Guides. Please review and merge if the changes look correct."
+            --title "ANS (french e-health agency) - Add new IG in the fhir-ig-list - ${PACKAGE_ID} - v${VERSION}" \
+            --body "Automated PR from ANS Publication Workflow. This PR updates the FHIR IG registry with the latest ANS (Agence du Numérique en Santé) Implementation Guide: **${PACKAGE_ID}** version **${VERSION}**. Please review and merge if the changes look correct."
 
       #Commit de la release
       - name: Commit change
