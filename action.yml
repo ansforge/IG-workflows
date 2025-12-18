@@ -345,6 +345,7 @@ runs:
           GH_TOKEN: ${{ inputs.publish_repo_token }}
           IG_AUTHORITY: ${{ inputs.ig_registry_authority }}
           IG_COUNTRY: ${{ inputs.ig_registry_country }}
+          REPO_IG: ${{ inputs.repo_ig }}
         run: |
           cd IG-website-release/ig-registry
 
@@ -356,7 +357,7 @@ runs:
             echo "Changes detected in ig-registry"
 
             # Extract package ID from publication-request.json
-            PACKAGE_ID=$(jq -r '."package-id"' ../../${{ inputs.repo_ig}}/publication-request.json)
+            PACKAGE_ID=$(jq -r '."package-id"' "../../${REPO_IG}/publication-request.json")
             echo "Package ID: $PACKAGE_ID"
 
             # Update authority and country in fhir-ig-list.json using jq
@@ -394,10 +395,11 @@ runs:
           GH_TOKEN: ${{ inputs.publish_repo_token }}
           FORK_OWNER: ${{ inputs.ig_registry_fork_owner }}
           PR_BRANCH: ${{ env.BRANCH_NAME }}
+          REPO_IG: ${{ inputs.repo_ig }}
         run: |
           # Extract package ID and version from publication-request.json
-          PACKAGE_ID=$(jq -r '."package-id"' ${{ inputs.repo_ig}}/publication-request.json)
-          VERSION=$(jq -r '.version' ${{ inputs.repo_ig}}/publication-request.json)
+          PACKAGE_ID=$(jq -r '."package-id"' "${REPO_IG}/publication-request.json")
+          VERSION=$(jq -r '.version' "${REPO_IG}/publication-request.json")
 
           cd IG-website-release/ig-registry
           gh pr create \
@@ -410,10 +412,12 @@ runs:
       - name: Commit change
         if: ${{ inputs.publish_repo != '' }}
         shell: bash
+        env:
+          REPO_IG: ${{ inputs.repo_ig }}
         run: |
           # Extract package ID and version from publication-request.json
-          PACKAGE_ID=$(jq -r '."package-id"' ${{ inputs.repo_ig}}/publication-request.json)
-          VERSION=$(jq -r '.version' ${{ inputs.repo_ig}}/publication-request.json)
+          PACKAGE_ID=$(jq -r '."package-id"' "${REPO_IG}/publication-request.json")
+          VERSION=$(jq -r '.version' "${REPO_IG}/publication-request.json")
 
           cd  IG-website-release
           git config user.name github-actions
