@@ -360,16 +360,15 @@ runs:
             PACKAGE_ID=$(jq -r '."package-id"' "../../${REPO_IG}/publication-request.json")
             echo "Package ID: $PACKAGE_ID"
 
-            # Update authority and country in fhir-ig-list.json using jq
-            jq --arg pkg "$PACKAGE_ID" --arg auth "$IG_AUTHORITY" --arg country "$IG_COUNTRY" '
-              .guides = (.guides | map(
-                if (.["npm-name"] == $pkg) then
-                  .authority = $auth | .country = $country
-                else
-                  .
-                end
-              ))
-            ' fhir-ig-list.json > fhir-ig-list.json.tmp && mv fhir-ig-list.json.tmp fhir-ig-list.json
+            # Update authority and country in fhir-ig-list.json using sed
+            # This preserves the original formatting and only modifies the relevant fields
+            sed -i.bak -e '
+              /"npm-name"[[:space:]]*:[[:space:]]*"'"$PACKAGE_ID"'"/,/"editions"[[:space:]]*:/ {
+                s|\("authority"[[:space:]]*:[[:space:]]*\)"[^"]*"|\1"'"$IG_AUTHORITY"'"|
+                s|\("country"[[:space:]]*:[[:space:]]*\)"[^"]*"|\1"'"$IG_COUNTRY"'"|
+              }
+            ' fhir-ig-list.json
+            rm -f fhir-ig-list.json.bak
 
             echo "CREATE_PR=true" >> $GITHUB_ENV
 
@@ -420,6 +419,11 @@ runs:
           VERSION=$(jq -r '.version' "${REPO_IG}/publication-request.json")
 
           cd  IG-website-release
+
+          # Reset ig-registry submodule to avoid including unreleased changes
+          # The ig-registry changes are already pushed to a separate branch and will be merged via PR
+          git submodule update --init ig-registry
+
           git config user.name github-actions
           git config user.email github-actions@esante.gouv.fr
           git add -A
