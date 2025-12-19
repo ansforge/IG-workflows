@@ -384,7 +384,7 @@ runs:
             git commit -m "Update ANS FHIR Implementation Guides" -m "Automated update from ANS IG publication workflow." -m "This commit updates the FHIR IG registry with the latest ANS Implementation Guides."
 
             # Push to personal fork
-            git push https://x-access-token:${GH_TOKEN}@github.com/${FORK_OWNER}/ig-registry.git "$BRANCH_NAME"
+            git push -u https://x-access-token:${GH_TOKEN}@github.com/${FORK_OWNER}/ig-registry.git "$BRANCH_NAME"
           fi
 
       #Création de la Pull Request vers FHIR/ig-registry
