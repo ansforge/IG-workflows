@@ -246,8 +246,14 @@ runs:
           echo "### Rapport de validation (validator_cli)  :rocket:" >> $GITHUB_STEP_SUMMARY
           cat ./validator_cli/rapport.html >> $GITHUB_STEP_SUMMARY
        
+      - name: Create .gitignore for gh-pages
+        if: ${{ inputs.github_page == 'true' }}
+        shell: bash
+        run: |
+          echo "**/full-ig.zip" > ./to_publish/.gitignore
+
       - name: 🚀 Deploy to GitHub-Pages
-        if: ${{ inputs.github_page == 'true' }}          
+        if: ${{ inputs.github_page == 'true' }}
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ inputs.github_page_token }}
