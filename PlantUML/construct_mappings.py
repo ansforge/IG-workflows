@@ -128,7 +128,7 @@ def extract_data(data):
 def structure_data(extracted_data):
     structured_data = {}
     # Itération sur les mappings (il peut y en avoir plusieurs par ressource)
-    for mapping in list(extracted_data['resources'].values()):
+    for mapping in extracted_data['resources'].values():
         resource_fhir = mapping['resource']
         class_func = mapping['class']
         elements = mapping['elements']

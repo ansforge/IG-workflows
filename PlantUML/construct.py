@@ -53,16 +53,16 @@ def write_to_plantuml_file(data, file_path):
         f.write("hide class fields\n")
         f.write("\npackage IG #DDDDDD{\n")
         resource = ""
-        cptClass = 0
+        cpt_class = 0
 
         f.write("\n     package Profiles #DDDDDD{\n")        
         for count,row in enumerate(data):
             if(row[2]!='Extension'):
                 if(resource!=row[0]) :
-                    if(cptClass !=0) :
+                    if(cpt_class !=0) :
                         f.write( "\n        } \n")
                     f.write( "\n        class " +   row[0] +"{\n")
-                    cptClass =  cptClass + 1
+                    cpt_class =  cpt_class + 1
                 if(row[2] != row[3]) : 
                     f.write("\n             "+ row[4] )     
                     f.write(" => ");    
@@ -80,26 +80,25 @@ def write_to_plantuml_file(data, file_path):
 
         #Ecritures des dépendances avec  les extension
         resource = ""
-        cptClass = 0
+        cpt_class = 0
         for count,row in enumerate(data):
             if(row[2]!='Extension'):
                 if((row[2] != row[3]) and (str(row[13]) != 'None')) :  
                     if( "extension:" in row[4]) :
                         f.write('\n     ' + row[0] + ' -[#black,dashed,thickness=2]-> ' +  str(row[13]) +"") 
-            resource = row[0]
         f.write("\n")   
 
 
         resource = ""
-        cptClass = 0
+        cpt_class = 0
         for count,row in enumerate(data):
 
             if(row[2] =='Extension'):
                 if(resource!=row[0]) :
-                    if(cptClass !=0) :
+                    if(cpt_class !=0) :
                         f.write( "\n        } ")
                     f.write( "\n        class " +   str(row[0]) +"{\n")
-                    cptClass =  cptClass + 1
+                    cpt_class =  cpt_class + 1
                 if(row[2] != row[3]) : 
                     f.write("\n          " +row[4] )     
                     f.write(" => ");    
@@ -122,10 +121,9 @@ def write_to_plantuml_file(data, file_path):
         resource = ""
         for count,row in enumerate(data):
 
-            if(resource!=row[0]) :
-                if(row[2] != 'Extension') : 
-                    f.write( '\n class "' +   row[2] +'" as  ' +  f"class{hashlib.md5(row[2].encode()).hexdigest()}" +" \n")
-                    f.write( "\n    "  +  f"class{hashlib.md5((row[2].encode())).hexdigest()}"  + " --> " +  row[0] +"\n")
+            if(resource!=row[0]) and (row[2] != 'Extension') :
+                f.write( '\n class "' +   row[2] +'" as  ' +  f"class{hashlib.md5(row[2].encode()).hexdigest()}" +" \n")
+                f.write( "\n    "  +  f"class{hashlib.md5((row[2].encode())).hexdigest()}"  + " --> " +  row[0] +"\n")
             resource = row[0]
         f.write("}")
 
