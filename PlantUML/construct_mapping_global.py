@@ -72,16 +72,15 @@ def extract_data(data):
     # Récupération des références
     for row in data:
         resource = row[0]
-        if row[1] != row[2]:
-            if row[3] is not None and row[4] is not None:
-                elem_types = json.loads(row[4])
-                for elem_type in elem_types:
-                    if elem_type['code'] == 'Reference':
-                        for target_profil in elem_type['targetProfile']:
-                            for profil in extracted_data.keys():
-                                if target_profil in extracted_data[profil]['urls']:
-                                    if profil not in extracted_data[resource]['links']:
-                                        extracted_data[resource]['links'][profil] = str(row[7]) + '..' + str(row[8])
+        if row[1] != row[2] and row[3] is not None and row[4] is not None:
+            elem_types = json.loads(row[4])
+            for elem_type in elem_types:
+                if elem_type['code'] == 'Reference':
+                    for target_profil in elem_type['targetProfile']:
+                        for profil in extracted_data.keys():
+                            if target_profil in extracted_data[profil]['urls']:
+                                if profil not in extracted_data[resource]['links']:
+                                    extracted_data[resource]['links'][profil] = str(row[7]) + '..' + str(row[8])
     return extracted_data
 
 # Génération du schéma de mapping global
