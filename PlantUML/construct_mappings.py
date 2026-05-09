@@ -278,6 +278,10 @@ def structure_data(extracted_data):
 # Génération des schémas 
 def generate_plantuml(structured_data, output_path, colors):
     # Liste contenant les directions possibles pour les flèches
+    ICON_PLUS = '<&plus> '
+    MAP_STYLE = ' #back:WhiteSmoke;header:LightGray {'
+    INDENT = '\n    '
+    ARROW_PLUS = ' => <&plus> '
     directions = ['u', 'd', 'l', 'r']
     for resource_fhir, class_mapping in structured_data.items():
         # Liste des liens entre tableaux 
@@ -305,14 +309,14 @@ def generate_plantuml(structured_data, output_path, colors):
                         complex_elements.append(elem_fhir)
                         elem_fhir_display = elem_fhir
                         if elem_fhir.startswith('extension:'):
-                            elem_fhir_display = '<&plus> ' + remove_prefix(elem_fhir, 'extension:')
+                            elem_fhir_display = ICON_PLUS + remove_prefix(elem_fhir, 'extension:')
                             extension = True
                         elif ':' in elem_fhir:
                             elem_fhir_display = '<&layers> ' + elem_fhir
                         if elem_func is None:
-                            table_title = '\nmap "' + elem_fhir_display + '" as ' + elem_fhir_id + ' #back:WhiteSmoke;header:LightGray {'
+                            table_title = '\nmap "' + elem_fhir_display + '" as ' + elem_fhir_id + MAP_STYLE
                         else: 
-                            table_title = '\nmap "' + elem_func + ' : ' + elem_fhir_display + '" as ' + elem_func_id + ' #back:WhiteSmoke;header:LightGray {'
+                            table_title = '\nmap "' + elem_func + ' : ' + elem_fhir_display + '" as ' + elem_func_id + MAP_STYLE
                         tables += table_title
                         sub_table = None
                         # Eléments complexes de niveau 2
@@ -322,30 +326,30 @@ def generate_plantuml(structured_data, output_path, colors):
                                 sub_elem_fhir_display = remove_prefix(sub_elem_fhir, 'extension:')
                             else:
                                 if sub_elem_fhir.startswith('extension:'):
-                                    sub_elem_fhir_display = '<&plus> ' + remove_prefix(sub_elem_fhir, 'extension:')
+                                    sub_elem_fhir_display = ICON_PLUS + remove_prefix(sub_elem_fhir, 'extension:')
                                 elif ':' in sub_elem_fhir:
                                     sub_elem_fhir_display = '<&layers> ' + sub_elem_fhir
                             if isinstance(sub_elem_func, str):
-                                tables += '\n    ' + replace_non_alnum(sub_elem_func) + ' => ' + sub_elem_fhir_display
+                                tables += INDENT + replace_non_alnum(sub_elem_func) + ' => ' + sub_elem_fhir_display
                             else:
                                 if 'mapping' in sub_elem_func.keys():
                                     if sub_elem_func['mapping'] is not None:
-                                        tables += '\n    ' + replace_non_alnum(sub_elem_func) + ' => ' + sub_elem_fhir_display
-                                        sub_table = '\nmap "' + replace_non_alnum(sub_elem_func) + ' : ' + sub_elem_fhir_display + '" as ' + keep_alnum(sub_elem_func) + ' #back:WhiteSmoke;header:LightGray {'
+                                        tables += INDENT + replace_non_alnum(sub_elem_func) + ' => ' + sub_elem_fhir_display
+                                        sub_table = '\nmap "' + replace_non_alnum(sub_elem_func) + ' : ' + sub_elem_fhir_display + '" as ' + keep_alnum(sub_elem_func) + MAP_STYLE
                                     else:
-                                        tables += '\n    ' + sub_elem_fhir_display + ' *--> ' + keep_alnum(remove_prefix(sub_elem_fhir, 'extension:'))
-                                        sub_table = '\nmap "' + sub_elem_fhir_display + '" as ' + keep_alnum(remove_prefix(sub_elem_fhir, 'extension:')) + ' #back:WhiteSmoke;header:LightGray {'
+                                        tables += INDENT + sub_elem_fhir_display + ' *--> ' + keep_alnum(remove_prefix(sub_elem_fhir, 'extension:'))
+                                        sub_table = '\nmap "' + sub_elem_fhir_display + '" as ' + keep_alnum(remove_prefix(sub_elem_fhir, 'extension:')) + MAP_STYLE
                                     for sub_sub_elem_fhir, sub_sub_elem_func in sub_elem_func['elements'].items():
-                                        sub_table += '\n    ' + replace_non_alnum(sub_sub_elem_func) + ' => ' + sub_sub_elem_fhir
+                                        sub_table += INDENT + replace_non_alnum(sub_sub_elem_func) + ' => ' + sub_sub_elem_fhir
                                     sub_table += '\n}\n'
                                 # Eléments complexes de niveau 3
                                 else:
-                                    tables += '\n    ' + sub_elem_fhir_display + ' *--> ' + keep_alnum(remove_prefix(sub_elem_fhir, 'extension:'))
-                                    sub_table = '\nmap "' + sub_elem_fhir_display + '" as ' + keep_alnum(remove_prefix(sub_elem_fhir, 'extension:')) + ' #back:WhiteSmoke;header:LightGray {'
+                                    tables += INDENT + sub_elem_fhir_display + ' *--> ' + keep_alnum(remove_prefix(sub_elem_fhir, 'extension:'))
+                                    sub_table = '\nmap "' + sub_elem_fhir_display + '" as ' + keep_alnum(remove_prefix(sub_elem_fhir, 'extension:')) + MAP_STYLE
                                     for sub_sub_elem_fhir, sub_sub_elem_func in sub_elem_func.items():
                                         if sub_sub_elem_fhir.startswith('extension:'):
-                                            sub_sub_elem_fhir = '<&plus> ' + remove_prefix(sub_sub_elem_fhir, 'extension:')
-                                        sub_table += '\n    ' + replace_non_alnum(sub_sub_elem_func) + ' => ' + sub_sub_elem_fhir
+                                            sub_sub_elem_fhir = ICON_PLUS + remove_prefix(sub_sub_elem_fhir, 'extension:')
+                                        sub_table += INDENT + replace_non_alnum(sub_sub_elem_func) + ' => ' + sub_sub_elem_fhir
                                     sub_table += '\n}\n'
                                     
                         tables += '\n}\n'
@@ -362,7 +366,7 @@ def generate_plantuml(structured_data, output_path, colors):
                     f.write('\nobject "**' + resource + '**" as ' + resource + color + ' {')
                     # Classes fonctionnelles sur la ressource
                     for sub_elem in sub_elements['mapping']:
-                        f.write('\n    ' + sub_elem)
+                        f.write(INDENT + sub_elem)
                     f.write('\n}\n')
                 # Extensions (sous-tableaux pour 2 niveaux max)
                 main_table_extensions = ""
@@ -373,39 +377,39 @@ def generate_plantuml(structured_data, output_path, colors):
                     mapping_extension_global = extension_details['mapping']
                     if extension_details['type'] == 'complex':
                         if mapping_extension_global is not None:
-                            main_table_extensions += '\n    ' + replace_non_alnum(mapping_extension_global) + ' => <&plus> ' + extension
+                            main_table_extensions += INDENT + replace_non_alnum(mapping_extension_global) + ARROW_PLUS + extension
                             links += class_func + '::' + replace_non_alnum(mapping_extension_global) + ' -' + directions[cpt_direction%4] + '-> ' + extension_id + '\n'
                             cpt_direction += 1
                             if extension not in complex_elements:
-                                table_extensions += '\nmap "' + mapping_extension_global + ' : <&plus> ' + extension + '" as ' + extension_id + ' #back:WhiteSmoke;header:LightGray {'
+                                table_extensions += '\nmap "' + mapping_extension_global + ' : ' + ICON_PLUS + extension + '" as ' + extension_id + MAP_STYLE
                         else: 
-                            main_table_extensions += '\n    ' + extension + ' *-> ' + extension_id
+                            main_table_extensions += INDENT + extension + ' *-> ' + extension_id
                             if extension not in complex_elements:
-                                table_extensions += '\nmap "<&plus> ' + extension + '" as ' + extension_id + ' #back:WhiteSmoke;header:LightGray {'
+                                table_extensions += '\nmap "' + ICON_PLUS + extension + '" as ' + extension_id + MAP_STYLE
                         if extension not in complex_elements:
                             complex_elements.append(extension)
                             for sub_elem_fhir, sub_elem_func in extension_details['elements'].items():
                                 sub_elem_fhir_display = sub_elem_fhir
                                 if isinstance(sub_elem_func, str):
                                     if sub_elem_fhir.startswith('extension:'):
-                                        sub_elem_fhir_display = '<&plus> ' + remove_prefix(sub_elem_fhir, 'extension:')
-                                    table_extensions += '\n    ' + replace_non_alnum(sub_elem_func) + ' => ' + sub_elem_fhir_display
+                                        sub_elem_fhir_display = ICON_PLUS + remove_prefix(sub_elem_fhir, 'extension:')
+                                    table_extensions += INDENT + replace_non_alnum(sub_elem_func) + ' => ' + sub_elem_fhir_display
                                 else:
                                     mapping_sub_extension_global = sub_elem_func['mapping']
                                     if mapping_sub_extension_global is not None:
-                                        table_extensions += '\n    ' + replace_non_alnum(mapping_sub_extension_global) + ' => <&plus> ' + sub_elem_fhir_display
-                                        table_sub_extensions = '\nmap "' + replace_non_alnum(mapping_sub_extension_global) + ' : <&plus> ' + sub_elem_fhir_display + '" as ' + keep_alnum(mapping_sub_extension_global) + ' #back:WhiteSmoke;header:LightGray {'
+                                        table_extensions += INDENT + replace_non_alnum(mapping_sub_extension_global) + ARROW_PLUS + sub_elem_fhir_display
+                                        table_sub_extensions = '\nmap "' + replace_non_alnum(mapping_sub_extension_global) + ' : ' + ICON_PLUS + sub_elem_fhir_display + '" as ' + keep_alnum(mapping_sub_extension_global) + MAP_STYLE
                                         links += extension_id + '::' + replace_non_alnum(mapping_sub_extension_global) + ' -' + directions[cpt_direction%4] + '-> ' + keep_alnum(mapping_sub_extension_global) + '\n'
                                     else:
-                                        table_extensions += '\n    <&plus>' + sub_elem_fhir_display + ' *--> ' + keep_alnum(remove_prefix(sub_elem_fhir, 'extension:'))
-                                        table_sub_extensions = '\nmap <&plus>"' + sub_elem_fhir_display + '" as ' + keep_alnum(remove_prefix(sub_elem_fhir, 'extension:')) + ' #back:WhiteSmoke;header:LightGray {'
+                                        table_extensions += INDENT + '<&plus>' + sub_elem_fhir_display + ' *--> ' + keep_alnum(remove_prefix(sub_elem_fhir, 'extension:'))
+                                        table_sub_extensions = '\nmap <&plus>"' + sub_elem_fhir_display + '" as ' + keep_alnum(remove_prefix(sub_elem_fhir, 'extension:')) + MAP_STYLE
                                     for sub_sub_elem_fhir, sub_sub_elem_func in sub_elem_func['elements'].items():
-                                        table_sub_extensions += '\n    ' + replace_non_alnum(sub_sub_elem_func) + ' => ' + sub_sub_elem_fhir
+                                        table_sub_extensions += INDENT + replace_non_alnum(sub_sub_elem_func) + ' => ' + sub_sub_elem_fhir
                                     table_sub_extensions += '\n}\n'
                             table_extensions += '\n}\n'
                     else:
                         if mapping_extension_global is not None:
-                            main_table_extensions += '\n    ' + replace_non_alnum(mapping_extension_global) + ' => <&plus> ' + extension
+                            main_table_extensions += INDENT + replace_non_alnum(mapping_extension_global) + ARROW_PLUS + extension
                 f.write(table_sub_extensions)
                 f.write(table_extensions)
                 # Tableaux principal (un par classe fonctionnelle mappée sur la ressource)
@@ -417,23 +421,23 @@ def generate_plantuml(structured_data, output_path, colors):
                 for elem_fhir, elem_func in elements['simple_elements'].items():
                     elem_fhir_display = elem_fhir
                     if elem_fhir.startswith('extension:'):
-                        elem_fhir_display = '<&plus> ' + remove_prefix(elem_fhir, 'extension:')
+                        elem_fhir_display = ICON_PLUS + remove_prefix(elem_fhir, 'extension:')
                     elif ':' in elem_fhir:
                         elem_fhir_display = '<&layers> ' + elem_fhir
-                    f.write('\n    ' + replace_non_alnum(elem_func) + ' => ' + elem_fhir_display)
+                    f.write(INDENT + replace_non_alnum(elem_func) + ' => ' + elem_fhir_display)
                 # Eléments complexes
                 for elem_fhir, sub_elements in elements['complex_elements'].items():
                     elem_fhir_display = elem_fhir
                     elem_fhir_id = keep_alnum(elem_fhir)
                     elem_func = sub_elements['mapping']
                     if elem_fhir.startswith('extension:'):
-                        elem_fhir_display = '<&plus> ' + remove_prefix(elem_fhir, 'extension:')
+                        elem_fhir_display = ICON_PLUS + remove_prefix(elem_fhir, 'extension:')
                     elif ':' in elem_fhir:
                         elem_fhir_display = '<&layers> ' + elem_fhir 
                     if elem_func is None:
-                        f.write('\n    ' + elem_fhir_display + ' *-> ' + elem_fhir_id)
+                        f.write(INDENT + elem_fhir_display + ' *-> ' + elem_fhir_id)
                     else:
-                        f.write('\n    ' + replace_non_alnum(elem_func) + ' => ' + elem_fhir_display)
+                        f.write(INDENT + replace_non_alnum(elem_func) + ' => ' + elem_fhir_display)
                 f.write(main_table_extensions)
                 f.write('\n}\n')
                 # Liens des références             
