@@ -10,6 +10,8 @@ db_path =  sys.argv[1]
 # Chemin du dossier où seront générées les fichiers plantuml
 output_path = sys.argv[2] 
 
+EXTENSION_EXTENSION_PREFIX = 'Extension.extension:'
+
 # Dictionnaire des couleurs des différents profils 
 colors = {
     'RORHealthcareService': {'back': 'AliceBlue', 'header': 'LightSkyBlue'},
@@ -106,8 +108,8 @@ def extract_data(data):
                     extracted_data['resource_extensions'][resource][json.loads(row[5])[0]['profile'][0]] = row[3]
         # Récupération du mapping dans les extensions
         else:
-            if row[2].startswith('Extension.extension:'):
-                if '.' not in remove_prefix(row[2], 'Extension.extension:'):
+            if row[2].startswith(EXTENSION_EXTENSION_PREFIX):
+                if '.' not in remove_prefix(row[2], EXTENSION_EXTENSION_PREFIX):
                     if row[5] is not None:
                         if row[7] not in extracted_data['complex_extensions'].keys():  
                             extracted_data['complex_extensions'][row[7]] = []
@@ -228,7 +230,7 @@ def structure_data(extracted_data):
                                     mapping_extension_global = mapping_extension['Extension']
                             for elem_fhir, elem_func in mapping_extension.items():
                                 if elem_fhir != 'Extension':
-                                    elem_fhir = remove_prefix(elem_fhir, 'Extension.extension:')
+                                    elem_fhir = remove_prefix(elem_fhir, EXTENSION_EXTENSION_PREFIX)
                                     elem_fhir = remove_suffix(elem_fhir, '.value[x]')
                                     mapping_extension_sub_elements[elem_fhir] = elem_func
                             if extension in extracted_data['complex_extensions'].keys():
@@ -244,7 +246,7 @@ def structure_data(extracted_data):
                                             elem_func = mapping_sub_extension['Extension']
                                             for sub_elem_fhir, sub_elem_func in mapping_sub_extension.items():
                                                 if sub_elem_fhir != 'Extension':
-                                                    sub_elem_fhir = remove_prefix(sub_elem_fhir, 'Extension.extension:')
+                                                    sub_elem_fhir = remove_prefix(sub_elem_fhir, EXTENSION_EXTENSION_PREFIX)
                                                     sub_elem_fhir = remove_suffix(sub_elem_fhir, '.value[x]')
                                                     sub_mapping_elements[sub_elem_fhir] = sub_elem_func
                                         if sub_extension in extracted_data['complex_extensions'].keys():
@@ -276,6 +278,8 @@ def structure_data(extracted_data):
     return structured_data
 
 # Génération des schémas 
+PLANTUML_AS = '" as '
+
 def generate_plantuml(structured_data, output_path, colors):
     # Liste contenant les directions possibles pour les flèches
     directions = ['u', 'd', 'l', 'r']
@@ -310,9 +314,9 @@ def generate_plantuml(structured_data, output_path, colors):
                         elif ':' in elem_fhir:
                             elem_fhir_display = '<&layers> ' + elem_fhir
                         if elem_func is None:
-                            table_title = '\nmap "' + elem_fhir_display + '" as ' + elem_fhir_id + ' #back:WhiteSmoke;header:LightGray {'
+                            table_title = '\nmap "' + elem_fhir_display + PLANTUML_AS + elem_fhir_id + ' #back:WhiteSmoke;header:LightGray {'
                         else: 
-                            table_title = '\nmap "' + elem_func + ' : ' + elem_fhir_display + '" as ' + elem_func_id + ' #back:WhiteSmoke;header:LightGray {'
+                            table_title = '\nmap "' + elem_func + ' : ' + elem_fhir_display + PLANTUML_AS + elem_func_id + ' #back:WhiteSmoke;header:LightGray {'
                         tables += table_title
                         sub_table = None
                         # Eléments complexes de niveau 2
@@ -331,17 +335,17 @@ def generate_plantuml(structured_data, output_path, colors):
                                 if 'mapping' in sub_elem_func.keys():
                                     if sub_elem_func['mapping'] is not None:
                                         tables += '\n    ' + replace_non_alnum(sub_elem_func) + ' => ' + sub_elem_fhir_display
-                                        sub_table = '\nmap "' + replace_non_alnum(sub_elem_func) + ' : ' + sub_elem_fhir_display + '" as ' + keep_alnum(sub_elem_func) + ' #back:WhiteSmoke;header:LightGray {'
+                                        sub_table = '\nmap "' + replace_non_alnum(sub_elem_func) + ' : ' + sub_elem_fhir_display + PLANTUML_AS + keep_alnum(sub_elem_func) + ' #back:WhiteSmoke;header:LightGray {'
                                     else:
                                         tables += '\n    ' + sub_elem_fhir_display + ' *--> ' + keep_alnum(remove_prefix(sub_elem_fhir, 'extension:'))
-                                        sub_table = '\nmap "' + sub_elem_fhir_display + '" as ' + keep_alnum(remove_prefix(sub_elem_fhir, 'extension:')) + ' #back:WhiteSmoke;header:LightGray {'
+                                        sub_table = '\nmap "' + sub_elem_fhir_display + PLANTUML_AS + keep_alnum(remove_prefix(sub_elem_fhir, 'extension:')) + ' #back:WhiteSmoke;header:LightGray {'
                                     for sub_sub_elem_fhir, sub_sub_elem_func in sub_elem_func['elements'].items():
                                         sub_table += '\n    ' + replace_non_alnum(sub_sub_elem_func) + ' => ' + sub_sub_elem_fhir
                                     sub_table += '\n}\n'
                                 # Eléments complexes de niveau 3
                                 else:
                                     tables += '\n    ' + sub_elem_fhir_display + ' *--> ' + keep_alnum(remove_prefix(sub_elem_fhir, 'extension:'))
-                                    sub_table = '\nmap "' + sub_elem_fhir_display + '" as ' + keep_alnum(remove_prefix(sub_elem_fhir, 'extension:')) + ' #back:WhiteSmoke;header:LightGray {'
+                                    sub_table = '\nmap "' + sub_elem_fhir_display + PLANTUML_AS + keep_alnum(remove_prefix(sub_elem_fhir, 'extension:')) + ' #back:WhiteSmoke;header:LightGray {'
                                     for sub_sub_elem_fhir, sub_sub_elem_func in sub_elem_func.items():
                                         if sub_sub_elem_fhir.startswith('extension:'):
                                             sub_sub_elem_fhir = '<&plus> ' + remove_prefix(sub_sub_elem_fhir, 'extension:')
@@ -377,11 +381,11 @@ def generate_plantuml(structured_data, output_path, colors):
                             links += class_func + '::' + replace_non_alnum(mapping_extension_global) + ' -' + directions[cpt_direction%4] + '-> ' + extension_id + '\n'
                             cpt_direction += 1
                             if extension not in complex_elements:
-                                table_extensions += '\nmap "' + mapping_extension_global + ' : <&plus> ' + extension + '" as ' + extension_id + ' #back:WhiteSmoke;header:LightGray {'
+                                table_extensions += '\nmap "' + mapping_extension_global + ' : <&plus> ' + extension + PLANTUML_AS + extension_id + ' #back:WhiteSmoke;header:LightGray {'
                         else: 
                             main_table_extensions += '\n    ' + extension + ' *-> ' + extension_id
                             if extension not in complex_elements:
-                                table_extensions += '\nmap "<&plus> ' + extension + '" as ' + extension_id + ' #back:WhiteSmoke;header:LightGray {'
+                                table_extensions += '\nmap "<&plus> ' + extension + PLANTUML_AS + extension_id + ' #back:WhiteSmoke;header:LightGray {'
                         if extension not in complex_elements:
                             complex_elements.append(extension)
                             for sub_elem_fhir, sub_elem_func in extension_details['elements'].items():
@@ -394,11 +398,11 @@ def generate_plantuml(structured_data, output_path, colors):
                                     mapping_sub_extension_global = sub_elem_func['mapping']
                                     if mapping_sub_extension_global is not None:
                                         table_extensions += '\n    ' + replace_non_alnum(mapping_sub_extension_global) + ' => <&plus> ' + sub_elem_fhir_display
-                                        table_sub_extensions = '\nmap "' + replace_non_alnum(mapping_sub_extension_global) + ' : <&plus> ' + sub_elem_fhir_display + '" as ' + keep_alnum(mapping_sub_extension_global) + ' #back:WhiteSmoke;header:LightGray {'
+                                        table_sub_extensions = '\nmap "' + replace_non_alnum(mapping_sub_extension_global) + ' : <&plus> ' + sub_elem_fhir_display + PLANTUML_AS + keep_alnum(mapping_sub_extension_global) + ' #back:WhiteSmoke;header:LightGray {'
                                         links += extension_id + '::' + replace_non_alnum(mapping_sub_extension_global) + ' -' + directions[cpt_direction%4] + '-> ' + keep_alnum(mapping_sub_extension_global) + '\n'
                                     else:
                                         table_extensions += '\n    <&plus>' + sub_elem_fhir_display + ' *--> ' + keep_alnum(remove_prefix(sub_elem_fhir, 'extension:'))
-                                        table_sub_extensions = '\nmap <&plus>"' + sub_elem_fhir_display + '" as ' + keep_alnum(remove_prefix(sub_elem_fhir, 'extension:')) + ' #back:WhiteSmoke;header:LightGray {'
+                                        table_sub_extensions = '\nmap <&plus>"' + sub_elem_fhir_display + PLANTUML_AS + keep_alnum(remove_prefix(sub_elem_fhir, 'extension:')) + ' #back:WhiteSmoke;header:LightGray {'
                                     for sub_sub_elem_fhir, sub_sub_elem_func in sub_elem_func['elements'].items():
                                         table_sub_extensions += '\n    ' + replace_non_alnum(sub_sub_elem_func) + ' => ' + sub_sub_elem_fhir
                                     table_sub_extensions += '\n}\n'
