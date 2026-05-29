@@ -51,10 +51,6 @@ inputs:
     description: "Traduire les pages pagecontent FR→EN avant le build via Albert IA (false / true / force)."
     required: false
     default: "false"
-  albert_api_key:
-    description: "Clé API Albert (ALBERT_WORKFLOW_KEY) pour la traduction automatique des pages."
-    required: false
-    default: ""
 runs:
   using: "composite"
   steps:
@@ -163,7 +159,7 @@ runs:
         if: ${{ inputs.translate == 'true' || inputs.translate == 'force' }}
         shell: bash
         env:
-          ALBERT_API_KEY: ${{ inputs.albert_api_key }}
+          ALBERT_API_KEY: ${{ env.ALBERT_WORKFLOW_KEY }}
         run: |
           FORCE_FLAG=""
           if [ "${{ inputs.translate }}" = "force" ]; then
