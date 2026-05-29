@@ -46,7 +46,11 @@ inputs:
   publish_path_outpout:
     description: "Chemin de publication de l'IG."
     required: false
-    default: ""    
+    default: ""
+  translate:
+    description: "Traduire les pages pagecontent FR→EN avant le build via Albert IA (false / true / force)."
+    required: false
+    default: "false"
 runs:
   using: "composite"
   steps:
@@ -123,6 +127,63 @@ runs:
       - name: Run sushi
         shell: bash      
         run: sushi  ${{ inputs.repo_ig}}
+
+      # Traduction automatique FR→EN des pages pagecontent via Albert IA
+      - name: 🌐 Setup Python for translation
+        if: ${{ inputs.translate == 'true' || inputs.translate == 'force' }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 🌐 Install httpx
+        if: ${{ inputs.translate == 'true' || inputs.translate == 'force' }}
+        shell: bash
+        run: pip install httpx
+
+      - name: 🌐 Sync PO files (translations/en/po → input/translations/en)
+        if: ${{ inputs.translate == 'true' || inputs.translate == 'force' }}
+        shell: bash
+        run: |
+          SRC="${{ inputs.repo_ig }}/translations/en/po"
+          DEST="${{ inputs.repo_ig }}/input/translations/en"
+          if [ -d "$SRC" ] && ls "$SRC"/*.po 2>/dev/null | grep -q .; then
+            echo "Syncing .po files from $SRC to $DEST..."
+            mkdir -p "$DEST"
+            cp "$SRC"/*.po "$DEST"/
+            echo "Synced $(ls "$SRC"/*.po | wc -l) file(s)."
+          else
+            echo "No .po files found in $SRC — skipping."
+          fi
+
+      - name: 🌐 Translate pagecontent (FR→EN)
+        if: ${{ inputs.translate == 'true' || inputs.translate == 'force' }}
+        shell: bash
+        env:
+          ALBERT_API_KEY: ${{ env.ALBERT_WORKFLOW_KEY }}
+        run: |
+          FORCE_FLAG=""
+          if [ "${{ inputs.translate }}" = "force" ]; then
+            FORCE_FLAG="--force"
+          fi
+          python ${{ github.action_path }}/tools/translate_pages.py \
+            --source-dir "${{ inputs.repo_ig }}/input/pagecontent" \
+            --target-dir "${{ inputs.repo_ig }}/input/translations/en/pagecontent" \
+            $FORCE_FLAG
+
+      - name: 🌐 Commit translated pages
+        if: ${{ inputs.translate == 'true' || inputs.translate == 'force' }}
+        shell: bash
+        run: |
+          cd ${{ inputs.repo_ig }}
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add input/translations/en/
+          if git diff --cached --quiet; then
+            echo "No translation changes to commit."
+          else
+            git commit -m "chore: auto-translate pagecontent FR→EN via Albert IA"
+            git push
+          fi
 
       # Téléchargement de la dernière version du publisher
       - name: 📥 Download IG Publisher
