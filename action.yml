@@ -151,10 +151,11 @@ runs:
         run: |
           sudo gem install jekyll
           # GraphViz 2.42 (apt Ubuntu 22.04) incompatible avec PlantUML — installation version récente
+          # GraphViz 12.x incompatible avec PlantUML 1.2023.x (EmptySvgException) — utiliser 9.0.0
           sudo apt-get install -y cmake libgd-dev libpng-dev libfontconfig-dev
-          wget -q https://gitlab.com/graphviz/graphviz/-/archive/12.2.1/graphviz-12.2.1.tar.gz
-          tar -xzf graphviz-12.2.1.tar.gz
-          cd graphviz-12.2.1
+          wget -q https://gitlab.com/graphviz/graphviz/-/archive/9.0.0/graphviz-9.0.0.tar.gz
+          tar -xzf graphviz-9.0.0.tar.gz
+          cd graphviz-9.0.0
           cmake -B build -DCMAKE_BUILD_TYPE=Release
           cmake --build build -j$(nproc)
           sudo cmake --install build
