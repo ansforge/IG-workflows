@@ -147,26 +147,17 @@ runs:
           bundler-cache: true # runs 'bundle install' and caches installed gems automatically
           
       - name: Install  jekyll and graphviz
-        shell: bash          
+        shell: bash
         run: |
           sudo gem install jekyll
-          # GraphViz 2.42 (apt Ubuntu 22.04) incompatible avec PlantUML — installation version récente
-          # GraphViz 12.x incompatible avec PlantUML 1.2023.x (EmptySvgException) — utiliser 14.1.5
-          sudo apt-get install -y cmake libgd-dev libpng-dev libfontconfig-dev
-          wget -q https://gitlab.com/graphviz/graphviz/-/archive/14.1.5/graphviz-14.1.5.tar.gz
-          tar -xzf graphviz-14.1.5.tar.gz
-          cd graphviz-14.1.5
-          cmake -B build -DCMAKE_BUILD_TYPE=Release
-          cmake --build build -j$(nproc)
-          sudo cmake --install build
+          # PlantUML 1.2026.x (publisher 2.2.9+) est compatible avec GraphViz apt
+          sudo apt-get install -y graphviz
           dot -V
 
-        
+
       # Creation de l'IG
       - name: 🏃‍♂️ Run IG Publisher
-        shell: bash 
-        env:
-          GRAPHVIZ_DOT: /usr/local/bin/dot
+        shell: bash
         run : |
               cd  ${{ inputs.repo_ig}}
               java -Xmx8192m -jar ../publisher.jar  -ig .   -authorise-non-conformant-tx-servers
