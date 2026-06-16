@@ -146,14 +146,13 @@ runs:
           ruby-version: '3.3'
           bundler-cache: true # runs 'bundle install' and caches installed gems automatically
           
-      #Install  jekyll, graphviz
-      - name: Install  jekyll and graphviz
-        shell: bash          
-        run: |
-          sudo gem install jekyll
-          sudo apt-get install -y graphviz
-          # ou via pip comme workaround :
-          pip install graphviz
+       - name: Install  jekyll and graphviz
+         shell: bash          
+         run: |
+           sudo gem install jekyll
+           sudo apt-get install -y graphviz
+           dot -V
+
         
       # Creation de l'IG
       - name: 🏃‍♂️ Run IG Publisher
