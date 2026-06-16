@@ -166,6 +166,7 @@ runs:
         shell: bash 
         env:
           GRAPHVIZ_DOT: /usr/local/bin/dot
+          PLANTUML_LIMIT_SIZE: 8192
         run : |
               cd  ${{ inputs.repo_ig}}
               java -Xmx8192m -jar ../publisher.jar  -ig .   -authorise-non-conformant-tx-servers
