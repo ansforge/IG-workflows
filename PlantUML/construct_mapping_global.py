@@ -93,7 +93,6 @@ def generate_plantuml_global(extracted_data, output_path, colors):
             color = ''
             if profil in colors.keys():
                 color = ' #' + colors[profil]['header']
-            mapping_ids = []
             for mapping in profil_infos['mapping']:
                 mapping_id = keep_alnum(mapping)
                 # Un rectangle par classe fonctionnelle (avec un couleur par profil FHIR)
