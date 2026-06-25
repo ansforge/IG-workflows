@@ -50,7 +50,7 @@ inputs:
   container_mode:
     description: "Le job tourne dans un container Docker (container: image: ...). Skip les installations d'outils — SUSHI et Publisher tournent directement dans le container."
     required: false
-    default: "false"
+    default: "true"
 runs:
   using: "composite"
   steps:
