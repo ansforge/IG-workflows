@@ -127,8 +127,9 @@ runs:
           restore-keys: |
             fhir-packages-
 
-      # Cache des packages FHIR — container_mode : actions/cache tourne DANS le container via
-      # docker exec, donc ~ = /github/home (HOME GHA). On cible /root/.fhir/packages en absolu.
+      # Cache des packages FHIR — container_mode : dans un job container, actions/cache s'exécute
+      # à l'intérieur du container (via docker exec). GHA y force HOME=/github/home, donc ~ ne
+      # pointe pas vers /root. On utilise le chemin absolu /root/.fhir/packages pour être sûr.
       - name: Cache FHIR packages (container mode)
         if: ${{ inputs.container_mode == 'true' }}
         uses: actions/cache@v4
