@@ -131,18 +131,24 @@ runs:
           cp hl7.fhir.fr.core-1.1.0.tgz ~/.fhir/packages
           tar -xzvf ~/.fhir/packages/hl7.fhir.fr.core-1.1.0.tgz
 
-      # En container_mode, GHA peut setter HOME à autre chose que /root — on force /root pour
-      # que ~/.fhir/packages pointe vers les packages pré-chargés dans l'image
-      - name: Set HOME for container mode
-        if: ${{ inputs.container_mode == 'true' }}
-        shell: bash
-        run: echo "HOME=/root" >> $GITHUB_ENV
-
-      # Cache des packages FHIR — évite les re-téléchargements à chaque run (les deux modes)
+      # Cache des packages FHIR — mode legacy et use_docker_image (home standard du runner)
       - name: Cache FHIR packages
+        if: ${{ inputs.container_mode != 'true' }}
         uses: actions/cache@v4
         with:
           path: ~/.fhir/packages
+          key: fhir-packages-${{ hashFiles(format('{0}/sushi-config.yaml', inputs.repo_ig)) }}
+          restore-keys: |
+            fhir-packages-
+
+      # Cache des packages FHIR — container_mode : chemin absolu pour coller au volume mount
+      # actions/cache tourne sur le HOST (JavaScript action), donc ~ = /home/runner.
+      # Le volume mount connecte exactement /home/runner/.fhir/packages → /root/.fhir/packages.
+      - name: Cache FHIR packages (container mode)
+        if: ${{ inputs.container_mode == 'true' }}
+        uses: actions/cache@v4
+        with:
+          path: /home/runner/.fhir/packages
           key: fhir-packages-${{ hashFiles(format('{0}/sushi-config.yaml', inputs.repo_ig)) }}
           restore-keys: |
             fhir-packages-
@@ -166,10 +172,18 @@ runs:
         shell: bash
         run: npm install -g fsh-sushi
 
+      # En container_mode, GHA force HOME=/github/home dans le container.
+      # On surcharge inline pour que SUSHI trouve ses packages dans /root/.fhir/packages
+      # (cible du volume mount). HOME=/root n'affecte que ce process, pas GITHUB_ENV.
       - name: Run sushi
         if: ${{ inputs.use_docker_image != 'true' || inputs.container_mode == 'true' }}
         shell: bash
-        run: sushi ${{ inputs.repo_ig }}
+        run: |
+          if [ "${{ inputs.container_mode }}" = "true" ]; then
+            HOME=/root sushi ${{ inputs.repo_ig }}
+          else
+            sushi ${{ inputs.repo_ig }}
+          fi
 
       # Résolution de la version du publisher (pour une clé de cache stable)
       - name: Resolve IG Publisher version
