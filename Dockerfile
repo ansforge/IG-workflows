@@ -1,6 +1,5 @@
 FROM ubuntu:24.04
 
-ARG SUSHI_VERSION=3.20.0
 ARG NODE_MAJOR=20
 ENV DEBIAN_FRONTEND=noninteractive \
     LANG=en_US.UTF-8 \
@@ -31,8 +30,8 @@ RUN curl -fsSL https://deb.nodesource.com/setup_${NODE_MAJOR}.x | bash - \
     && apt-get install -y nodejs \
     && rm -rf /var/lib/apt/lists/*
 
-# SUSHI (version épinglée via ARG — passer --build-arg SUSHI_VERSION=x.y.z pour mettre à jour)
-RUN npm install -g fsh-sushi@${SUSHI_VERSION}
+# SUSHI (dernière version stable)
+RUN npm install -g fsh-sushi
 
 # Jekyll
 RUN gem install jekyll --no-document
@@ -55,5 +54,11 @@ RUN npm init -y && npm install fhir-package-installer
 COPY scripts/install-fhir-packages.mjs .
 COPY fhir-packages.txt .
 RUN node install-fhir-packages.mjs fhir-packages.txt
+
+# Pré-télécharger le IG Publisher JAR (version latest au moment du build de l'image)
+RUN PUBLISHER_VERSION=$(curl -s https://api.github.com/repos/HL7/fhir-ig-publisher/releases/latest | jq -r '.tag_name') \
+    && wget -q "https://github.com/HL7/fhir-ig-publisher/releases/download/${PUBLISHER_VERSION}/publisher.jar" \
+        -O /root/publisher.jar \
+    && echo "IG Publisher ${PUBLISHER_VERSION} pre-installed at /root/publisher.jar"
 
 WORKDIR /workspace

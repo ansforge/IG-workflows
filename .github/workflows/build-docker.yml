@@ -7,6 +7,7 @@ on:
       - Dockerfile
       - fhir-packages.txt
       - .github/workflows/build-docker.yml
+  workflow_dispatch:
   schedule:
     # Rebuild hebdomadaire lundi 06:00 UTC pour capter les nouvelles versions SUSHI
     - cron: '0 6 * * 1'
@@ -20,14 +21,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      - name: Resolve SUSHI version
-        id: sushi-version
-        shell: bash
-        run: |
-          VERSION=$(npm view fsh-sushi version)
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "SUSHI version: $VERSION"
 
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
@@ -44,10 +37,8 @@ jobs:
         with:
           context: .
           push: true
-          build-args: SUSHI_VERSION=${{ steps.sushi-version.outputs.version }}
           tags: |
             ghcr.io/ansforge/fhir-ig-builder:latest
-            ghcr.io/ansforge/fhir-ig-builder:sushi-${{ steps.sushi-version.outputs.version }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 

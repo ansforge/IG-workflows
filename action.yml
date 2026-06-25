@@ -11,19 +11,19 @@ inputs:
   github_page:
     description: "Publication de l'IG sur les pages gh-pages."
     default: "false"
-    required: false    
+    required: false
   generate_plantuml:
     description: 'Génération  du diagramme plant uml dans gh-pages.'
     default: "false"
-    required: false   
+    required: false
   generate_mapping_plantuml:
     description: 'Génération des schemas plantuml de mapping dans gh-pages.'
     default: "false"
-    required: false   
+    required: false
   generate_testscript:
     description: "Génération  des fichiers testsscripts à partir de l'ig."
     default: "false"
-    required: false  
+    required: false
   repo_ig:
     description: "Chemin d'accés au repertoire de l'IG"
     required: true
@@ -46,208 +46,321 @@ inputs:
   publish_path_outpout:
     description: "Chemin de publication de l'IG."
     required: false
-    default: ""    
+    default: ""
+  container_mode:
+    description: "Le job tourne dans un container Docker (container: image: ...). Skip les installations d'outils — SUSHI et Publisher tournent directement dans le container."
+    required: false
+    default: "false"
 runs:
   using: "composite"
   steps:
 
-
-
-
-
       #Creation du repertoire to_publish
-      - name : Create to_publish   
-        shell: bash      
-        run : mkdir to_publish
+      - name: Create to_publish
+        shell: bash
+        run: mkdir to_publish
 
-      #Install  JAVA
+      # Install JAVA (mode legacy uniquement — container_mode a déjà le JDK)
       - name: Setup Java JDK
+        if: ${{ inputs.container_mode != 'true' }}
         uses: actions/setup-java@v4
         with:
           distribution: 'microsoft'
-          java-version: '17'    
+          java-version: '17'
+
       - uses: actions/setup-node@v4
+        if: ${{ inputs.container_mode != 'true' }}
         with:
           node-version: 20
 
-      # Install .NET runtime la methode bake   
+      # Install .NET runtime pour la methode bake (toujours sur le runner hôte)
       - name: Setup .NET Core SDK
-        if: ${{ inputs.bake == 'true' }}       
+        if: ${{ inputs.bake == 'true' }}
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '6.x.x'
 
-      #Install  Firely pour la méthode bake   
-      - name : firely 
-        if: ${{ inputs.bake == 'true' }}   
-        shell: bash      
-        run : dotnet tool install --global Firely.Terminal --version 3.0.0  
+      # Install Firely pour la méthode bake
+      - name: firely
+        if: ${{ inputs.bake == 'true' }}
+        shell: bash
+        run: dotnet tool install --global Firely.Terminal --version 3.0.0
 
-      #Verif de la configuration pour la méthode bake
+      # Verif de la configuration pour la méthode bake
       - name: Check Firely Terminal Version
-        if: ${{ inputs.bake == 'true' }} 
-        shell: bash      
+        if: ${{ inputs.bake == 'true' }}
+        shell: bash
         run: |
-          CHECK_FIRELY_TERMINAL_VERSION=$(fhir -v | tr '\n' ' ') # Print everything in a single line
+          CHECK_FIRELY_TERMINAL_VERSION=$(fhir -v | tr '\n' ' ')
           echo "FIRELY_TERMINAL_VERSION: $CHECK_FIRELY_TERMINAL_VERSION"
 
-      #Install du frcore depuis simplifier (methode bake)      
+      # Install du frcore depuis simplifier (methode bake)
       - name: Run bake hl7.fhir.fr.core
-        if: ${{ inputs.bake == 'true' }}       
-        shell: bash            
+        if: ${{ inputs.bake == 'true' }}
+        shell: bash
         run: |
           fhir install hl7.fhir.fr.core 1.1.0
 
-      - name: Run bake  ans.annuaire.fhir.r4
-        if: ${{ inputs.bake == 'true' }}   
-        shell: bash            
+      - name: Run bake ans.annuaire.fhir.r4
+        if: ${{ inputs.bake == 'true' }}
+        shell: bash
         run: |
           fhir install ans.annuaire.fhir.r4 0.2.0
           fhir bake --package ans.annuaire.fhir.r4
 
-     #Patch sur l'installation du frcore 
+      # Patch sur l'installation du frcore
       - name: 📥 Download patch fr-core
-        if: ${{ inputs.bake == 'true' }}    
-        shell: bash            
+        if: ${{ inputs.bake == 'true' }}
+        shell: bash
         run: |
           wget -q https://raw.githubusercontent.com/ansforge/IG-workflows/main/dependency/hl7.fhir.fr.core-1.1.0.tgz -O ./hl7.fhir.fr.core-1.1.0.tgz
           cp hl7.fhir.fr.core-1.1.0.tgz ~/.fhir/packages
-          tar -xzvf ~/.fhir/packages/hl7.fhir.fr.core-1.1.0.tgz             
+          tar -xzvf ~/.fhir/packages/hl7.fhir.fr.core-1.1.0.tgz
 
-      #Install de sushi    
+      # Cache des packages FHIR — mode legacy (home standard du runner)
+      - name: Cache FHIR packages
+        if: ${{ inputs.container_mode != 'true' }}
+        uses: actions/cache@v4
+        with:
+          path: ~/.fhir/packages
+          key: fhir-packages-${{ hashFiles(format('{0}/sushi-config.yaml', inputs.repo_ig)) }}
+          restore-keys: |
+            fhir-packages-
+
+      # Cache des packages FHIR — container_mode : dans un job container, actions/cache s'exécute
+      # à l'intérieur du container (via docker exec). GHA y force HOME=/github/home, donc ~ ne
+      # pointe pas vers /root. On utilise le chemin absolu /root/.fhir/packages pour être sûr.
+      - name: Cache FHIR packages (container mode)
+        if: ${{ inputs.container_mode == 'true' }}
+        uses: actions/cache@v4
+        with:
+          path: /root/.fhir/packages
+          key: fhir-packages-${{ hashFiles(format('{0}/sushi-config.yaml', inputs.repo_ig)) }}
+          restore-keys: |
+            fhir-packages-
+
+      # SUSHI — mode legacy (SUSHI installé via npm)
       - name: Install modules
-        shell: bash            
+        if: ${{ inputs.container_mode != 'true' }}
+        shell: bash
         run: npm install -g fsh-sushi
 
-      #Lancement de sushi 
+      # En container_mode, GHA force HOME=/github/home dans le container.
+      # On surcharge inline pour que SUSHI trouve ses packages dans /root/.fhir/packages.
       - name: Run sushi
-        shell: bash      
-        run: sushi  ${{ inputs.repo_ig}}
-
-      # Téléchargement de la dernière version du publisher
-      - name: 📥 Download IG Publisher
-        shell: bash          
-        run:  |
-          if [ ${{inputs.ig-publisher-version}} = "latest" ]; then 
-            wget -q https://github.com/HL7/fhir-ig-publisher/releases/latest/download/publisher.jar
-          else 
-            wget -q https://github.com/HL7/fhir-ig-publisher/releases/download/${{inputs.ig-publisher-version}}/publisher.jar
+        shell: bash
+        env:
+          CONTAINER_MODE: ${{ inputs.container_mode }}
+          REPO_IG: ${{ inputs.repo_ig }}
+        run: |
+          if [ "$CONTAINER_MODE" = "true" ]; then
+            HOME=/root sushi "$REPO_IG"
+          else
+            sushi "$REPO_IG"
           fi
-        
-      #Récupération du nom de la branche afin de publier dans gh-pages
+
+      # Résolution de la version du publisher (pour une clé de cache stable)
+      # En container_mode, si publisher.jar est pré-inclus dans l'image, on l'utilise directement
+      - name: Resolve IG Publisher version
+        id: resolve-publisher-version
+        shell: bash
+        env:
+          CONTAINER_MODE: ${{ inputs.container_mode }}
+          IG_PUBLISHER_VERSION: ${{ inputs.ig-publisher-version }}
+        run: |
+          if [ "$CONTAINER_MODE" = "true" ] && [ -f /root/publisher.jar ]; then
+            echo "version=image-bundled" >> $GITHUB_OUTPUT
+            echo "use_bundled=true" >> $GITHUB_OUTPUT
+          elif [ "$IG_PUBLISHER_VERSION" = "latest" ]; then
+            VERSION=$(curl -s https://api.github.com/repos/HL7/fhir-ig-publisher/releases/latest | jq -r '.tag_name')
+            echo "version=$VERSION" >> $GITHUB_OUTPUT
+            echo "use_bundled=false" >> $GITHUB_OUTPUT
+          else
+            echo "version=$IG_PUBLISHER_VERSION" >> $GITHUB_OUTPUT
+            echo "use_bundled=false" >> $GITHUB_OUTPUT
+          fi
+
+      # Cache du publisher.jar par version (skippé si publisher bundlé dans l'image)
+      - name: Cache IG Publisher JAR
+        id: cache-publisher
+        if: steps.resolve-publisher-version.outputs.use_bundled != 'true'
+        uses: actions/cache@v4
+        with:
+          path: publisher.jar
+          key: ig-publisher-${{ steps.resolve-publisher-version.outputs.version }}
+
+      # Téléchargement du publisher uniquement en cas de cache miss (skippé si bundlé)
+      - name: 📥 Download IG Publisher
+        if: steps.resolve-publisher-version.outputs.use_bundled != 'true' && steps.cache-publisher.outputs.cache-hit != 'true'
+        shell: bash
+        env:
+          PUBLISHER_VERSION: ${{ steps.resolve-publisher-version.outputs.version }}
+        run: |
+          wget -q "https://github.com/HL7/fhir-ig-publisher/releases/download/${PUBLISHER_VERSION}/publisher.jar"
+
+      # Récupération du nom de la branche afin de publier dans gh-pages
       - name: Get branch names
-        if: ${{ inputs.github_page == 'true' }}        
+        if: ${{ inputs.github_page == 'true' }}
         id: branch-name
         uses: tj-actions/branch-names@v8
 
-      #Install ruby,
+      # Ruby/Jekyll/GraphViz — mode legacy uniquement (container_mode a déjà ces outils)
       - uses: ruby/setup-ruby@v1
+        if: ${{ inputs.container_mode != 'true' }}
         with:
           ruby-version: '3.3'
-          bundler-cache: true # runs 'bundle install' and caches installed gems automatically
-          
-      - name: Install  jekyll and graphviz
+          bundler-cache: true
+
+      - name: Install jekyll and graphviz
+        if: ${{ inputs.container_mode != 'true' }}
         shell: bash
         run: |
           sudo gem install jekyll
-          # PlantUML 1.2026.x (publisher 2.2.9+) est compatible avec GraphViz apt
           sudo apt-get install -y graphviz
           dot -V
 
-
-      # Creation de l'IG
+      # Run IG Publisher
+      # En container_mode, on force HOME=/root pour que le subprocess SUSHI spawné par le Publisher
+      # utilise /root/.fhir/packages et non /github/home/.fhir/packages.
+      # Si publisher bundlé dans l'image (/root/publisher.jar), on l'utilise directement.
       - name: 🏃‍♂️ Run IG Publisher
         shell: bash
-        run : |
-              cd  ${{ inputs.repo_ig}}
-              java -Xmx8192m -jar ../publisher.jar  -ig .   -authorise-non-conformant-tx-servers
-              [ -f ./output/qa.min.html ] && cat ./output/qa.min.html >> $GITHUB_STEP_SUMMARY
-              mkdir ../to_publish/ig
-              cp -r ./output/.  ../to_publish/ig
+        env:
+          CONTAINER_MODE: ${{ inputs.container_mode }}
+          USE_BUNDLED: ${{ steps.resolve-publisher-version.outputs.use_bundled }}
+          REPO_IG: ${{ inputs.repo_ig }}
+        run: |
+          if [ "$CONTAINER_MODE" = "true" ]; then export HOME=/root; fi
+          if [ "$USE_BUNDLED" = "true" ]; then
+            PUBLISHER_JAR=/root/publisher.jar
+          else
+            PUBLISHER_JAR=../publisher.jar
+          fi
+          cd "$REPO_IG"
+          java -Xmx8192m -jar $PUBLISHER_JAR -ig . -authorise-non-conformant-tx-servers
+          [ -f ./output/qa.min.html ] && cat ./output/qa.min.html >> $GITHUB_STEP_SUMMARY
+          mkdir ../to_publish/ig
+          cp -r ./output/. ../to_publish/ig
 
-     # Get testscript-generator
+      # Get testscript-generator
       - name: Get testscript-generator
-        if: ${{ inputs.generate_testscript == 'true' }} 
+        if: ${{ inputs.generate_testscript == 'true' }}
         uses: actions/checkout@main
         with:
           persist-credentials: false
           repository: M-Priour/testscript-generator
-          path: testscript     
+          path: testscript
 
       - name: 🏃‍♂️ Run testscript-generator
-        shell: bash      
-        if: ${{ inputs.generate_testscript == 'true' }} 
-        run : |
-              cd  testscript
-              mkdir ./igs
-              cp ../${{ inputs.repo_ig}}/output/package.tgz ./igs
-              bundle install
-              bundle exec bin/testscript_generator read mustSupport search interaction  ig_directory./igs output_path=./generated_testscripts
-              mkdir ../to_publish/testscript
-              cp -r ./generated_testscripts/.  ../to_publish/testscript
+        shell: bash
+        if: ${{ inputs.generate_testscript == 'true' }}
+        env:
+          REPO_IG: ${{ inputs.repo_ig }}
+        run: |
+          cd testscript
+          mkdir ./igs
+          cp "../$REPO_IG/output/package.tgz" ./igs
+          bundle install
+          bundle exec bin/testscript_generator read mustSupport search interaction ig_directory=./igs output_path=./generated_testscripts
+          mkdir ../to_publish/testscript
+          cp -r ./generated_testscripts/. ../to_publish/testscript
 
-      #Install de python pour la génération du graph plantUml
-      - name: Setup Python # Set Python version
-        if: ${{ inputs.generate_plantuml == 'true' || inputs.generate_mapping_plantuml == 'true' }}  
+      # Python — mode legacy uniquement (container_mode a déjà Python)
+      - name: Setup Python
+        if: ${{ (inputs.generate_plantuml == 'true' || inputs.generate_mapping_plantuml == 'true') && inputs.container_mode != 'true' }}
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10' 
+          python-version: '3.10'
 
-      #Creation du graphique plantUML et publication dans gh-pages
+      # Cache des JARs PlantUML
+      - name: Cache PlantUML JARs
+        id: cache-plantuml
+        if: ${{ inputs.generate_plantuml == 'true' || inputs.generate_mapping_plantuml == 'true' }}
+        uses: actions/cache@v4
+        with:
+          path: |
+            plantuml.jar
+            plantuml-mapping.jar
+          key: plantuml-jars-v1.2026.6-mapping-v1.2024.0
+
+      # PlantUML
       - name: Run script plantuml
-        if: ${{ inputs.generate_plantuml == 'true' }}        
-        shell: bash   
+        if: ${{ inputs.generate_plantuml == 'true' }}
+        shell: bash
         continue-on-error: true
-        run : |
-              mkdir ./plantuml
-              python ${{ github.action_path }}/PlantUML/construct.py './${{ inputs.repo_ig}}/output/package.db' './plantuml/graph.puml'
-              wget -q https://github.com/plantuml/plantuml/releases/download/v1.2026.6/plantuml-1.2026.6.jar
-              java -jar plantuml-1.2026.6.jar  -tsvg -tpng  "./plantuml"
-              mkdir ./to_publish/plantuml
-              cp -r ./plantuml/.  ./to_publish/plantuml
+        env:
+          REPO_IG: ${{ inputs.repo_ig }}
+        run: |
+          mkdir ./plantuml
+          python ${{ github.action_path }}/PlantUML/construct.py "./$REPO_IG/output/package.db" './plantuml/graph.puml'
+          [ -f plantuml.jar ] || wget -q https://github.com/plantuml/plantuml/releases/download/v1.2026.6/plantuml-1.2026.6.jar -O plantuml.jar
+          java -jar plantuml.jar -tsvg -tpng "./plantuml"
+          mkdir ./to_publish/plantuml
+          cp -r ./plantuml/. ./to_publish/plantuml
 
-      #Creation du graphique plantUML et publication dans gh-pages
+      # PlantUML mapping
       - name: Run scripts mapping plantuml
-        if: ${{ inputs.generate_mapping_plantuml == 'true' }}        
-        shell: bash   
+        if: ${{ inputs.generate_mapping_plantuml == 'true' }}
+        shell: bash
         continue-on-error: true
-        run : |
-              mkdir ./plantuml_mapping
-              python ${{ github.action_path }}/PlantUML/construct_mapping_global.py './${{ inputs.repo_ig}}/output/package.db' './plantuml_mapping'
-              python ${{ github.action_path }}/PlantUML/construct_mappings.py './${{ inputs.repo_ig}}/output/package.db' './plantuml_mapping'
-              wget -q https://github.com/plantuml/plantuml/releases/download/v1.2024.0/plantuml-1.2024.0.jar
-              java -jar plantuml-1.2024.0.jar  -tsvg -tpng  "./plantuml"
-              mkdir ./to_publish/plantuml_mapping
-              cp -r ./plantuml_mapping/.  ./to_publish/plantuml_mapping
+        env:
+          REPO_IG: ${{ inputs.repo_ig }}
+        run: |
+          mkdir ./plantuml_mapping
+          python ${{ github.action_path }}/PlantUML/construct_mapping_global.py "./$REPO_IG/output/package.db" './plantuml_mapping'
+          python ${{ github.action_path }}/PlantUML/construct_mappings.py "./$REPO_IG/output/package.db" './plantuml_mapping'
+          [ -f plantuml-mapping.jar ] || wget -q https://github.com/plantuml/plantuml/releases/download/v1.2024.0/plantuml-1.2024.0.jar -O plantuml-mapping.jar
+          java -jar plantuml-mapping.jar -tsvg -tpng "./plantuml_mapping"
+          mkdir ./to_publish/plantuml_mapping
+          cp -r ./plantuml_mapping/. ./to_publish/plantuml_mapping
 
-      #Téléchargement de la dernière version du validator_cli
+      # Résolution de la version du validator_cli
+      - name: Resolve validator_cli version
+        if: ${{ inputs.validator_cli == 'true' }}
+        id: resolve-validator-version
+        shell: bash
+        run: |
+          VERSION=$(curl -s https://api.github.com/repos/hapifhir/org.hl7.fhir.core/releases/latest | jq -r '.tag_name')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      # Cache du validator_cli.jar
+      - name: Cache validator_cli JAR
+        if: ${{ inputs.validator_cli == 'true' }}
+        id: cache-validator-cli
+        uses: actions/cache@v4
+        with:
+          path: validator_cli.jar
+          key: validator-cli-${{ steps.resolve-validator-version.outputs.version }}
+
+      # Téléchargement du validator_cli uniquement en cas de cache miss
       - name: 📥 Download test tools
-        if: ${{ inputs.validator_cli == 'true' }}   
-        shell: bash            
+        if: ${{ inputs.validator_cli == 'true' && steps.cache-validator-cli.outputs.cache-hit != 'true' }}
+        shell: bash
         run: |
           wget -q https://github.com/hapifhir/org.hl7.fhir.core/releases/latest/download/validator_cli.jar
 
-
-      #Lancement des tests avec le validator_cli    
+      # Run validator_cli
       - name: ✔️ Run tests
-        if: ${{ inputs.validator_cli == 'true' }}  
-        shell: bash       
-        run: |
-              mkdir ./validator_cli
-              cd  ${{ inputs.repo_ig}}
-              java -jar ../validator_cli.jar ./fsh-generated/resources -recurse -verbose -output-style compact -output ../validator_cli/rapport.html
+        if: ${{ inputs.validator_cli == 'true' }}
+        shell: bash
         continue-on-error: true
+        env:
+          REPO_IG: ${{ inputs.repo_ig }}
+        run: |
+          mkdir ./validator_cli
+          cd "$REPO_IG"
+          java -jar ../validator_cli.jar ./fsh-generated/resources -recurse -verbose -output-style compact -output ../validator_cli/rapport.html
 
-      #Creation de la sortie du validator_cli dans le workflow
+      # Creation de la sortie du validator_cli dans le workflow
       - name: Generate list using Markdown
-        if: ${{ inputs.validator_cli == 'true' }}     
-        shell: bash       
+        if: ${{ inputs.validator_cli == 'true' }}
+        shell: bash
         run: |
           mkdir ./to_publish/validator_cli
-          cp -r ./validator_cli/.  ./to_publish/validator_cli
+          cp -r ./validator_cli/. ./to_publish/validator_cli
           echo "### Rapport de validation (validator_cli)  :rocket:" >> $GITHUB_STEP_SUMMARY
           cat ./validator_cli/rapport.html >> $GITHUB_STEP_SUMMARY
-       
+
       - name: Create .gitignore for gh-pages
         if: ${{ inputs.github_page == 'true' }}
         shell: bash
@@ -266,96 +379,98 @@ runs:
 
 #####Release###########
 
-
-      #Suppression cache ubuntu
+      # Suppression cache ubuntu
       - name: Free Disk Space (Ubuntu)
-        if: ${{ inputs.publish_repo != '' }}          
+        if: ${{ inputs.publish_repo != '' }}
         uses: insightsengineering/disk-space-reclaimer@v1
         with:
           tools-cache: false
           android: true
 
-      #Affichage des partitions
-      - name: size    
-        if: ${{ inputs.publish_repo != '' }}   
-        shell: bash     
+      # Affichage des partitions
+      - name: size
+        if: ${{ inputs.publish_repo != '' }}
+        shell: bash
         run: |
           df -h
 
-      #Récupération du repo de publication
+      # Récupération du repo de publication
       - name: Get publish_repo
-        if: ${{ inputs.publish_repo != '' }}       
+        if: ${{ inputs.publish_repo != '' }}
         uses: actions/checkout@main
         with:
           persist-credentials: false
-          repository:  ${{ inputs.publish_repo}}
+          repository: ${{ inputs.publish_repo }}
           path: IG-website-release
 
-      #Initialisation du repo
-      - name: Init   publish_repo  
-        if: ${{ inputs.publish_repo != '' }}             
+      # Initialisation du repo
+      - name: Init publish_repo
+        if: ${{ inputs.publish_repo != '' }}
         shell: bash
         run: |
-          cd  IG-website-release
+          cd IG-website-release
           git submodule update --init --recursive
 
-      #Lancement de la release dans le repo
-      - name: 🏃‍♂️ Run  Publisher to release
-        if: ${{ inputs.publish_repo != '' }}  
-        shell: bash                
-        run :   java -jar publisher.jar -go-publish    -authorise-non-conformant-tx-servers  -source  ${{ inputs.repo_ig}}  -web  ${{  inputs.publish_path_outpout }} -registry ./IG-website-release/ig-registry/fhir-ig-list.json -history ./IG-website-release/fhir-ig-history-template -templates ./IG-website-release/templates 
-                
-
-      #Commit de la release
-      - name: Commit change
-        if: ${{ inputs.publish_repo != '' }}  
-        shell: bash              
+      # Lancement de la release dans le repo
+      - name: 🏃‍♂️ Run Publisher to release
+        if: ${{ inputs.publish_repo != '' }}
+        shell: bash
+        env:
+          USE_BUNDLED: ${{ steps.resolve-publisher-version.outputs.use_bundled }}
+          REPO_IG: ${{ inputs.repo_ig }}
+          PUBLISH_PATH: ${{ inputs.publish_path_outpout }}
         run: |
-          PACKAGE_ID=$(jq -r '."package-id"' ${{ inputs.repo_ig}}/publication-request.json)
-          VERSION=$(jq -r '.version' ${{ inputs.repo_ig}}/publication-request.json)
-          cd  IG-website-release
+          if [ "$USE_BUNDLED" = "true" ]; then
+            PUBLISHER_JAR=/root/publisher.jar
+          else
+            PUBLISHER_JAR=publisher.jar
+          fi
+          java -jar $PUBLISHER_JAR -go-publish -authorise-non-conformant-tx-servers -source "$REPO_IG" -web "$PUBLISH_PATH" -registry ./IG-website-release/ig-registry/fhir-ig-list.json -history ./IG-website-release/fhir-ig-history-template -templates ./IG-website-release/templates
+
+      # Commit de la release
+      - name: Commit change
+        if: ${{ inputs.publish_repo != '' }}
+        shell: bash
+        env:
+          REPO_IG: ${{ inputs.repo_ig }}
+        run: |
+          PACKAGE_ID=$(jq -r '."package-id"' "$REPO_IG/publication-request.json")
+          VERSION=$(jq -r '.version' "$REPO_IG/publication-request.json")
+          cd IG-website-release
           git config user.name github-actions
           git config user.email github-actions@esante.gouv.fr
-          git add -A 
+          git add -A
           git commit -m "Publication ${PACKAGE_ID} ${VERSION}" || echo "No changes to commit"
-          
-      #Push de la release
-      - name: Push changes 
-        if: ${{ inputs.publish_repo != '' }}          
-        uses: ad-m/github-push-action@master
-        with:
-          github_token: ${{ inputs.publish_repo_token}}
-          directory: IG-website-release
-          repository : ${{ inputs.publish_repo}}
 
-      # recuperation des informations du publication-request.json
+      # Recuperation des informations du publication-request.json
       - name: Get information from PublicationRequest for GH Release
-        if: ${{ inputs.publish_repo != '' }}  
-        shell: bash       
+        if: ${{ inputs.publish_repo != '' }}
+        shell: bash
+        env:
+          REPO_IG: ${{ inputs.repo_ig }}
         run: |
           echo 'PACKAGE_JSON<<EOF' >> $GITHUB_ENV
-          cat ${{ inputs.repo_ig}}/publication-request.json >> $GITHUB_ENV
+          cat "$REPO_IG/publication-request.json" >> $GITHUB_ENV
           echo 'EOF' >> $GITHUB_ENV
 
-      #Creation de la release en ajoutant full-ig.zip et package.tgz
+      # Creation de la release en ajoutant full-ig.zip et package.tgz
       - name: Create release
-        if: ${{ inputs.publish_repo != '' }}  
-        shell: bash       
+        if: ${{ inputs.publish_repo != '' }}
+        shell: bash
+        env:
+          PUBLISH_PATH: ${{ inputs.publish_path_outpout }}
+          GH_TOKEN: ${{ inputs.github_page_token }}
         run: |
-          gh release create "${{ fromJson(env.PACKAGE_JSON).version }}" -t "Release : ${{  fromJson(env.PACKAGE_JSON).version }}"  --generate-notes  --repo="$GITHUB_REPOSITORY" 
-          
+          gh release create "${{ fromJson(env.PACKAGE_JSON).version }}" -t "Release : ${{ fromJson(env.PACKAGE_JSON).version }}" --generate-notes --repo="$GITHUB_REPOSITORY"
+
           regex='^https?:\/\/[A-Za-z0-9:.]*\/(?:.+\/)*?([^\/]+\/[^\/]+)\/?$'
           [[ ${{ fromJson(env.PACKAGE_JSON).path }} =~ $regex ]]
           file_path=${BASH_REMATCH[1]}
-          echo  "${inputs.publish_path_outpout}/${file_path}/full-ig.zip"
-          gh release upload "${{ fromJson(env.PACKAGE_JSON).version }}" ${{  inputs.publish_path_outpout }}/${file_path }/full-ig.zip  --repo="$GITHUB_REPOSITORY" 
-          gh release upload "${{ fromJson(env.PACKAGE_JSON).version }}" ${{  inputs.publish_path_outpout }}${file_path }/package.tgz --repo="$GITHUB_REPOSITORY" 
-        env:
-          GH_TOKEN:  ${{ inputs.github_page_token }}
-        
+          echo "${PUBLISH_PATH}/${file_path}/full-ig.zip"
+          gh release upload "${{ fromJson(env.PACKAGE_JSON).version }}" "${PUBLISH_PATH}/${file_path}/full-ig.zip" --repo="$GITHUB_REPOSITORY"
+          gh release upload "${{ fromJson(env.PACKAGE_JSON).version }}" "${PUBLISH_PATH}${file_path}/package.tgz" --repo="$GITHUB_REPOSITORY"
+
 
 branding:
   icon: 'check'
   color: 'blue'
-
-          
