@@ -5,16 +5,11 @@ on:
     branches: [main]
     paths:
       - Dockerfile
+      - fhir-packages.txt
       - .github/workflows/build-docker.yml
   schedule:
     # Rebuild hebdomadaire lundi 06:00 UTC pour capter les nouvelles versions SUSHI
     - cron: '0 6 * * 1'
-  workflow_dispatch:
-    inputs:
-      sushi_version:
-        description: 'Version SUSHI à installer (défaut : dernière stable)'
-        required: false
-        default: ''
 
 permissions:
   contents: read
@@ -30,11 +25,7 @@ jobs:
         id: sushi-version
         shell: bash
         run: |
-          if [ -n "${{ github.event.inputs.sushi_version }}" ]; then
-            VERSION="${{ github.event.inputs.sushi_version }}"
-          else
-            VERSION=$(npm view fsh-sushi version)
-          fi
+          VERSION=$(npm view fsh-sushi version)
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "SUSHI version: $VERSION"
 
