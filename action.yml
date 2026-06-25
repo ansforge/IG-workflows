@@ -253,10 +253,13 @@ runs:
           [ -f "$GITHUB_WORKSPACE/_qa_summary.txt" ] && cat "$GITHUB_WORKSPACE/_qa_summary.txt" >> "$GITHUB_STEP_SUMMARY" || true
 
       # Run IG Publisher — mode legacy et container_mode (tourne directement)
+      # En container_mode, on force HOME=/root pour que le subprocess SUSHI spawné par le Publisher
+      # utilise /root/.fhir/packages (bind-monté depuis le host) et non /github/home/.fhir/packages.
       - name: 🏃‍♂️ Run IG Publisher
         if: ${{ inputs.use_docker_image != 'true' || inputs.container_mode == 'true' }}
         shell: bash
         run: |
+          if [ "${{ inputs.container_mode }}" = "true" ]; then export HOME=/root; fi
           cd ${{ inputs.repo_ig }}
           java -Xmx8192m -jar ../publisher.jar -ig . -authorise-non-conformant-tx-servers
           [ -f ./output/qa.min.html ] && cat ./output/qa.min.html >> $GITHUB_STEP_SUMMARY
