@@ -47,16 +47,8 @@ inputs:
     description: "Chemin de publication de l'IG."
     required: false
     default: ""
-  use_docker_image:
-    description: "Utilise l'image pré-construite ghcr.io/ansforge/fhir-ig-builder pour éviter l'installation des outils à chaque run. Mettre à 'false' pour revenir au comportement legacy."
-    required: false
-    default: "false"
-  docker_image:
-    description: "Image Docker à utiliser quand use_docker_image est 'true'. Permet d'épingler une version spécifique."
-    required: false
-    default: "ghcr.io/ansforge/fhir-ig-builder:latest"
   container_mode:
-    description: "Le job tourne dans un container Docker (container: image: ...). Skip les installations d'outils et les wrappers docker run — SUSHI et Publisher tournent directement dans le container."
+    description: "Le job tourne dans un container Docker (container: image: ...). Skip les installations d'outils — SUSHI et Publisher tournent directement dans le container."
     required: false
     default: "false"
 runs:
@@ -68,22 +60,16 @@ runs:
         shell: bash
         run: mkdir to_publish
 
-      # Pull de l'image pré-construite (mode Docker uniquement, pas en container_mode)
-      - name: Pull FHIR IG Builder image
-        if: ${{ inputs.use_docker_image == 'true' && inputs.container_mode != 'true' }}
-        shell: bash
-        run: docker pull ${{ inputs.docker_image }}
-
-      # Install JAVA (mode legacy uniquement — Docker et container_mode ont déjà le JDK)
+      # Install JAVA (mode legacy uniquement — container_mode a déjà le JDK)
       - name: Setup Java JDK
-        if: ${{ inputs.use_docker_image != 'true' && inputs.container_mode != 'true' }}
+        if: ${{ inputs.container_mode != 'true' }}
         uses: actions/setup-java@v4
         with:
           distribution: 'microsoft'
           java-version: '17'
 
       - uses: actions/setup-node@v4
-        if: ${{ inputs.use_docker_image != 'true' && inputs.container_mode != 'true' }}
+        if: ${{ inputs.container_mode != 'true' }}
         with:
           node-version: 20
 
@@ -131,7 +117,7 @@ runs:
           cp hl7.fhir.fr.core-1.1.0.tgz ~/.fhir/packages
           tar -xzvf ~/.fhir/packages/hl7.fhir.fr.core-1.1.0.tgz
 
-      # Cache des packages FHIR — mode legacy et use_docker_image (home standard du runner)
+      # Cache des packages FHIR — mode legacy (home standard du runner)
       - name: Cache FHIR packages
         if: ${{ inputs.container_mode != 'true' }}
         uses: actions/cache@v4
@@ -152,30 +138,15 @@ runs:
           restore-keys: |
             fhir-packages-
 
-      # SUSHI — mode Docker (wrapper docker run, pas en container_mode)
-      - name: Run sushi
-        if: ${{ inputs.use_docker_image == 'true' && inputs.container_mode != 'true' }}
-        shell: bash
-        run: |
-          mkdir -p "$HOME/.fhir/packages"
-          docker run --rm \
-            -v "$GITHUB_WORKSPACE:/workspace" \
-            -v "$HOME/.fhir/packages:/root/.fhir/packages" \
-            -w /workspace \
-            ${{ inputs.docker_image }} \
-            sushi ${{ inputs.repo_ig }}
-
-      # SUSHI — mode legacy et container_mode (SUSHI déjà installé en container_mode, npm skippé)
+      # SUSHI — mode legacy (SUSHI installé via npm)
       - name: Install modules
-        if: ${{ inputs.use_docker_image != 'true' && inputs.container_mode != 'true' }}
+        if: ${{ inputs.container_mode != 'true' }}
         shell: bash
         run: npm install -g fsh-sushi
 
       # En container_mode, GHA force HOME=/github/home dans le container.
-      # On surcharge inline pour que SUSHI trouve ses packages dans /root/.fhir/packages
-      # (cible du volume mount). HOME=/root n'affecte que ce process, pas GITHUB_ENV.
+      # On surcharge inline pour que SUSHI trouve ses packages dans /root/.fhir/packages.
       - name: Run sushi
-        if: ${{ inputs.use_docker_image != 'true' || inputs.container_mode == 'true' }}
         shell: bash
         run: |
           if [ "${{ inputs.container_mode }}" = "true" ]; then
@@ -224,46 +195,26 @@ runs:
         id: branch-name
         uses: tj-actions/branch-names@v8
 
-      # Ruby/Jekyll/GraphViz — mode legacy uniquement (Docker et container_mode ont déjà ces outils)
+      # Ruby/Jekyll/GraphViz — mode legacy uniquement (container_mode a déjà ces outils)
       - uses: ruby/setup-ruby@v1
-        if: ${{ inputs.use_docker_image != 'true' && inputs.container_mode != 'true' }}
+        if: ${{ inputs.container_mode != 'true' }}
         with:
           ruby-version: '3.3'
           bundler-cache: true
 
       - name: Install jekyll and graphviz
-        if: ${{ inputs.use_docker_image != 'true' && inputs.container_mode != 'true' }}
+        if: ${{ inputs.container_mode != 'true' }}
         shell: bash
         run: |
           sudo gem install jekyll
           sudo apt-get install -y graphviz
           dot -V
 
-      # Run IG Publisher — mode Docker (wrapper docker run, pas en container_mode)
-      - name: 🏃‍♂️ Run IG Publisher
-        if: ${{ inputs.use_docker_image == 'true' && inputs.container_mode != 'true' }}
-        shell: bash
-        run: |
-          mkdir -p "$HOME/.fhir/packages"
-          docker run --rm \
-            -v "$GITHUB_WORKSPACE:/workspace" \
-            -v "$HOME/.fhir/packages:/root/.fhir/packages" \
-            -w /workspace/${{ inputs.repo_ig }} \
-            ${{ inputs.docker_image }} \
-            bash -c "
-              java -Xmx8192m -jar /workspace/publisher.jar -ig . -authorise-non-conformant-tx-servers
-              [ -f ./output/qa.min.html ] && cat ./output/qa.min.html > /workspace/_qa_summary.txt || true
-              mkdir -p /workspace/to_publish/ig
-              cp -r ./output/. /workspace/to_publish/ig
-            "
-          [ -f "$GITHUB_WORKSPACE/_qa_summary.txt" ] && cat "$GITHUB_WORKSPACE/_qa_summary.txt" >> "$GITHUB_STEP_SUMMARY" || true
-
-      # Run IG Publisher — mode legacy et container_mode (tourne directement)
+      # Run IG Publisher
       # En container_mode, on force HOME=/root pour que le subprocess SUSHI spawné par le Publisher
-      # utilise /root/.fhir/packages (bind-monté depuis le host) et non /github/home/.fhir/packages.
+      # utilise /root/.fhir/packages et non /github/home/.fhir/packages.
       # Si publisher bundlé dans l'image (/root/publisher.jar), on l'utilise directement.
       - name: 🏃‍♂️ Run IG Publisher
-        if: ${{ inputs.use_docker_image != 'true' || inputs.container_mode == 'true' }}
         shell: bash
         run: |
           if [ "${{ inputs.container_mode }}" = "true" ]; then export HOME=/root; fi
@@ -299,17 +250,17 @@ runs:
           mkdir ../to_publish/testscript
           cp -r ./generated_testscripts/. ../to_publish/testscript
 
-      # Python — mode legacy uniquement (Docker et container_mode ont déjà Python)
+      # Python — mode legacy uniquement (container_mode a déjà Python)
       - name: Setup Python
-        if: ${{ (inputs.generate_plantuml == 'true' || inputs.generate_mapping_plantuml == 'true') && inputs.use_docker_image != 'true' && inputs.container_mode != 'true' }}
+        if: ${{ (inputs.generate_plantuml == 'true' || inputs.generate_mapping_plantuml == 'true') && inputs.container_mode != 'true' }}
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
 
-      # Cache des JARs PlantUML (mode legacy et container_mode uniquement)
+      # Cache des JARs PlantUML
       - name: Cache PlantUML JARs
         id: cache-plantuml
-        if: ${{ (inputs.generate_plantuml == 'true' || inputs.generate_mapping_plantuml == 'true') && (inputs.use_docker_image != 'true' || inputs.container_mode == 'true') }}
+        if: ${{ inputs.generate_plantuml == 'true' || inputs.generate_mapping_plantuml == 'true' }}
         uses: actions/cache@v4
         with:
           path: |
@@ -317,29 +268,9 @@ runs:
             plantuml-mapping.jar
           key: plantuml-jars-v1.2026.6-mapping-v1.2024.0
 
-      # PlantUML — mode Docker (wrapper, pas en container_mode)
+      # PlantUML
       - name: Run script plantuml
-        if: ${{ inputs.generate_plantuml == 'true' && inputs.use_docker_image == 'true' && inputs.container_mode != 'true' }}
-        shell: bash
-        continue-on-error: true
-        run: |
-          mkdir ./plantuml
-          docker run --rm \
-            -v "$GITHUB_WORKSPACE:/workspace" \
-            -v "${{ github.action_path }}:/opt/ig-workflows" \
-            -w /workspace \
-            ${{ inputs.docker_image }} \
-            bash -c "
-              python3 /opt/ig-workflows/PlantUML/construct.py './${{ inputs.repo_ig }}/output/package.db' './plantuml/graph.puml'
-              wget -q https://github.com/plantuml/plantuml/releases/download/v1.2026.6/plantuml-1.2026.6.jar -O /tmp/plantuml.jar
-              java -jar /tmp/plantuml.jar -tsvg -tpng ./plantuml
-            "
-          mkdir ./to_publish/plantuml
-          cp -r ./plantuml/. ./to_publish/plantuml
-
-      # PlantUML — mode legacy et container_mode
-      - name: Run script plantuml
-        if: ${{ inputs.generate_plantuml == 'true' && (inputs.use_docker_image != 'true' || inputs.container_mode == 'true') }}
+        if: ${{ inputs.generate_plantuml == 'true' }}
         shell: bash
         continue-on-error: true
         run: |
@@ -350,30 +281,9 @@ runs:
           mkdir ./to_publish/plantuml
           cp -r ./plantuml/. ./to_publish/plantuml
 
-      # PlantUML mapping — mode Docker (wrapper, pas en container_mode)
+      # PlantUML mapping
       - name: Run scripts mapping plantuml
-        if: ${{ inputs.generate_mapping_plantuml == 'true' && inputs.use_docker_image == 'true' && inputs.container_mode != 'true' }}
-        shell: bash
-        continue-on-error: true
-        run: |
-          mkdir ./plantuml_mapping
-          docker run --rm \
-            -v "$GITHUB_WORKSPACE:/workspace" \
-            -v "${{ github.action_path }}:/opt/ig-workflows" \
-            -w /workspace \
-            ${{ inputs.docker_image }} \
-            bash -c "
-              python3 /opt/ig-workflows/PlantUML/construct_mapping_global.py './${{ inputs.repo_ig }}/output/package.db' './plantuml_mapping'
-              python3 /opt/ig-workflows/PlantUML/construct_mappings.py './${{ inputs.repo_ig }}/output/package.db' './plantuml_mapping'
-              wget -q https://github.com/plantuml/plantuml/releases/download/v1.2024.0/plantuml-1.2024.0.jar -O /tmp/plantuml-mapping.jar
-              java -jar /tmp/plantuml-mapping.jar -tsvg -tpng ./plantuml_mapping
-            "
-          mkdir ./to_publish/plantuml_mapping
-          cp -r ./plantuml_mapping/. ./to_publish/plantuml_mapping
-
-      # PlantUML mapping — mode legacy et container_mode
-      - name: Run scripts mapping plantuml
-        if: ${{ inputs.generate_mapping_plantuml == 'true' && (inputs.use_docker_image != 'true' || inputs.container_mode == 'true') }}
+        if: ${{ inputs.generate_mapping_plantuml == 'true' }}
         shell: bash
         continue-on-error: true
         run: |
@@ -410,22 +320,9 @@ runs:
         run: |
           wget -q https://github.com/hapifhir/org.hl7.fhir.core/releases/latest/download/validator_cli.jar
 
-      # Run validator_cli — mode Docker (wrapper, pas en container_mode)
+      # Run validator_cli
       - name: ✔️ Run tests
-        if: ${{ inputs.validator_cli == 'true' && inputs.use_docker_image == 'true' && inputs.container_mode != 'true' }}
-        shell: bash
-        continue-on-error: true
-        run: |
-          mkdir ./validator_cli
-          docker run --rm \
-            -v "$GITHUB_WORKSPACE:/workspace" \
-            -w /workspace/${{ inputs.repo_ig }} \
-            ${{ inputs.docker_image }} \
-            java -jar /workspace/validator_cli.jar ./fsh-generated/resources -recurse -verbose -output-style compact -output /workspace/validator_cli/rapport.html
-
-      # Run validator_cli — mode legacy et container_mode
-      - name: ✔️ Run tests
-        if: ${{ inputs.validator_cli == 'true' && (inputs.use_docker_image != 'true' || inputs.container_mode == 'true') }}
+        if: ${{ inputs.validator_cli == 'true' }}
         shell: bash
         continue-on-error: true
         run: |
@@ -460,14 +357,6 @@ runs:
           commit_message: ' ${{ github.event.head_commit.message }}'
 
 #####Release###########
-
-      # Java nécessaire sur le runner hôte pour le mode Docker + release (pas en container_mode où Java est déjà présent)
-      - name: Setup Java JDK (for release)
-        if: ${{ inputs.use_docker_image == 'true' && inputs.container_mode != 'true' && inputs.publish_repo != '' }}
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'microsoft'
-          java-version: '17'
 
       # Suppression cache ubuntu
       - name: Free Disk Space (Ubuntu)
@@ -505,7 +394,13 @@ runs:
       - name: 🏃‍♂️ Run Publisher to release
         if: ${{ inputs.publish_repo != '' }}
         shell: bash
-        run: java -jar publisher.jar -go-publish -authorise-non-conformant-tx-servers -source ${{ inputs.repo_ig }} -web ${{ inputs.publish_path_outpout }} -registry ./IG-website-release/ig-registry/fhir-ig-list.json -history ./IG-website-release/fhir-ig-history-template -templates ./IG-website-release/templates
+        run: |
+          if [ "${{ steps.resolve-publisher-version.outputs.use_bundled }}" = "true" ]; then
+            PUBLISHER_JAR=/root/publisher.jar
+          else
+            PUBLISHER_JAR=publisher.jar
+          fi
+          java -jar $PUBLISHER_JAR -go-publish -authorise-non-conformant-tx-servers -source ${{ inputs.repo_ig }} -web ${{ inputs.publish_path_outpout }} -registry ./IG-website-release/ig-registry/fhir-ig-list.json -history ./IG-website-release/fhir-ig-history-template -templates ./IG-website-release/templates
 
       # Commit de la release
       - name: Commit change
