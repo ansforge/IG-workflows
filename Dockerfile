@@ -56,4 +56,10 @@ COPY scripts/install-fhir-packages.mjs .
 COPY fhir-packages.txt .
 RUN node install-fhir-packages.mjs fhir-packages.txt
 
+# Pré-télécharger le IG Publisher JAR (version latest au moment du build de l'image)
+RUN PUBLISHER_VERSION=$(curl -s https://api.github.com/repos/HL7/fhir-ig-publisher/releases/latest | jq -r '.tag_name') \
+    && wget -q "https://github.com/HL7/fhir-ig-publisher/releases/download/${PUBLISHER_VERSION}/publisher.jar" \
+        -O /root/publisher.jar \
+    && echo "IG Publisher ${PUBLISHER_VERSION} pre-installed at /root/publisher.jar"
+
 WORKDIR /workspace

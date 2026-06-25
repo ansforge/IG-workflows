@@ -185,28 +185,35 @@ runs:
           fi
 
       # Résolution de la version du publisher (pour une clé de cache stable)
+      # En container_mode, si publisher.jar est pré-inclus dans l'image, on l'utilise directement
       - name: Resolve IG Publisher version
         id: resolve-publisher-version
         shell: bash
         run: |
-          if [ "${{ inputs.ig-publisher-version }}" = "latest" ]; then
+          if [ "${{ inputs.container_mode }}" = "true" ] && [ -f /root/publisher.jar ]; then
+            echo "version=image-bundled" >> $GITHUB_OUTPUT
+            echo "use_bundled=true" >> $GITHUB_OUTPUT
+          elif [ "${{ inputs.ig-publisher-version }}" = "latest" ]; then
             VERSION=$(curl -s https://api.github.com/repos/HL7/fhir-ig-publisher/releases/latest | jq -r '.tag_name')
+            echo "version=$VERSION" >> $GITHUB_OUTPUT
+            echo "use_bundled=false" >> $GITHUB_OUTPUT
           else
-            VERSION="${{ inputs.ig-publisher-version }}"
+            echo "version=${{ inputs.ig-publisher-version }}" >> $GITHUB_OUTPUT
+            echo "use_bundled=false" >> $GITHUB_OUTPUT
           fi
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
 
-      # Cache du publisher.jar par version
+      # Cache du publisher.jar par version (skippé si publisher bundlé dans l'image)
       - name: Cache IG Publisher JAR
         id: cache-publisher
+        if: steps.resolve-publisher-version.outputs.use_bundled != 'true'
         uses: actions/cache@v4
         with:
           path: publisher.jar
           key: ig-publisher-${{ steps.resolve-publisher-version.outputs.version }}
 
-      # Téléchargement du publisher uniquement en cas de cache miss
+      # Téléchargement du publisher uniquement en cas de cache miss (skippé si bundlé)
       - name: 📥 Download IG Publisher
-        if: steps.cache-publisher.outputs.cache-hit != 'true'
+        if: steps.resolve-publisher-version.outputs.use_bundled != 'true' && steps.cache-publisher.outputs.cache-hit != 'true'
         shell: bash
         run: |
           wget -q https://github.com/HL7/fhir-ig-publisher/releases/download/${{ steps.resolve-publisher-version.outputs.version }}/publisher.jar
@@ -254,13 +261,19 @@ runs:
       # Run IG Publisher — mode legacy et container_mode (tourne directement)
       # En container_mode, on force HOME=/root pour que le subprocess SUSHI spawné par le Publisher
       # utilise /root/.fhir/packages (bind-monté depuis le host) et non /github/home/.fhir/packages.
+      # Si publisher bundlé dans l'image (/root/publisher.jar), on l'utilise directement.
       - name: 🏃‍♂️ Run IG Publisher
         if: ${{ inputs.use_docker_image != 'true' || inputs.container_mode == 'true' }}
         shell: bash
         run: |
           if [ "${{ inputs.container_mode }}" = "true" ]; then export HOME=/root; fi
+          if [ "${{ steps.resolve-publisher-version.outputs.use_bundled }}" = "true" ]; then
+            PUBLISHER_JAR=/root/publisher.jar
+          else
+            PUBLISHER_JAR=../publisher.jar
+          fi
           cd ${{ inputs.repo_ig }}
-          java -Xmx8192m -jar ../publisher.jar -ig . -authorise-non-conformant-tx-servers
+          java -Xmx8192m -jar $PUBLISHER_JAR -ig . -authorise-non-conformant-tx-servers
           [ -f ./output/qa.min.html ] && cat ./output/qa.min.html >> $GITHUB_STEP_SUMMARY
           mkdir ../to_publish/ig
           cp -r ./output/. ../to_publish/ig
@@ -282,7 +295,7 @@ runs:
           mkdir ./igs
           cp ../${{ inputs.repo_ig }}/output/package.tgz ./igs
           bundle install
-          bundle exec bin/testscript_generator read mustSupport search interaction  ig_directory./igs output_path=./generated_testscripts
+          bundle exec bin/testscript_generator read mustSupport search interaction ig_directory=./igs output_path=./generated_testscripts
           mkdir ../to_publish/testscript
           cp -r ./generated_testscripts/. ../to_publish/testscript
 
@@ -292,6 +305,17 @@ runs:
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
+
+      # Cache des JARs PlantUML (mode legacy et container_mode uniquement)
+      - name: Cache PlantUML JARs
+        id: cache-plantuml
+        if: ${{ (inputs.generate_plantuml == 'true' || inputs.generate_mapping_plantuml == 'true') && (inputs.use_docker_image != 'true' || inputs.container_mode == 'true') }}
+        uses: actions/cache@v4
+        with:
+          path: |
+            plantuml.jar
+            plantuml-mapping.jar
+          key: plantuml-jars-v1.2026.6-mapping-v1.2024.0
 
       # PlantUML — mode Docker (wrapper, pas en container_mode)
       - name: Run script plantuml
@@ -321,8 +345,8 @@ runs:
         run: |
           mkdir ./plantuml
           python ${{ github.action_path }}/PlantUML/construct.py './${{ inputs.repo_ig }}/output/package.db' './plantuml/graph.puml'
-          wget -q https://github.com/plantuml/plantuml/releases/download/v1.2026.6/plantuml-1.2026.6.jar
-          java -jar plantuml-1.2026.6.jar -tsvg -tpng "./plantuml"
+          [ -f plantuml.jar ] || wget -q https://github.com/plantuml/plantuml/releases/download/v1.2026.6/plantuml-1.2026.6.jar -O plantuml.jar
+          java -jar plantuml.jar -tsvg -tpng "./plantuml"
           mkdir ./to_publish/plantuml
           cp -r ./plantuml/. ./to_publish/plantuml
 
@@ -356,8 +380,8 @@ runs:
           mkdir ./plantuml_mapping
           python ${{ github.action_path }}/PlantUML/construct_mapping_global.py './${{ inputs.repo_ig }}/output/package.db' './plantuml_mapping'
           python ${{ github.action_path }}/PlantUML/construct_mappings.py './${{ inputs.repo_ig }}/output/package.db' './plantuml_mapping'
-          wget -q https://github.com/plantuml/plantuml/releases/download/v1.2024.0/plantuml-1.2024.0.jar
-          java -jar plantuml-1.2024.0.jar -tsvg -tpng "./plantuml"
+          [ -f plantuml-mapping.jar ] || wget -q https://github.com/plantuml/plantuml/releases/download/v1.2024.0/plantuml-1.2024.0.jar -O plantuml-mapping.jar
+          java -jar plantuml-mapping.jar -tsvg -tpng "./plantuml_mapping"
           mkdir ./to_publish/plantuml_mapping
           cp -r ./plantuml_mapping/. ./to_publish/plantuml_mapping
 
