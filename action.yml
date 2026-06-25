@@ -131,6 +131,13 @@ runs:
           cp hl7.fhir.fr.core-1.1.0.tgz ~/.fhir/packages
           tar -xzvf ~/.fhir/packages/hl7.fhir.fr.core-1.1.0.tgz
 
+      # En container_mode, GHA peut setter HOME à autre chose que /root — on force /root pour
+      # que ~/.fhir/packages pointe vers les packages pré-chargés dans l'image
+      - name: Set HOME for container mode
+        if: ${{ inputs.container_mode == 'true' }}
+        shell: bash
+        run: echo "HOME=/root" >> $GITHUB_ENV
+
       # Cache des packages FHIR — évite les re-téléchargements à chaque run (les deux modes)
       - name: Cache FHIR packages
         uses: actions/cache@v4
