@@ -10,3 +10,4 @@ hl7.fhir.uv.extensions.r4 latest
 hl7.fhir.xver-extensions latest
 ans.fr.nos 1.3.0
 ans.fr.nos 1.5.0
+hl7.fhir.pubpack latest
