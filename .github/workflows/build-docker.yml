@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - Dockerfile
+      - fhir-packages.txt
       - .github/workflows/build-docker.yml
   schedule:
     # Rebuild hebdomadaire lundi 06:00 UTC pour capter les nouvelles versions SUSHI

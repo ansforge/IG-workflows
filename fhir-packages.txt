@@ -1,0 +1,8 @@
+# Packages FHIR pré-chargés dans l'image Docker (cache ~/.fhir/packages/)
+# Format : <package-id> <version>
+# Utiliser "latest" pour toujours installer la dernière version stable au moment du build.
+# Modifier ce fichier et pousser sur main pour déclencher un rebuild automatique de l'image.
+hl7.fhir.fr.core 2.1.0
+hl7.fhir.fr.core 2.2.0
+ans.fhir.fr.annuaire 1.1.0
+ans.fr.terminologies latest
