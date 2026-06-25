@@ -15,7 +15,6 @@ GitHub Action pour les IG FHIR :
   - Diagramme de class plantuml généré à partir des données de l'IG
   - Rapport de validation du validator_cli
 
-
 ## Usage
 
 ### Exemple Workflow file
