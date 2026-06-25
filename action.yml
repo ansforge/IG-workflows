@@ -127,13 +127,24 @@ runs:
           cp hl7.fhir.fr.core-1.1.0.tgz ~/.fhir/packages
           tar -xzvf ~/.fhir/packages/hl7.fhir.fr.core-1.1.0.tgz
 
+      # Cache des packages FHIR — évite les re-téléchargements à chaque run (les deux modes)
+      - name: Cache FHIR packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.fhir/packages
+          key: fhir-packages-${{ hashFiles(format('{0}/sushi-config.yaml', inputs.repo_ig)) }}
+          restore-keys: |
+            fhir-packages-
+
       # SUSHI — mode Docker
       - name: Run sushi
         if: ${{ inputs.use_docker_image == 'true' }}
         shell: bash
         run: |
+          mkdir -p "$HOME/.fhir/packages"
           docker run --rm \
             -v "$GITHUB_WORKSPACE:/workspace" \
+            -v "$HOME/.fhir/packages:/root/.fhir/packages" \
             -w /workspace \
             ${{ inputs.docker_image }} \
             sushi ${{ inputs.repo_ig }}
@@ -202,8 +213,10 @@ runs:
         if: ${{ inputs.use_docker_image == 'true' }}
         shell: bash
         run: |
+          mkdir -p "$HOME/.fhir/packages"
           docker run --rm \
             -v "$GITHUB_WORKSPACE:/workspace" \
+            -v "$HOME/.fhir/packages:/root/.fhir/packages" \
             -w /workspace/${{ inputs.repo_ig }} \
             ${{ inputs.docker_image }} \
             bash -c "
