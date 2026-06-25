@@ -50,7 +50,7 @@ inputs:
   use_docker_image:
     description: "Utilise l'image pré-construite ghcr.io/ansforge/fhir-ig-builder pour éviter l'installation des outils à chaque run. Mettre à 'false' pour revenir au comportement legacy."
     required: false
-    default: "true"
+    default: "false"
   docker_image:
     description: "Image Docker à utiliser quand use_docker_image est 'true'. Permet d'épingler une version spécifique."
     required: false
