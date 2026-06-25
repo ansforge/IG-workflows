@@ -48,26 +48,12 @@ RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
 
 RUN java -version && node --version && sushi --version && jekyll --version && dot -V && python3 --version
 
-# Pré-chargement du cache FHIR depuis fhir-packages.txt
-# Chaque package est stocké sous /root/.fhir/packages/<id>#<version>/
-COPY fhir-packages.txt /tmp/fhir-packages.txt
-RUN while IFS=' ' read -r pkg_id pkg_ver || [ -n "$pkg_id" ]; do \
-      case "$pkg_id" in ''|\#*) continue ;; esac; \
-      if [ "$pkg_ver" = "latest" ]; then \
-        pkg_ver=$(curl -s "https://packages2.fhir.org/packages/${pkg_id}" | \
-          python3 -c " \
-import sys, json, re; \
-d = json.load(sys.stdin); \
-versions = list(d.get('versions', {}).keys()); \
-stable = [v for v in versions if re.match(r'^\d+\.\d+\.\d+$', v)]; \
-print(stable[-1] if stable else versions[-1]) \
-"); \
-      fi; \
-      echo "Downloading ${pkg_id}#${pkg_ver} ..."; \
-      mkdir -p /root/.fhir/packages/${pkg_id}\#${pkg_ver}; \
-      curl -sL "https://packages2.fhir.org/packages/${pkg_id}/${pkg_ver}" \
-        | tar -xz -C /root/.fhir/packages/${pkg_id}\#${pkg_ver}; \
-      echo "  -> OK"; \
-    done < /tmp/fhir-packages.txt
+# Pré-chargement du cache FHIR via fhir-package-installer
+# Installe les packages listés dans fhir-packages.txt dans /root/.fhir/packages/
+WORKDIR /opt/fhir-setup
+RUN npm init -y && npm install fhir-package-installer
+COPY scripts/install-fhir-packages.mjs .
+COPY fhir-packages.txt .
+RUN node install-fhir-packages.mjs fhir-packages.txt
 
 WORKDIR /workspace
