@@ -141,14 +141,13 @@ runs:
           restore-keys: |
             fhir-packages-
 
-      # Cache des packages FHIR — container_mode : chemin absolu pour coller au volume mount
-      # actions/cache tourne sur le HOST (JavaScript action), donc ~ = /home/runner.
-      # Le volume mount connecte exactement /home/runner/.fhir/packages → /root/.fhir/packages.
+      # Cache des packages FHIR — container_mode : actions/cache tourne DANS le container via
+      # docker exec, donc ~ = /github/home (HOME GHA). On cible /root/.fhir/packages en absolu.
       - name: Cache FHIR packages (container mode)
         if: ${{ inputs.container_mode == 'true' }}
         uses: actions/cache@v4
         with:
-          path: /home/runner/.fhir/packages
+          path: /root/.fhir/packages
           key: fhir-packages-${{ hashFiles(format('{0}/sushi-config.yaml', inputs.repo_ig)) }}
           restore-keys: |
             fhir-packages-
