@@ -149,11 +149,14 @@ runs:
       # On surcharge inline pour que SUSHI trouve ses packages dans /root/.fhir/packages.
       - name: Run sushi
         shell: bash
+        env:
+          CONTAINER_MODE: ${{ inputs.container_mode }}
+          REPO_IG: ${{ inputs.repo_ig }}
         run: |
-          if [ "${{ inputs.container_mode }}" = "true" ]; then
-            HOME=/root sushi ${{ inputs.repo_ig }}
+          if [ "$CONTAINER_MODE" = "true" ]; then
+            HOME=/root sushi "$REPO_IG"
           else
-            sushi ${{ inputs.repo_ig }}
+            sushi "$REPO_IG"
           fi
 
       # Résolution de la version du publisher (pour une clé de cache stable)
@@ -161,16 +164,19 @@ runs:
       - name: Resolve IG Publisher version
         id: resolve-publisher-version
         shell: bash
+        env:
+          CONTAINER_MODE: ${{ inputs.container_mode }}
+          IG_PUBLISHER_VERSION: ${{ inputs.ig-publisher-version }}
         run: |
-          if [ "${{ inputs.container_mode }}" = "true" ] && [ -f /root/publisher.jar ]; then
+          if [ "$CONTAINER_MODE" = "true" ] && [ -f /root/publisher.jar ]; then
             echo "version=image-bundled" >> $GITHUB_OUTPUT
             echo "use_bundled=true" >> $GITHUB_OUTPUT
-          elif [ "${{ inputs.ig-publisher-version }}" = "latest" ]; then
+          elif [ "$IG_PUBLISHER_VERSION" = "latest" ]; then
             VERSION=$(curl -s https://api.github.com/repos/HL7/fhir-ig-publisher/releases/latest | jq -r '.tag_name')
             echo "version=$VERSION" >> $GITHUB_OUTPUT
             echo "use_bundled=false" >> $GITHUB_OUTPUT
           else
-            echo "version=${{ inputs.ig-publisher-version }}" >> $GITHUB_OUTPUT
+            echo "version=$IG_PUBLISHER_VERSION" >> $GITHUB_OUTPUT
             echo "use_bundled=false" >> $GITHUB_OUTPUT
           fi
 
@@ -187,8 +193,10 @@ runs:
       - name: 📥 Download IG Publisher
         if: steps.resolve-publisher-version.outputs.use_bundled != 'true' && steps.cache-publisher.outputs.cache-hit != 'true'
         shell: bash
+        env:
+          PUBLISHER_VERSION: ${{ steps.resolve-publisher-version.outputs.version }}
         run: |
-          wget -q https://github.com/HL7/fhir-ig-publisher/releases/download/${{ steps.resolve-publisher-version.outputs.version }}/publisher.jar
+          wget -q "https://github.com/HL7/fhir-ig-publisher/releases/download/${PUBLISHER_VERSION}/publisher.jar"
 
       # Récupération du nom de la branche afin de publier dans gh-pages
       - name: Get branch names
@@ -217,14 +225,18 @@ runs:
       # Si publisher bundlé dans l'image (/root/publisher.jar), on l'utilise directement.
       - name: 🏃‍♂️ Run IG Publisher
         shell: bash
+        env:
+          CONTAINER_MODE: ${{ inputs.container_mode }}
+          USE_BUNDLED: ${{ steps.resolve-publisher-version.outputs.use_bundled }}
+          REPO_IG: ${{ inputs.repo_ig }}
         run: |
-          if [ "${{ inputs.container_mode }}" = "true" ]; then export HOME=/root; fi
-          if [ "${{ steps.resolve-publisher-version.outputs.use_bundled }}" = "true" ]; then
+          if [ "$CONTAINER_MODE" = "true" ]; then export HOME=/root; fi
+          if [ "$USE_BUNDLED" = "true" ]; then
             PUBLISHER_JAR=/root/publisher.jar
           else
             PUBLISHER_JAR=../publisher.jar
           fi
-          cd ${{ inputs.repo_ig }}
+          cd "$REPO_IG"
           java -Xmx8192m -jar $PUBLISHER_JAR -ig . -authorise-non-conformant-tx-servers
           [ -f ./output/qa.min.html ] && cat ./output/qa.min.html >> $GITHUB_STEP_SUMMARY
           mkdir ../to_publish/ig
@@ -242,10 +254,12 @@ runs:
       - name: 🏃‍♂️ Run testscript-generator
         shell: bash
         if: ${{ inputs.generate_testscript == 'true' }}
+        env:
+          REPO_IG: ${{ inputs.repo_ig }}
         run: |
           cd testscript
           mkdir ./igs
-          cp ../${{ inputs.repo_ig }}/output/package.tgz ./igs
+          cp "../$REPO_IG/output/package.tgz" ./igs
           bundle install
           bundle exec bin/testscript_generator read mustSupport search interaction ig_directory=./igs output_path=./generated_testscripts
           mkdir ../to_publish/testscript
@@ -274,9 +288,11 @@ runs:
         if: ${{ inputs.generate_plantuml == 'true' }}
         shell: bash
         continue-on-error: true
+        env:
+          REPO_IG: ${{ inputs.repo_ig }}
         run: |
           mkdir ./plantuml
-          python ${{ github.action_path }}/PlantUML/construct.py './${{ inputs.repo_ig }}/output/package.db' './plantuml/graph.puml'
+          python ${{ github.action_path }}/PlantUML/construct.py "./$REPO_IG/output/package.db" './plantuml/graph.puml'
           [ -f plantuml.jar ] || wget -q https://github.com/plantuml/plantuml/releases/download/v1.2026.6/plantuml-1.2026.6.jar -O plantuml.jar
           java -jar plantuml.jar -tsvg -tpng "./plantuml"
           mkdir ./to_publish/plantuml
@@ -287,10 +303,12 @@ runs:
         if: ${{ inputs.generate_mapping_plantuml == 'true' }}
         shell: bash
         continue-on-error: true
+        env:
+          REPO_IG: ${{ inputs.repo_ig }}
         run: |
           mkdir ./plantuml_mapping
-          python ${{ github.action_path }}/PlantUML/construct_mapping_global.py './${{ inputs.repo_ig }}/output/package.db' './plantuml_mapping'
-          python ${{ github.action_path }}/PlantUML/construct_mappings.py './${{ inputs.repo_ig }}/output/package.db' './plantuml_mapping'
+          python ${{ github.action_path }}/PlantUML/construct_mapping_global.py "./$REPO_IG/output/package.db" './plantuml_mapping'
+          python ${{ github.action_path }}/PlantUML/construct_mappings.py "./$REPO_IG/output/package.db" './plantuml_mapping'
           [ -f plantuml-mapping.jar ] || wget -q https://github.com/plantuml/plantuml/releases/download/v1.2024.0/plantuml-1.2024.0.jar -O plantuml-mapping.jar
           java -jar plantuml-mapping.jar -tsvg -tpng "./plantuml_mapping"
           mkdir ./to_publish/plantuml_mapping
@@ -326,9 +344,11 @@ runs:
         if: ${{ inputs.validator_cli == 'true' }}
         shell: bash
         continue-on-error: true
+        env:
+          REPO_IG: ${{ inputs.repo_ig }}
         run: |
           mkdir ./validator_cli
-          cd ${{ inputs.repo_ig }}
+          cd "$REPO_IG"
           java -jar ../validator_cli.jar ./fsh-generated/resources -recurse -verbose -output-style compact -output ../validator_cli/rapport.html
 
       # Creation de la sortie du validator_cli dans le workflow
@@ -395,60 +415,60 @@ runs:
       - name: 🏃‍♂️ Run Publisher to release
         if: ${{ inputs.publish_repo != '' }}
         shell: bash
+        env:
+          USE_BUNDLED: ${{ steps.resolve-publisher-version.outputs.use_bundled }}
+          REPO_IG: ${{ inputs.repo_ig }}
+          PUBLISH_PATH: ${{ inputs.publish_path_outpout }}
         run: |
-          if [ "${{ steps.resolve-publisher-version.outputs.use_bundled }}" = "true" ]; then
+          if [ "$USE_BUNDLED" = "true" ]; then
             PUBLISHER_JAR=/root/publisher.jar
           else
             PUBLISHER_JAR=publisher.jar
           fi
-          java -jar $PUBLISHER_JAR -go-publish -authorise-non-conformant-tx-servers -source ${{ inputs.repo_ig }} -web ${{ inputs.publish_path_outpout }} -registry ./IG-website-release/ig-registry/fhir-ig-list.json -history ./IG-website-release/fhir-ig-history-template -templates ./IG-website-release/templates
+          java -jar $PUBLISHER_JAR -go-publish -authorise-non-conformant-tx-servers -source "$REPO_IG" -web "$PUBLISH_PATH" -registry ./IG-website-release/ig-registry/fhir-ig-list.json -history ./IG-website-release/fhir-ig-history-template -templates ./IG-website-release/templates
 
       # Commit de la release
       - name: Commit change
         if: ${{ inputs.publish_repo != '' }}
         shell: bash
+        env:
+          REPO_IG: ${{ inputs.repo_ig }}
         run: |
-          PACKAGE_ID=$(jq -r '."package-id"' ${{ inputs.repo_ig }}/publication-request.json)
-          VERSION=$(jq -r '.version' ${{ inputs.repo_ig }}/publication-request.json)
+          PACKAGE_ID=$(jq -r '."package-id"' "$REPO_IG/publication-request.json")
+          VERSION=$(jq -r '.version' "$REPO_IG/publication-request.json")
           cd IG-website-release
           git config user.name github-actions
           git config user.email github-actions@esante.gouv.fr
           git add -A
           git commit -m "Publication ${PACKAGE_ID} ${VERSION}" || echo "No changes to commit"
 
-      # Push de la release
-      - name: Push changes
-        if: ${{ inputs.publish_repo != '' }}
-        uses: ad-m/github-push-action@master
-        with:
-          github_token: ${{ inputs.publish_repo_token }}
-          directory: IG-website-release
-          repository: ${{ inputs.publish_repo }}
-
       # Recuperation des informations du publication-request.json
       - name: Get information from PublicationRequest for GH Release
         if: ${{ inputs.publish_repo != '' }}
         shell: bash
+        env:
+          REPO_IG: ${{ inputs.repo_ig }}
         run: |
           echo 'PACKAGE_JSON<<EOF' >> $GITHUB_ENV
-          cat ${{ inputs.repo_ig }}/publication-request.json >> $GITHUB_ENV
+          cat "$REPO_IG/publication-request.json" >> $GITHUB_ENV
           echo 'EOF' >> $GITHUB_ENV
 
       # Creation de la release en ajoutant full-ig.zip et package.tgz
       - name: Create release
         if: ${{ inputs.publish_repo != '' }}
         shell: bash
+        env:
+          PUBLISH_PATH: ${{ inputs.publish_path_outpout }}
+          GH_TOKEN: ${{ inputs.github_page_token }}
         run: |
           gh release create "${{ fromJson(env.PACKAGE_JSON).version }}" -t "Release : ${{ fromJson(env.PACKAGE_JSON).version }}" --generate-notes --repo="$GITHUB_REPOSITORY"
 
           regex='^https?:\/\/[A-Za-z0-9:.]*\/(?:.+\/)*?([^\/]+\/[^\/]+)\/?$'
           [[ ${{ fromJson(env.PACKAGE_JSON).path }} =~ $regex ]]
           file_path=${BASH_REMATCH[1]}
-          echo "${inputs.publish_path_outpout}/${file_path}/full-ig.zip"
-          gh release upload "${{ fromJson(env.PACKAGE_JSON).version }}" ${{ inputs.publish_path_outpout }}/${file_path}/full-ig.zip --repo="$GITHUB_REPOSITORY"
-          gh release upload "${{ fromJson(env.PACKAGE_JSON).version }}" ${{ inputs.publish_path_outpout }}${file_path}/package.tgz --repo="$GITHUB_REPOSITORY"
-        env:
-          GH_TOKEN: ${{ inputs.github_page_token }}
+          echo "${PUBLISH_PATH}/${file_path}/full-ig.zip"
+          gh release upload "${{ fromJson(env.PACKAGE_JSON).version }}" "${PUBLISH_PATH}/${file_path}/full-ig.zip" --repo="$GITHUB_REPOSITORY"
+          gh release upload "${{ fromJson(env.PACKAGE_JSON).version }}" "${PUBLISH_PATH}${file_path}/package.tgz" --repo="$GITHUB_REPOSITORY"
 
 
 branding:
