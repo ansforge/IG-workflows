@@ -7,3 +7,4 @@ hl7.fhir.fr.core 2.2.0
 ans.fhir.fr.annuaire 1.1.0
 ans.fr.terminologies latest
 hl7.fhir.uv.extensions.r4 latest
+hl7.fhir.xver-extensions latest
