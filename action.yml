@@ -103,12 +103,16 @@ runs:
       - name: Run bake hl7.fhir.fr.core
         if: ${{ inputs.bake == 'true' }}
         shell: bash
+        env:
+          HOME: ${{ inputs.container_mode == 'true' && '/root' || '/home/runner' }}
         run: |
           fhir install hl7.fhir.fr.core 1.1.0
 
       - name: Run bake ans.annuaire.fhir.r4
         if: ${{ inputs.bake == 'true' }}
         shell: bash
+        env:
+          HOME: ${{ inputs.container_mode == 'true' && '/root' || '/home/runner' }}
         run: |
           fhir install ans.annuaire.fhir.r4 0.2.0
           fhir bake --package ans.annuaire.fhir.r4
@@ -117,6 +121,8 @@ runs:
       - name: 📥 Download patch fr-core
         if: ${{ inputs.bake == 'true' }}
         shell: bash
+        env:
+          HOME: ${{ inputs.container_mode == 'true' && '/root' || '/home/runner' }}
         run: |
           wget -q https://raw.githubusercontent.com/ansforge/IG-workflows/main/dependency/hl7.fhir.fr.core-1.1.0.tgz -O ./hl7.fhir.fr.core-1.1.0.tgz
           cp hl7.fhir.fr.core-1.1.0.tgz ~/.fhir/packages
