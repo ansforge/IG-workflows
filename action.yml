@@ -84,6 +84,9 @@ runs:
       - name: firely
         if: ${{ inputs.bake == 'true' }}
         shell: bash
+        env:
+          # libicu absent de l'image Docker (Ubuntu 24.04) — invariant mode requis jusqu'au prochain rebuild
+          DOTNET_SYSTEM_GLOBALIZATION_INVARIANT: ${{ inputs.container_mode == 'true' && '1' || '0' }}
         run: dotnet tool install --global Firely.Terminal --version 3.0.0
 
       # Verif de la configuration pour la méthode bake
