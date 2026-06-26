@@ -179,7 +179,7 @@ runs:
           CONTAINER_MODE: ${{ inputs.container_mode }}
           IG_PUBLISHER_VERSION: ${{ inputs.ig-publisher-version }}
         run: |
-          if [ "$CONTAINER_MODE" = "true" ] && [ -f /root/publisher.jar ]; then
+          if [ "$CONTAINER_MODE" = "true" ] && [ -f /root/publisher.jar ] && [ "$IG_PUBLISHER_VERSION" = "latest" ]; then
             echo "version=image-bundled" >> $GITHUB_OUTPUT
             echo "use_bundled=true" >> $GITHUB_OUTPUT
           elif [ "$IG_PUBLISHER_VERSION" = "latest" ]; then
