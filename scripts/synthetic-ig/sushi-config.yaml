@@ -1,0 +1,8 @@
+id: oid-index-warmup
+canonical: https://example.org/oid-warmup
+name: OIDIndexWarmup
+status: draft
+version: 0.0.1
+fhirVersion: 4.0.1
+copyrightYear: 2026+
+releaseLabel: ci-build

@@ -62,4 +62,15 @@ RUN PUBLISHER_VERSION=$(curl -s https://api.github.com/repos/HL7/fhir-ig-publish
         -O /root/publisher.jar \
     && echo "IG Publisher ${PUBLISHER_VERSION} pre-installed at /root/publisher.jar"
 
+# Pré-génération des index OID (.oid-map-2.db) pour tous les packages baked dans l'image.
+# Le publisher scanne /root/.fhir/packages/ au démarrage quelle que soit l'IG traitée.
+# IG synthétique minimale : le build peut échouer après l'indexation (|| true).
+COPY scripts/synthetic-ig/ /tmp/synthetic-ig/
+RUN cd /tmp/synthetic-ig \
+    && HOME=/root sushi . \
+    && java -Xmx4096m -jar /root/publisher.jar -ig . -tx n/a 2>&1 \
+       | grep -E "Generate OID|Error|Exception" \
+    || true
+RUN rm -rf /tmp/synthetic-ig
+
 WORKDIR /workspace
