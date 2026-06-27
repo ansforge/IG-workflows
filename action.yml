@@ -129,9 +129,11 @@ runs:
           tar -xzvf ~/.fhir/packages/hl7.fhir.fr.core-1.1.0.tgz
 
       # Cache des packages FHIR — mode legacy (home standard du runner)
-      - name: Cache FHIR packages
+      # Restore-only : le save se fait après le publisher pour inclure les .oid-map-2.db générés
+      - name: Restore FHIR packages cache
         if: ${{ inputs.container_mode != 'true' }}
-        uses: actions/cache@v4
+        id: fhir-cache-restore-legacy
+        uses: actions/cache/restore@v4
         with:
           path: ~/.fhir/packages
           key: fhir-packages-${{ hashFiles(format('{0}/sushi-config.yaml', inputs.repo_ig)) }}
@@ -141,9 +143,11 @@ runs:
       # Cache des packages FHIR — container_mode : dans un job container, actions/cache s'exécute
       # à l'intérieur du container (via docker exec). GHA y force HOME=/github/home, donc ~ ne
       # pointe pas vers /root. On utilise le chemin absolu /root/.fhir/packages pour être sûr.
-      - name: Cache FHIR packages (container mode)
+      # Restore-only : le save se fait après le publisher pour inclure les .oid-map-2.db générés
+      - name: Restore FHIR packages cache (container mode)
         if: ${{ inputs.container_mode == 'true' }}
-        uses: actions/cache@v4
+        id: fhir-cache-restore
+        uses: actions/cache/restore@v4
         with:
           path: /root/.fhir/packages
           key: fhir-packages-${{ hashFiles(format('{0}/sushi-config.yaml', inputs.repo_ig)) }}
@@ -252,6 +256,22 @@ runs:
           [ -f ./output/qa.min.html ] && cat ./output/qa.min.html >> $GITHUB_STEP_SUMMARY
           mkdir ../to_publish/ig
           cp -r ./output/. ../to_publish/ig
+
+      # Sauvegarde du cache FHIR après le publisher — inclut les .oid-map-2.db générés
+      # Conditionné sur cache-hit != 'true' : si le cache exact existe déjà, pas besoin de resauvegarder
+      - name: Save FHIR packages cache
+        if: ${{ inputs.container_mode != 'true' && steps.fhir-cache-restore-legacy.outputs.cache-hit != 'true' }}
+        uses: actions/cache/save@v4
+        with:
+          path: ~/.fhir/packages
+          key: fhir-packages-${{ hashFiles(format('{0}/sushi-config.yaml', inputs.repo_ig)) }}
+
+      - name: Save FHIR packages cache (container mode)
+        if: ${{ inputs.container_mode == 'true' && steps.fhir-cache-restore.outputs.cache-hit != 'true' }}
+        uses: actions/cache/save@v4
+        with:
+          path: /root/.fhir/packages
+          key: fhir-packages-${{ hashFiles(format('{0}/sushi-config.yaml', inputs.repo_ig)) }}
 
       # Get testscript-generator
       - name: Get testscript-generator
