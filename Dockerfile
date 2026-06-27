@@ -48,29 +48,26 @@ RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
 
 RUN java -version && node --version && sushi --version && jekyll --version && dot -V && python3 --version
 
-# Pré-chargement du cache FHIR via fhir-package-installer
-# Installe les packages listés dans fhir-packages.txt dans /root/.fhir/packages/
-WORKDIR /opt/fhir-setup
-RUN npm init -y && npm install fhir-package-installer
-COPY scripts/install-fhir-packages.mjs .
-COPY fhir-packages.txt .
-RUN node install-fhir-packages.mjs fhir-packages.txt
-
 # Pré-télécharger le IG Publisher JAR (version latest au moment du build de l'image)
 RUN PUBLISHER_VERSION=$(curl -s https://api.github.com/repos/HL7/fhir-ig-publisher/releases/latest | jq -r '.tag_name') \
     && wget -q "https://github.com/HL7/fhir-ig-publisher/releases/download/${PUBLISHER_VERSION}/publisher.jar" \
         -O /root/publisher.jar \
     && echo "IG Publisher ${PUBLISHER_VERSION} pre-installed at /root/publisher.jar"
 
-# Pré-génération des index OID (.oid-map-2.db) pour tous les packages baked dans l'image.
-# Le publisher scanne /root/.fhir/packages/ au démarrage quelle que soit l'IG traitée.
-# IG synthétique minimale : le build peut échouer après l'indexation (|| true).
-COPY scripts/synthetic-ig/ /tmp/synthetic-ig/
-RUN cd /tmp/synthetic-ig \
-    && HOME=/root sushi . \
-    && java -Xmx4096m -jar /root/publisher.jar -ig . -tx n/a 2>&1 \
-       | grep -E "Generate OID|Error|Exception" \
+# Warmup : télécharge les packages FHIR listés dans fhir-packages.txt dans /root/.fhir/packages/
+# et génère les index de packages (.index.db) pour chacun via le publisher.
+# Remplace fhir-package-installer qui écrivait dans un HOME incorrect pendant le docker build.
+# fhir-packages.txt reste la source de vérité et le déclencheur de rebuild de l'image.
+WORKDIR /opt/warmup
+COPY fhir-packages.txt .
+COPY scripts/generate-warmup-config.mjs .
+COPY scripts/synthetic-ig/ig.ini ./synthetic-ig/
+RUN mkdir -p synthetic-ig/input/fsh \
+    && node generate-warmup-config.mjs fhir-packages.txt synthetic-ig/sushi-config.yaml
+RUN cd synthetic-ig \
+    && HOME=/root sushi . 2>&1 | tail -5 \
+    && HOME=/root java -Xmx4096m -jar /root/publisher.jar -ig . -tx n/a 2>&1 | tail -30 \
     || true
-RUN rm -rf /tmp/synthetic-ig
+RUN rm -rf /opt/warmup
 
 WORKDIR /workspace
