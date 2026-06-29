@@ -480,9 +480,13 @@ runs:
         env:
           REPO_IG: ${{ inputs.repo_ig }}
         run: |
-          echo 'PACKAGE_JSON<<EOF' >> $GITHUB_ENV
-          cat "$REPO_IG/publication-request.json" >> $GITHUB_ENV
-          echo 'EOF' >> $GITHUB_ENV
+          DELIMITER=$(openssl rand -hex 16)
+          JSON_CONTENT=$(cat "$REPO_IG/publication-request.json")
+          {
+            echo "PACKAGE_JSON<<${DELIMITER}"
+            echo "$JSON_CONTENT"
+            echo "${DELIMITER}"
+          } >> "$GITHUB_ENV"
 
       # Creation de la release en ajoutant full-ig.zip et package.tgz
       - name: Create release
