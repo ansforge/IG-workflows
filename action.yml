@@ -473,6 +473,15 @@ runs:
           git add -A
           git commit -m "Publication ${PACKAGE_ID} ${VERSION}" || echo "No changes to commit"
 
+      # Push de la release
+      - name: Push changes
+        if: ${{ inputs.publish_repo != '' }}
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ inputs.publish_repo_token }}
+          directory: IG-website-release
+          repository: ${{ inputs.publish_repo }}
+
       # Recuperation des informations du publication-request.json
       - name: Get information from PublicationRequest for GH Release
         if: ${{ inputs.publish_repo != '' }}
