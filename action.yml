@@ -51,12 +51,18 @@ inputs:
     description: "Le job tourne dans un container Docker (container: image: ...). Skip les installations d'outils — SUSHI et Publisher tournent directement dans le container."
     required: false
     default: "true"
+  timing:
+    description: "Active le tableau de timings par phase (Setup, SUSHI, Publisher, Post-processing, Total) dans l'onglet Summary du workflow."
+    required: false
+    default: "false"
 runs:
   using: "composite"
   steps:
 
       # Horodatage du démarrage de l'action — utilisé pour construire le tableau de timings en fin de build.
+      # Skippé si l'input timing est à false (défaut).
       - name: ⏱️ Record start time
+        if: ${{ inputs.timing == 'true' }}
         shell: bash
         run: echo "T_ACTION_START=$(date +%s)" >> $GITHUB_ENV
 
@@ -180,14 +186,15 @@ runs:
         env:
           CONTAINER_MODE: ${{ inputs.container_mode }}
           REPO_IG: ${{ inputs.repo_ig }}
+          ENABLE_TIMING: ${{ inputs.timing }}
         run: |
-          echo "T_SUSHI_START=$(date +%s)" >> $GITHUB_ENV
+          [ "$ENABLE_TIMING" = "true" ] && echo "T_SUSHI_START=$(date +%s)" >> $GITHUB_ENV || true
           if [ "$CONTAINER_MODE" = "true" ]; then
             HOME=/root sushi "$REPO_IG"
           else
             sushi "$REPO_IG"
           fi
-          echo "T_SUSHI_END=$(date +%s)" >> $GITHUB_ENV
+          [ "$ENABLE_TIMING" = "true" ] && echo "T_SUSHI_END=$(date +%s)" >> $GITHUB_ENV || true
 
       # Résolution de la version du publisher.
       # En container_mode, si publisher.jar est pré-inclus dans l'image, on l'utilise directement
@@ -261,8 +268,9 @@ runs:
           CONTAINER_MODE: ${{ inputs.container_mode }}
           USE_BUNDLED: ${{ steps.resolve-publisher-version.outputs.use_bundled }}
           REPO_IG: ${{ inputs.repo_ig }}
+          ENABLE_TIMING: ${{ inputs.timing }}
         run: |
-          echo "T_PUBLISHER_START=$(date +%s)" >> $GITHUB_ENV
+          [ "$ENABLE_TIMING" = "true" ] && echo "T_PUBLISHER_START=$(date +%s)" >> $GITHUB_ENV || true
           if [ "$CONTAINER_MODE" = "true" ]; then export HOME=/root; fi
           if [ "$USE_BUNDLED" = "true" ]; then
             PUBLISHER_JAR=/root/publisher.jar
@@ -271,10 +279,20 @@ runs:
           fi
           cd "$REPO_IG"
           java -Xmx8192m -jar $PUBLISHER_JAR -ig . -authorise-non-conformant-tx-servers
-          echo "T_PUBLISHER_END=$(date +%s)" >> $GITHUB_ENV
-          [ -f ./output/qa.min.html ] && cat ./output/qa.min.html >> $GITHUB_STEP_SUMMARY
+          [ "$ENABLE_TIMING" = "true" ] && echo "T_PUBLISHER_END=$(date +%s)" >> $GITHUB_ENV || true
           mkdir ../to_publish/ig
           cp -r ./output/. ../to_publish/ig
+
+      # Upload du rapport QA en artefact — évite les débordements de GITHUB_STEP_SUMMARY
+      # (qa.min.html dépasse souvent la limite de 1 MB et rendait le résumé illisible).
+      # if: always() pour capturer le rapport même en cas d'échec partiel du publisher.
+      - name: 📋 Upload QA report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qa-report
+          path: ${{ inputs.repo_ig }}/output/qa.min.html
+          if-no-files-found: ignore
 
       # Sauvegarde du cache FHIR packages après le publisher — inclut les .oid-map-2.db générés.
       # Conditionné sur cache-hit != 'true' pour ne pas re-sauvegarder un cache déjà identique.
@@ -313,7 +331,7 @@ runs:
 
       # Horodatage du début de la phase post-processing (PlantUML, TestScript, Validator).
       - name: ⏱️ Record post-processing start
-        if: ${{ inputs.generate_testscript == 'true' || inputs.generate_plantuml == 'true' || inputs.generate_mapping_plantuml == 'true' || inputs.validator_cli == 'true' }}
+        if: ${{ inputs.timing == 'true' && (inputs.generate_testscript == 'true' || inputs.generate_plantuml == 'true' || inputs.generate_mapping_plantuml == 'true' || inputs.validator_cli == 'true') }}
         shell: bash
         run: echo "T_POSTPROCESS_START=$(date +%s)" >> $GITHUB_ENV
 
@@ -429,19 +447,27 @@ runs:
           cd "$REPO_IG"
           java -jar ../validator_cli.jar ./fsh-generated/resources -recurse -verbose -output-style compact -output ../validator_cli/rapport.html
 
-      # Publication du rapport de validation dans le résumé du workflow et dans to_publish.
+      # Copie du rapport de validation dans to_publish pour inclusion dans le déploiement gh-pages.
       - name: Generate list using Markdown
         if: ${{ inputs.validator_cli == 'true' }}
         shell: bash
         run: |
           mkdir ./to_publish/validator_cli
           cp -r ./validator_cli/. ./to_publish/validator_cli
-          echo "### Rapport de validation (validator_cli)  :rocket:" >> $GITHUB_STEP_SUMMARY
-          cat ./validator_cli/rapport.html >> $GITHUB_STEP_SUMMARY
+
+      # Upload du rapport validator_cli en artefact — même raison que qa-report : trop volumineux
+      # pour GITHUB_STEP_SUMMARY. Accessible dans l'onglet Artifacts du workflow run.
+      - name: 📋 Upload validator report
+        if: ${{ inputs.validator_cli == 'true' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: validator-report
+          path: validator_cli/rapport.html
+          if-no-files-found: ignore
 
       # Horodatage de fin de la phase post-processing.
       - name: ⏱️ Record post-processing end
-        if: ${{ inputs.generate_testscript == 'true' || inputs.generate_plantuml == 'true' || inputs.generate_mapping_plantuml == 'true' || inputs.validator_cli == 'true' }}
+        if: ${{ inputs.timing == 'true' && (inputs.generate_testscript == 'true' || inputs.generate_plantuml == 'true' || inputs.generate_mapping_plantuml == 'true' || inputs.validator_cli == 'true') }}
         shell: bash
         run: echo "T_POSTPROCESS_END=$(date +%s)" >> $GITHUB_ENV
 
@@ -449,7 +475,7 @@ runs:
       # Chaque phase est chronométrée indépendamment via les variables T_* capturées tout au long du build.
       # Affiché même si des steps précédents ont échoué (if: always()).
       - name: ⏱️ Build Timing Summary
-        if: always()
+        if: ${{ always() && inputs.timing == 'true' }}
         shell: bash
         run: |
           T_END=$(date +%s)
