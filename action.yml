@@ -112,30 +112,6 @@ runs:
           CHECK_FIRELY_TERMINAL_VERSION=$(fhir -v | tr '\n' ' ')
           echo "FIRELY_TERMINAL_VERSION: $CHECK_FIRELY_TERMINAL_VERSION"
 
-      # Installation des packages Firely bake en parallèle pour réduire le temps d'attente.
-      # Phase 1 : les deux installs sont indépendantes → lancées en arrière-plan simultanément.
-      # Phase 2 : bake annuaire + patch frcore dépendent des installs → lancés en parallèle après le wait.
-      - name: 📦 Bake FHIR packages (parallel)
-        if: ${{ inputs.bake == 'true' }}
-        shell: bash
-        env:
-          HOME: ${{ inputs.container_mode == 'true' && '/root' || '/home/runner' }}
-        run: |
-          # Phase 1 : installs en parallèle (aucune dépendance mutuelle)
-          fhir install hl7.fhir.fr.core 1.1.0 &
-          fhir install ans.annuaire.fhir.r4 0.2.0 &
-          wait
-
-          # Phase 2 : bake + patch en parallèle (dépendent des installs, indépendants entre eux)
-          fhir bake --package ans.annuaire.fhir.r4 &
-          (
-            wget -q https://raw.githubusercontent.com/ansforge/IG-workflows/main/dependency/hl7.fhir.fr.core-1.1.0.tgz \
-              -O ./hl7.fhir.fr.core-1.1.0.tgz
-            cp hl7.fhir.fr.core-1.1.0.tgz ~/.fhir/packages
-            tar -xzvf ~/.fhir/packages/hl7.fhir.fr.core-1.1.0.tgz
-          ) &
-          wait
-
       # Restauration du cache des packages FHIR (~/.fhir/packages) — mode legacy.
       # Restore-only : le save se fait après le publisher pour inclure les .oid-map-2.db générés.
       - name: Restore FHIR packages cache
@@ -159,6 +135,30 @@ runs:
           key: fhir-packages-${{ hashFiles(format('{0}/sushi-config.yaml', inputs.repo_ig)) }}
           restore-keys: |
             fhir-packages-
+
+      # Installation des packages Firely bake en parallèle pour réduire le temps d'attente.
+      # Phase 1 : les deux installs sont indépendantes → lancées en arrière-plan simultanément.
+      # Phase 2 : bake annuaire + patch frcore dépendent des installs → lancés en parallèle après le wait.
+      - name: 📦 Bake FHIR packages (parallel)
+        if: ${{ inputs.bake == 'true' }}
+        shell: bash
+        env:
+          HOME: ${{ inputs.container_mode == 'true' && '/root' || '/home/runner' }}
+        run: |
+          # Phase 1 : installs en parallèle (aucune dépendance mutuelle)
+          fhir install hl7.fhir.fr.core 1.1.0 &
+          fhir install ans.annuaire.fhir.r4 0.2.0 &
+          wait
+
+          # Phase 2 : bake + patch en parallèle (dépendent des installs, indépendants entre eux)
+          fhir bake --package ans.annuaire.fhir.r4 &
+          (
+            wget -q https://raw.githubusercontent.com/ansforge/IG-workflows/main/dependency/hl7.fhir.fr.core-1.1.0.tgz \
+              -O ./hl7.fhir.fr.core-1.1.0.tgz
+            cp hl7.fhir.fr.core-1.1.0.tgz ~/.fhir/packages
+            tar -xzvf ~/.fhir/packages/hl7.fhir.fr.core-1.1.0.tgz
+          ) &
+          wait
 
       # Restauration du cache input-cache du publisher.
       # input-cache contient les ressources téléchargées par le publisher entre deux builds
