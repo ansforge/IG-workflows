@@ -305,6 +305,26 @@ runs:
           echo "--- snapshot présent dans le fichier réel fr-organization-R4.StructureDefinition.json ? ---"
           grep -l '"snapshot"' "$HOME/.fhir/packages/hl7.fhir.fr.core#1.1.0/package/fr-organization-R4.StructureDefinition.json" 2>&1 || echo "pas de snapshot ou fichier absent"
 
+      # [DEBUG TEMPORAIRE] Reproduction en bash de l'appel exact que fait le Publisher en interne
+      # (FSHRunner: cwd = dossier IG, commande "sushi . -o .") pour savoir si le re-téléchargement
+      # de tous les packages est lié aux arguments/cwd, ou uniquement au lancement via la JVM.
+      # À retirer une fois la cause confirmée.
+      - name: 🔍 [DEBUG TEMPORAIRE] Reproduire l'appel sushi du Publisher (cwd + args identiques)
+        shell: bash
+        env:
+          CONTAINER_MODE: ${{ inputs.container_mode }}
+          REPO_IG: ${{ inputs.repo_ig }}
+        run: |
+          if [ "$CONTAINER_MODE" = "true" ]; then export HOME=/root; fi
+          echo "HOME=$HOME"
+          cd "$REPO_IG"
+          echo "PWD=$PWD"
+          sushi . -o . 2>&1 | tee /tmp/sushi-repro.log || true
+          echo "--- occurrences de 'Attempting to download' dans cette 3e exécution ---"
+          grep -c "Attempting to download" /tmp/sushi-repro.log || echo "0"
+          echo "--- erreurs 'missing a snapshot' dans cette 3e exécution ---"
+          grep "missing a snapshot" /tmp/sushi-repro.log || echo "(aucune)"
+
       # Exécution du publisher FHIR — étape la plus longue du build (plusieurs minutes).
       # En container_mode, HOME=/root est forcé pour que le subprocess SUSHI spawné par le Publisher
       # utilise /root/.fhir/packages et non /github/home/.fhir/packages.
