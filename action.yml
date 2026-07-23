@@ -258,6 +258,27 @@ runs:
           sudo apt-get install -y graphviz
           dot -V
 
+      # [DEBUG TEMPORAIRE] Inspection de l'état de ~/.fhir/packages juste avant le Publisher,
+      # pour diagnostiquer pourquoi le SUSHI relancé en interne par le Publisher (FSHRunner)
+      # semble re-télécharger tous les packages au lieu de réutiliser ceux déjà baked.
+      # À retirer une fois la cause confirmée.
+      - name: 🔍 [DEBUG TEMPORAIRE] Inspecter l'état de ~/.fhir/packages avant le Publisher
+        shell: bash
+        env:
+          CONTAINER_MODE: ${{ inputs.container_mode }}
+        run: |
+          if [ "$CONTAINER_MODE" = "true" ]; then export HOME=/root; fi
+          echo "HOME=$HOME"
+          echo "whoami=$(whoami)"
+          echo "PWD=$PWD"
+          echo "--- contenu de \$HOME/.fhir/packages ---"
+          ls -la "$HOME/.fhir/packages" 2>&1 || echo "(absent)"
+          echo "--- fr.core / annuaire présents ? ---"
+          ls -la "$HOME/.fhir/packages/hl7.fhir.fr.core#1.1.0" 2>&1 || echo "hl7.fhir.fr.core#1.1.0 absent"
+          ls -la "$HOME/.fhir/packages/ans.annuaire.fhir.r4#0.2.0" 2>&1 || echo "ans.annuaire.fhir.r4#0.2.0 absent"
+          echo "--- snapshot présent dans FrOrganization ? ---"
+          grep -l '"snapshot"' "$HOME/.fhir/packages/hl7.fhir.fr.core#1.1.0/package/StructureDefinition-FrOrganization.json" 2>&1 || echo "pas de snapshot ou fichier absent"
+
       # Exécution du publisher FHIR — étape la plus longue du build (plusieurs minutes).
       # En container_mode, HOME=/root est forcé pour que le subprocess SUSHI spawné par le Publisher
       # utilise /root/.fhir/packages et non /github/home/.fhir/packages.
