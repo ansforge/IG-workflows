@@ -179,6 +179,24 @@ runs:
         shell: bash
         run: npm install -g fsh-sushi
 
+      # [DEBUG TEMPORAIRE] Inspection de ~/.fhir/packages AVANT le premier lancement de SUSHI,
+      # pour comparer avec l'état juste avant le Publisher et voir si SUSHI (re)génère un
+      # .index.json qui serait ensuite mal réutilisé par le SUSHI interne au Publisher.
+      # À retirer une fois la cause confirmée.
+      - name: 🔍 [DEBUG TEMPORAIRE] Inspecter ~/.fhir/packages AVANT le 1er Run SUSHI
+        shell: bash
+        env:
+          CONTAINER_MODE: ${{ inputs.container_mode }}
+        run: |
+          if [ "$CONTAINER_MODE" = "true" ]; then export HOME=/root; fi
+          echo "HOME=$HOME"
+          echo "--- hl7.fhir.fr.core#1.1.0/package : présence de .index.json ? ---"
+          ls -la "$HOME/.fhir/packages/hl7.fhir.fr.core#1.1.0/package/.index.json" 2>&1 || echo ".index.json absent (avant sushi)"
+          echo "--- fichiers contenant 'organization' dans ce package ---"
+          ls "$HOME/.fhir/packages/hl7.fhir.fr.core#1.1.0/package/" 2>&1 | grep -i organi || echo "(aucun / dossier absent)"
+          echo "--- ans.annuaire.fhir.r4#0.2.0/package : présence de .index.json ? ---"
+          ls -la "$HOME/.fhir/packages/ans.annuaire.fhir.r4#0.2.0/package/.index.json" 2>&1 || echo ".index.json absent (avant sushi)"
+
       # Compilation des sources FSH en ressources FHIR via SUSHI.
       # En container_mode, GHA force HOME=/github/home → on override pour que SUSHI trouve /root/.fhir/packages.
       - name: 🔨 Run SUSHI
@@ -276,8 +294,16 @@ runs:
           echo "--- fr.core / annuaire présents ? ---"
           ls -la "$HOME/.fhir/packages/hl7.fhir.fr.core#1.1.0" 2>&1 || echo "hl7.fhir.fr.core#1.1.0 absent"
           ls -la "$HOME/.fhir/packages/ans.annuaire.fhir.r4#0.2.0" 2>&1 || echo "ans.annuaire.fhir.r4#0.2.0 absent"
-          echo "--- snapshot présent dans FrOrganization ? ---"
-          grep -l '"snapshot"' "$HOME/.fhir/packages/hl7.fhir.fr.core#1.1.0/package/StructureDefinition-FrOrganization.json" 2>&1 || echo "pas de snapshot ou fichier absent"
+          echo "--- .index.json (fr.core) présent APRÈS le 1er run sushi ? ---"
+          ls -la "$HOME/.fhir/packages/hl7.fhir.fr.core#1.1.0/package/.index.json" 2>&1 || echo ".index.json absent (après sushi)"
+          echo "--- .index.json (annuaire) présent APRÈS le 1er run sushi ? ---"
+          ls -la "$HOME/.fhir/packages/ans.annuaire.fhir.r4#0.2.0/package/.index.json" 2>&1 || echo ".index.json absent (après sushi)"
+          echo "--- fr-organization référencé dans .index.json (fr.core) ? ---"
+          grep -i "organization" "$HOME/.fhir/packages/hl7.fhir.fr.core#1.1.0/package/.index.json" 2>&1 || echo "pas trouvé / fichier absent"
+          echo "--- fichier réel de fr-organization dans le package (nommage non standard connu) ---"
+          ls "$HOME/.fhir/packages/hl7.fhir.fr.core#1.1.0/package/" 2>&1 | grep -i organi || echo "(aucun / dossier absent)"
+          echo "--- snapshot présent dans le fichier réel fr-organization-R4.StructureDefinition.json ? ---"
+          grep -l '"snapshot"' "$HOME/.fhir/packages/hl7.fhir.fr.core#1.1.0/package/fr-organization-R4.StructureDefinition.json" 2>&1 || echo "pas de snapshot ou fichier absent"
 
       # Exécution du publisher FHIR — étape la plus longue du build (plusieurs minutes).
       # En container_mode, HOME=/root est forcé pour que le subprocess SUSHI spawné par le Publisher
