@@ -79,6 +79,9 @@ jobs:
           labels: |
             org.opencontainers.image.description=Image Docker pour la publication de guides d'implémentation FHIR ANS (SUSHI + IG Publisher + Jekyll). IG Publisher ${{ steps.versions.outputs.publisher }}, SUSHI ${{ steps.versions.outputs.sushi }}. Packages FHIR préchargés : ${{ steps.versions.outputs.packages }}.
             org.opencontainers.image.created=${{ steps.versions.outputs.date }}
+          annotations: |
+            index,manifest:org.opencontainers.image.description=Image Docker pour la publication de guides d'implémentation FHIR ANS (SUSHI + IG Publisher + Jekyll). IG Publisher ${{ steps.versions.outputs.publisher }}, SUSHI ${{ steps.versions.outputs.sushi }}. Packages FHIR préchargés : ${{ steps.versions.outputs.packages }}.
+            index,manifest:org.opencontainers.image.created=${{ steps.versions.outputs.date }}
 
       - name: Verify image
         run: |
