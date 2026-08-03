@@ -33,18 +33,24 @@ Le workflow `build-docker.yml` se lance :
 - manuellement (`workflow_dispatch`),
 - automatiquement chaque **lundi à 06:00 UTC** (cron), pour capter les nouvelles versions de SUSHI/IG Publisher sans changement de fichier.
 
-## Labels OCI (métadonnées visibles sur la page du package)
+## Labels et annotations OCI (métadonnées visibles sur la page du package)
 
-Le workflow résout, avant chaque build (étape *Resolve versions*), et expose comme labels OCI de l'image :
+Le workflow résout, avant chaque build (étape *Resolve versions*), puis expose les mêmes informations sous deux formes :
 - `org.opencontainers.image.description` : ligne descriptive + version de l'IG Publisher embarquée + version de SUSHI embarquée + liste des packages FHIR préchargés (`id@version`, séparés par des virgules)
 - `org.opencontainers.image.created` : date de publication (UTC, RFC 3339)
 
-Ces valeurs sont aussi passées en `build-args` au `Dockerfile` (`PUBLISHER_VERSION`, `SUSHI_VERSION`, `PACKAGES_LIST`, `BUILD_DATE`), afin que la version de SUSHI réellement installée corresponde exactement à celle annoncée dans le label (SUSHI n'est plus installé en `latest` implicite au niveau du `Dockerfile`, mais pinné à la version résolue par le workflow).
+Ces valeurs sont aussi passées en `build-args` au `Dockerfile` (`PUBLISHER_VERSION`, `SUSHI_VERSION`, `PACKAGES_LIST`, `BUILD_DATE`), afin que la version de SUSHI réellement installée corresponde exactement à celle annoncée (SUSHI n'est plus installé en `latest` implicite au niveau du `Dockerfile`, mais pinné à la version résolue par le workflow).
 
-Pour inspecter les labels d'une image déjà publiée :
+**Labels vs annotations** : le `Dockerfile` pose ces clés en `LABEL` (donc dans la config de l'image, `Config.Labels`), et le step *Build and push* les pose en plus en tant qu'**annotations OCI** (`annotations: index,manifest:org.opencontainers.image.description=...`) via `docker/build-push-action`. C'est nécessaire car l'image publiée est un *manifest index* (buildx produit un index même pour une seule plateforme) — GHCR affiche la description du package à partir des **annotations de l'index/manifest**, pas des `Config.Labels` de l'image. Sans les annotations, la page du package affiche "No description provided" même si le `LABEL` Dockerfile est bien présent.
+
+Pour inspecter labels et annotations d'une image déjà publiée :
 ```bash
+# Labels (Config.Labels de l'image, posés par le Dockerfile)
 docker inspect ghcr.io/ansforge/fhir-ig-builder:latest \
   --format '{{ index .Config.Labels "org.opencontainers.image.description" }}'
+
+# Annotations (index/manifest OCI, celles lues par la page GHCR)
+docker buildx imagetools inspect ghcr.io/ansforge/fhir-ig-builder:latest --format '{{ json .Manifest.Annotations }}'
 ```
 
 ## Tags et politique de rétention
