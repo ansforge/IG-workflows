@@ -23,6 +23,11 @@ copyrightYear: 2026+
 releaseLabel: ci-build
 dependencies:
 ${deps}
+pages:
+    index.md:
+        title: Warmup
+menu:
+    Home: index.html
 `;
 writeFileSync(outputFile, yaml);
 console.log(`Warmup sushi-config généré avec ${Object.keys(pkgs).length} dépendances : ${Object.keys(pkgs).join(', ')}`);

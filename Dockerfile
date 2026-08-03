@@ -63,6 +63,7 @@ WORKDIR /opt/warmup
 COPY fhir-packages.txt .
 COPY scripts/generate-warmup-config.mjs .
 COPY scripts/synthetic-ig/ig.ini ./synthetic-ig/
+COPY scripts/synthetic-ig/input/pagecontent ./synthetic-ig/input/pagecontent
 RUN mkdir -p synthetic-ig/input/fsh \
     && node generate-warmup-config.mjs fhir-packages.txt synthetic-ig/sushi-config.yaml
 RUN cd synthetic-ig \
