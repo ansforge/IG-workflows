@@ -32,6 +32,23 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      - name: Determine monthly tag
+        id: monthly
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          CURRENT_MONTH=$(date -u +'%Y-%m')
+          EXISTING_TAGS=$(gh api /orgs/ansforge/packages/container/fhir-ig-builder/versions --paginate \
+            --jq '.[].metadata.container.tags[]?' 2>/dev/null || true)
+          TAGS="ghcr.io/ansforge/fhir-ig-builder:latest"
+          if echo "$EXISTING_TAGS" | grep -qx "$CURRENT_MONTH"; then
+            echo "Mois $CURRENT_MONTH déjà taggué, pas de tag mensuel pour ce build."
+          else
+            TAGS="${TAGS}"$'\n'"ghcr.io/ansforge/fhir-ig-builder:${CURRENT_MONTH}"
+            echo "Premier build du mois $CURRENT_MONTH, ajout du tag mensuel."
+          fi
+          { echo "tags<<EOF"; echo "$TAGS"; echo "EOF"; } >> "$GITHUB_OUTPUT"
+
       - name: Resolve versions
         id: versions
         run: |
@@ -47,12 +64,13 @@ jobs:
           echo "date=${BUILD_DATE}" >> "$GITHUB_OUTPUT"
 
       - name: Build and push
+        id: build
         uses: docker/build-push-action@v5
         with:
           context: .
           push: true
-          tags: |
-            ghcr.io/ansforge/fhir-ig-builder:latest
+          provenance: false
+          tags: ${{ steps.monthly.outputs.tags }}
           build-args: |
             PUBLISHER_VERSION=${{ steps.versions.outputs.publisher }}
             SUSHI_VERSION=${{ steps.versions.outputs.sushi }}
@@ -71,3 +89,20 @@ jobs:
           docker run --rm ghcr.io/ansforge/fhir-ig-builder:latest python3 --version
           echo "IG Publisher version baked into image:"
           docker run --rm ghcr.io/ansforge/fhir-ig-builder:latest cat /root/publisher-version.txt
+
+      - name: Clean up old image versions
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          CURRENT_DIGEST="${{ steps.build.outputs.digest }}"
+          gh api /orgs/ansforge/packages/container/fhir-ig-builder/versions --paginate \
+            --jq '.[] | [.id, .name, (.metadata.container.tags // [] | join(","))] | @tsv' \
+          | while IFS=$'\t' read -r id name tags; do
+              [ "$name" = "$CURRENT_DIGEST" ] && continue
+              if echo "$tags" | tr ',' '\n' | grep -Eq '^[0-9]{4}-[0-9]{2}$'; then
+                continue
+              fi
+              echo "Suppression version $id (digest $name, tags: ${tags:-<aucun>})"
+              gh api -X DELETE "/orgs/ansforge/packages/container/fhir-ig-builder/versions/$id" \
+                || echo "::warning::Échec de suppression de la version $id"
+            done

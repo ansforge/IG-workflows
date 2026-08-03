@@ -15,6 +15,8 @@ GitHub Action pour les IG FHIR :
   - Diagramme de class plantuml généré à partir des données de l'IG
   - Rapport de validation du validator_cli
 
+Pour tout ce qui concerne l'image Docker utilisée par cette action (contenu, versions, tags, politique de rétention), voir [DOCKER_IMAGE.md](./DOCKER_IMAGE.md).
+
 
 ## Usage
 
