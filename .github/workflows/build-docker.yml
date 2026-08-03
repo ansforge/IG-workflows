@@ -3,6 +3,10 @@ name: Build and Push FHIR IG Builder image
 on:
   push:
     branches: [main]
+    paths:
+      - Dockerfile
+      - fhir-packages.txt
+      - .github/workflows/build-docker.yml
   workflow_dispatch:
   schedule:
     # Rebuild hebdomadaire lundi 06:00 UTC pour capter les nouvelles versions SUSHI
