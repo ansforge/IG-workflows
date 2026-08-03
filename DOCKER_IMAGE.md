@@ -41,7 +41,9 @@ Le workflow résout, avant chaque build (étape *Resolve versions*), puis expose
 
 Ces valeurs sont aussi passées en `build-args` au `Dockerfile` (`PUBLISHER_VERSION`, `SUSHI_VERSION`, `PACKAGES_LIST`, `BUILD_DATE`), afin que la version de SUSHI réellement installée corresponde exactement à celle annoncée (SUSHI n'est plus installé en `latest` implicite au niveau du `Dockerfile`, mais pinné à la version résolue par le workflow).
 
-**Labels vs annotations** : le `Dockerfile` pose ces clés en `LABEL` (donc dans la config de l'image, `Config.Labels`), et le step *Build and push* les pose en plus en tant qu'**annotations OCI** (`annotations: index,manifest:org.opencontainers.image.description=...`) via `docker/build-push-action`. C'est nécessaire car l'image publiée est un *manifest index* (buildx produit un index même pour une seule plateforme) — GHCR affiche la description du package à partir des **annotations de l'index/manifest**, pas des `Config.Labels` de l'image. Sans les annotations, la page du package affiche "No description provided" même si le `LABEL` Dockerfile est bien présent.
+**Labels vs annotations** : le `Dockerfile` pose ces clés en `LABEL` (donc dans la config de l'image, `Config.Labels`), et le step *Build and push* les pose en plus en tant qu'**annotations OCI de niveau manifest** (`annotations: manifest:org.opencontainers.image.description=...`) via `docker/build-push-action`. GHCR affiche la description du package à partir des annotations du manifest, pas des `Config.Labels` — sans elles, la page du package affiche "No description provided" même si le `LABEL` Dockerfile est bien présent.
+
+Attention : `provenance: false` (voir plus bas) fait que l'image est publiée en export **mono-plateforme sans index OCI**. Le préfixe `index:` sur une annotation échoue alors le build (`index annotations not supported for single platform export`) — seul le préfixe `manifest:` est valide ici. Si `provenance`/le multi-arch étaient réactivés un jour, il faudrait repasser à `index,manifest:` pour couvrir les deux niveaux.
 
 Pour inspecter labels et annotations d'une image déjà publiée :
 ```bash
