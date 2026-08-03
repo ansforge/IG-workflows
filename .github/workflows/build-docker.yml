@@ -39,8 +39,6 @@ jobs:
           push: true
           tags: |
             ghcr.io/ansforge/fhir-ig-builder:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
 
       - name: Verify image
         run: |
@@ -49,3 +47,5 @@ jobs:
           docker run --rm ghcr.io/ansforge/fhir-ig-builder:latest jekyll --version
           docker run --rm ghcr.io/ansforge/fhir-ig-builder:latest dot -V
           docker run --rm ghcr.io/ansforge/fhir-ig-builder:latest python3 --version
+          echo "IG Publisher version baked into image:"
+          docker run --rm ghcr.io/ansforge/fhir-ig-builder:latest cat /root/publisher-version.txt

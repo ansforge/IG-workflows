@@ -52,6 +52,7 @@ RUN java -version && node --version && sushi --version && jekyll --version && do
 RUN PUBLISHER_VERSION=$(curl -s https://api.github.com/repos/HL7/fhir-ig-publisher/releases/latest | jq -r '.tag_name') \
     && wget -q "https://github.com/HL7/fhir-ig-publisher/releases/download/${PUBLISHER_VERSION}/publisher.jar" \
         -O /root/publisher.jar \
+    && echo "${PUBLISHER_VERSION}" > /root/publisher-version.txt \
     && echo "IG Publisher ${PUBLISHER_VERSION} pre-installed at /root/publisher.jar"
 
 # Warmup : télécharge les packages FHIR listés dans fhir-packages.txt dans /root/.fhir/packages/
