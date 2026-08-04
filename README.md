@@ -1,5 +1,8 @@
 ![Logo_LEF_CI-SIS](https://user-images.githubusercontent.com/48218773/227532484-eff82649-4e42-49c6-966a-dc3ea78cf59c.png)
 
+[![fr](https://img.shields.io/badge/lang-fr-blue.svg)](https://github.com/ansforge/IG-workflows/blob/main/README.md)
+[![en](https://img.shields.io/badge/lang-en-red.svg)](https://github.com/ansforge/IG-workflows/blob/main/README.en.md)
+
 # GitHub Action pour la publication d'IG FHIR
 
 GitHub Action pour les IG FHIR : 
