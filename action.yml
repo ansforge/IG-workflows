@@ -13,11 +13,11 @@ inputs:
     default: "false"
     required: false
   generate_plantuml:
-    description: 'Génération  du diagramme plant uml dans gh-pages.'
+    description: "Génération de diagrammes PlantUML additionnels (dans gh-pages/plantuml) montrant les liens entre les artefacts FHIR de l'IG, à partir de package.db. Ne concerne PAS la génération native des diagrammes PlantUML par l'IG Publisher (https://build.fhir.org/ig/FHIR/ig-guidance/diagrams-plantuml.html)."
     default: "false"
     required: false
   generate_mapping_plantuml:
-    description: 'Génération des schemas plantuml de mapping dans gh-pages.'
+    description: "Génération de diagrammes PlantUML additionnels de mapping (dans gh-pages/plantuml_mapping) entre artefacts FHIR, à partir de package.db. Même principe que generate_plantuml — ne remplace pas les diagrammes natifs de l'IG Publisher."
     default: "false"
     required: false
   generate_testscript:

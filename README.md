@@ -3,14 +3,15 @@
 # GitHub Action pour la publication d'IG FHIR
 
 GitHub Action pour les IG FHIR : 
-- [Lancement de sushi](#Sushi)
-- [Tests avec le validateur_cli](#Tests-avec-le-validator_cli) 
-- [Incorporation des projets de simplifier (Methode bake)](#Incorporation-des-projets-de-simplifier)
-- [Publication des releases sur un repo github](#Génération-de-release-pour-publication)
-- [Génération du diagramme plantuml à partir de des données de l'IG](#Génaration-du-diagramme-plantUML-de-lIG)
-- [Génération des diagrammes de mapping  plantuml](#Génaration-des-diagrammes-de-mapping-plantUML-de-lIG)
-- [Génération des testscripts avec le projet testscript-generator](#Génération-des-fichiers-testscripts)
-- [Publication sur les pages github](#Publication-sur-les-pages-de-github) :
+- [Lancement de sushi](#sushi)
+- [Tests avec le validator_cli](#tests-avec-le-validator_cli)
+- [Incorporation des projets de simplifier (méthode bake)](#incorporation-des-projets-de-simplifier)
+- [Publication des releases sur un repo github](#génération-de-release-pour-publication)
+- [Génération de diagrammes PlantUML additionnels illustrant les liens entre artefacts FHIR](#génération-du-diagramme-plantuml-de-lig) — ne remplace pas les diagrammes natifs de l'IG Publisher
+- [Génération des diagrammes de mapping PlantUML additionnels](#génération-des-diagrammes-de-mapping-plantuml-de-lig)
+- [Génération des testscripts avec le projet testscript-generator](#génération-des-fichiers-testscripts)
+- [Optimisation des minutes GitHub Actions (annulation automatique des runs ci-build obsolètes)](#optimisation-des-minutes-github-actions-annulation-automatique-des-runs-ci-build-obsolètes)
+- [Publication sur les pages github](#publication-sur-les-pages-de-github) :
   - IG
   - Diagramme de class plantuml généré à partir des données de l'IG
   - Rapport de validation du validator_cli
@@ -22,94 +23,20 @@ Pour tout ce qui concerne l'image Docker utilisée par cette action (contenu, ve
 
 ### Exemple Workflow file
 
-Un exemple pour publier sur les pages github avec lancement des tests, generation du diagramme pantuml et des testscripts
+Les exemples de workflows à jour (ci-build, release, nettoyage de gh-pages) ne sont plus dupliqués ici — ils sont maintenus dans le repo [ansforge/IG-modele](https://github.com/ansforge/IG-modele/tree/main/.github/workflows), utilisé comme modèle de référence pour tout nouveau repo IG :
+- `fhir-workflows.yml` : ci-build (publication sur les pages GitHub à chaque push, avec le bloc `concurrency` décrit ci-dessous)
+- `fhir-release.yml` : publication d'une release sur `ansforge/IG-website-release`
+- `clean-gh-pages.yml` : nettoyage périodique des déploiements gh-pages de branches obsolètes
 
-```yaml
-on:
-  push:
-    branches: ["**"]
-
-# Annule tout run ci-build précédent encore en cours sur la même branche/PR
-# dès qu'un nouveau push arrive, pour économiser des minutes GitHub Actions.
-# Voir la section "Optimisation des minutes GitHub Actions" plus bas.
-concurrency:
-  group: ci-build-${{ github.workflow }}-${{ github.head_ref || github.ref }}
-  cancel-in-progress: true
-
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:      
-          path: igSource
-      - uses: ansforge/IG-workflows@v0.2.0
-        with:      
-          repo_ig: "./igSource"   
-          github_page: "true"
-          github_page_token: ${{ secrets.GITHUB_TOKEN }}
-          bake: "true"
-          validator_cli: "true"
-          generate_plantuml : "true"
-          generate_mapping_plantuml : "true"
-          generate_testscript : "true"
-```
-Un exemple pour publier une release sur le repo "ansforge/IG-website-release" dans les ig/fhir
-
-```yaml
-# ⚠️ Ne jamais ajouter de bloc "concurrency" avec cancel-in-progress: true sur ce
-# workflow : il pousse vers un repo externe et crée une GitHub Release, deux
-# opérations qu'on ne peut pas annuler proprement en cours de route.
-jobs:
-  run-release:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-        with:      
-          path: igSource
-      - uses: ansforge/IG-workflows@v0.2.0
-        with:      
-          repo_ig: "./igSource"   
-          github_page: "true"
-          github_page_token: ${{ secrets.GITHUB_TOKEN }}
-          bake: "true"
-          validator_cli: "true"
-          publish_repo: "ansforge/IG-website-release"
-          publish_repo_token :  ${{ secrets.ANS_IG_API_TOKEN }} 
-          publish_path_outpout : "./IG-website-release/www/ig"
-```
-
-
-
-
-Un exemple pour publier une release sur le repo "ansforge/IG-website-release" dans les ig
-
-```yaml
-# ⚠️ Ne jamais ajouter de bloc "concurrency" avec cancel-in-progress: true sur ce
-# workflow : il pousse vers un repo externe et crée une GitHub Release, deux
-# opérations qu'on ne peut pas annuler proprement en cours de route.
-jobs:
-  run-release:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-        with:      
-          path: igSource
-      - uses: ansforge/IG-workflows@v0.2.0
-        with:      
-          repo_ig: "./igSource"   
-          github_page: "true"
-          github_page_token: ${{ secrets.GITHUB_TOKEN }}
-          bake: "true"
-          validator_cli: "true"
-          publish_repo: "ansforge/IG-website-release"
-          publish_repo_token :  ${{ secrets.ANS_IG_API_TOKEN }} 
-          publish_path_outpout : "./IG-website-release/www/ig"
-```
+⚠️ Dans `fhir-release.yml`, `publish_path_outpout` dépend du volet de l'IG publiée et doit être adapté au repo, par exemple :
+- `./IG-website-release/www/ig` — IG générique, à la racine
+- `./IG-website-release/www/ig/fhir` — volet FHIR
+- `./IG-website-release/www/ig/cda` — volet CDA
+- `./IG-website-release/www/ig/hl7v2` — volet HL7v2
 
 ### Optimisation des minutes GitHub Actions (annulation automatique des runs ci-build obsolètes)
 
-Quand plusieurs commits sont poussés rapidement sur une même branche, chaque push déclenche un run ci-build complet, même si le précédent run est déjà rendu obsolète. Le bloc `concurrency:` natif de GitHub Actions (ajouté dans l'exemple ci-build ci-dessus) permet d'annuler automatiquement le run précédent dès qu'un nouveau démarre sur la même branche/PR, sans code custom :
+Quand plusieurs commits sont poussés rapidement sur une même branche, chaque push déclenche un run ci-build complet, même si le précédent run est déjà rendu obsolète. Le bloc `concurrency:` natif de GitHub Actions (déjà en place dans `fhir-workflows.yml` d'IG-modele) permet d'annuler automatiquement le run précédent dès qu'un nouveau démarre sur la même branche/PR, sans code custom :
 
 ```yaml
 concurrency:
@@ -125,38 +52,36 @@ concurrency:
 
 ### Inputs
 
-| name               | value   | default               | description                                                                                                                                                                                                                                                                                                     |
-|--------------------|---------|-----------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| ig-publisher-version       | string  |latest  | Version de l'ig publisher : format : 'x.y.z' |
-| github_page_token       | string  |  | Token pour passer les GitHub Pages du repo |
-| github_page                | boolean | false                 | Publication de l'IG dans les GitHub pages                                                                                                                                                                                                                                                                          |
-| repo_ig             | string  |             | Chemin d'accés au repertoire des sources de l'IG                                                                                                                                                                                                                          |
-| bake              | boolean | false                 | Permet d'inclure les les projets annuaires et FrCore qui sont sur simplifier                                                                                                                                                                                                                                                                               |                                                                                                                                  |
-| validator_cli             | boolean | False                  | Permet de lancer les tests avec le validator_cli d'HL7                                                                                                                                                                                                  |
-| termino_server | string  | 'http://tx.fhir.org'           | Permet la verification sur le serveur de terminologie passé en paramètre.                                                                                                                                                                                                                     |
-| publish_repo               | string | ''                 | Permet d'indiquer le repo git de publication  de l'IG                
-| publish_path_outpout               | string | ''                 | Chemin de publication de l'IG                 |
-| publish_repo_token          | string  |                   | Token pour publier sur le repo GIT de publication                                                                                                                                                                                                                                                                  |
-| generate_plantuml          | string  | false                  | Génération de diagramme plantuml                                                                                                                                                                                                                                                                  |
-| generate_mapping_plantuml          | string  | false                  | Génération de diagramme de mmapings   plantuml                                                                                                                                                                                                                                                                  |
-| generate_testscript          | string  | false                  | Génération des fichiers testscripts                                                                                                                                                                                                                                                                  |
-
-
-
+| name | value | default | description |
+|---|---|---|---|
+| ig-publisher-version | string | latest | Version de l'IG Publisher : format `x.y.z` (ou `latest`) |
+| github_page_token | string | | Token pour publier sur les GitHub Pages du repo |
+| github_page | boolean | false | Publication de l'IG sur les GitHub Pages |
+| generate_plantuml | boolean | false | Génération de diagrammes PlantUML **additionnels** montrant les liens entre les artefacts FHIR de l'IG (produits depuis `package.db`, publiés dans `gh-pages/plantuml`). Ne concerne **pas** la génération native des diagrammes PlantUML par l'IG Publisher — voir la [documentation HL7](https://build.fhir.org/ig/FHIR/ig-guidance/diagrams-plantuml.html) pour celle-ci |
+| generate_mapping_plantuml | boolean | false | Génération de diagrammes PlantUML **additionnels** de mapping entre artefacts FHIR (publiés dans `gh-pages/plantuml_mapping`), même principe que `generate_plantuml` — ne remplace pas les diagrammes natifs de l'IG Publisher |
+| generate_testscript | boolean | false | Génération des fichiers TestScripts à partir de l'IG |
+| repo_ig | string | *(requis)* | Chemin d'accès au répertoire des sources de l'IG |
+| bake | boolean | false | Permet d'inclure les projets annuaire et FrCore présents sur Simplifier (méthode bake) |
+| validator_cli | boolean | false | Permet de lancer les tests avec le validator_cli d'HL7 |
+| publish_repo | string | '' | Repo git de publication de l'IG (release) |
+| publish_repo_token | string | '' | Token pour publier sur le repo git de publication |
+| publish_path_outpout | string | '' | Chemin de publication de l'IG dans le repo de publication |
+| container_mode | boolean | true | Le job tourne dans un container Docker (`container: image: ...`) : skip les installations d'outils (SUSHI, Java, Ruby… déjà présents dans l'image) |
+| timing | boolean | false | Active le tableau de timings par phase (Setup, SUSHI, Publisher, Post-processing, Total) dans le résumé du workflow |
 
 
 ## Fonctionnalités
 
 ### Sushi
 
-Principes  :
+Principes :
 - Installation de sushi
 - Lancement de sushi
-- Résulats accéssibles via le terminal
+- Résultats accessibles via le terminal
   - ![image](https://github.com/ansforge/IG-workflows/assets/101335975/e8c0b772-b6a9-4006-be8e-403319996346)
 
 ### Incorporation des projets de simplifier
-Pour installer les dépendances à des projets simplifier, il faut utiliser la methode bake de simplifier : 
+Pour installer les dépendances à des projets simplifier, il faut utiliser la méthode bake de simplifier : 
 - Installation de .NET
 - Installation du terminal firely
 - Installation des projets :
@@ -168,10 +93,12 @@ Pour installer les dépendances à des projets simplifier, il faut utiliser la m
 Principes : 
 - Téléchargement de la dernière version du validator_cli
 - Lancement des tests
-- Affichage des resultats dans la sortie de l'action
+- Affichage des résultats dans la sortie de l'action
 - Publication des résultats dans les pages github (branch gh-pages)
 
 ### Génération du diagramme plantUML de l'IG
+
+⚠️ Ces diagrammes sont **additionnels** : ils ne correspondent pas à la génération native des diagrammes PlantUML par l'IG Publisher (voir la [documentation HL7](https://build.fhir.org/ig/FHIR/ig-guidance/diagrams-plantuml.html) pour celle-ci). Ils sont produits par un script qui interroge la base sqlite `package.db` générée par le Publisher, pour visualiser les liens entre les différents artefacts FHIR de l'IG.
 
 Principes : 
 - Installation de python
@@ -183,35 +110,36 @@ Principes :
   - ![image](https://github.com/ansforge/IG-workflows/assets/101335975/34ac663a-3c35-4da5-b7a1-883b20881eea)
 
 ### Génération des diagrammes de mapping plantUML de l'IG
+
+⚠️ Même principe que la section précédente : diagrammes **additionnels** de mapping entre artefacts FHIR, distincts des diagrammes natifs de l'IG Publisher.
+
 Principes : 
 - Installation de python
 - Lancement du script python de génération :
   - Requête sqlite sur la base de données sqlite générée par l'IG
-  - Création des mmaping 
+  - Création des mappings
   - Génération du diagramme png et plantuml
 - Publication des diagrammes dans les pages github (branch gh-pages)
   - ![image](https://github.com/ansforge/IG-workflows/assets/101335975/34ac663a-3c35-4da5-b7a1-883b20881eea)
- 
-  - 
+
 ### Génération des fichiers testscripts
 
 Principes : 
 - Installation du projet testscript-generator
 - Lancement de la génération des testscripts :
   - bundle exec bin/testscript_generator read mustSupport search interaction 
-- Publication des testscriots dans les pages github (branch gh-pages)
-  - Les fichiers sont présents dans le sous repertoire testscript dans la branch gh-pages
+- Publication des testscripts dans les pages github (branch gh-pages)
+  - Les fichiers sont présents dans le sous-répertoire testscript dans la branche gh-pages
 
 ### Publication sur les pages de github 
 
-Les élément générés sont publiés sur les pages github (branch gh-pages) avec une sous-aborescence avec le nom de la branche : 
+Les éléments générés sont publiés sur les pages github (branch gh-pages) avec une sous-arborescence portant le nom de la branche :
  ![image](https://github.com/ansforge/IG-workflows/assets/101335975/660a6558-525b-4361-bbde-e74de4c1525d)
 
-Les pages sont accéssible via : De publier les pages : https://ansforge.github.io/{nom du repo}/ig/{nom de la branche} 
+Les pages sont accessibles via : `https://ansforge.github.io/{nom du repo}/{nom de la branche}/ig/`
+
 ### Génération de release pour publication
 Principes : 
 - Création de la version courante
-- Creation la release pour publication
+- Création de la release pour publication
 - Push de la release dans le repo distant
-
-
