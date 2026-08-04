@@ -387,7 +387,7 @@ runs:
           if [ "$GENERATE_PLANTUML" = "true" ]; then
             (
               mkdir ./plantuml
-              python "$ACTION_PATH/PlantUML/construct.py" "./$REPO_IG/output/package.db" './plantuml/graph.puml'
+              python "$ACTION_PATH/scripts/plantuml/construct.py" "./$REPO_IG/output/package.db" './plantuml/graph.puml'
               [ -f plantuml.jar ] || wget -q https://github.com/plantuml/plantuml/releases/download/v1.2026.6/plantuml-1.2026.6.jar -O plantuml.jar
               java -jar plantuml.jar -tsvg -tpng "./plantuml"
               mkdir -p ./to_publish/plantuml && cp -r ./plantuml/. ./to_publish/plantuml
@@ -398,8 +398,8 @@ runs:
           if [ "$GENERATE_MAPPING" = "true" ]; then
             (
               mkdir ./plantuml_mapping
-              python "$ACTION_PATH/PlantUML/construct_mapping_global.py" "./$REPO_IG/output/package.db" './plantuml_mapping'
-              python "$ACTION_PATH/PlantUML/construct_mappings.py" "./$REPO_IG/output/package.db" './plantuml_mapping'
+              python "$ACTION_PATH/scripts/plantuml/construct_mapping_global.py" "./$REPO_IG/output/package.db" './plantuml_mapping'
+              python "$ACTION_PATH/scripts/plantuml/construct_mappings.py" "./$REPO_IG/output/package.db" './plantuml_mapping'
               [ -f plantuml-mapping.jar ] || wget -q https://github.com/plantuml/plantuml/releases/download/v1.2024.0/plantuml-1.2024.0.jar -O plantuml-mapping.jar
               java -jar plantuml-mapping.jar -tsvg -tpng "./plantuml_mapping"
               mkdir -p ./to_publish/plantuml_mapping && cp -r ./plantuml_mapping/. ./to_publish/plantuml_mapping
