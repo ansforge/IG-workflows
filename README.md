@@ -28,6 +28,12 @@ Les exemples de workflows à jour (ci-build, release, nettoyage de gh-pages) ne 
 - `fhir-release.yml` : publication d'une release sur `ansforge/IG-website-release`
 - `clean-gh-pages.yml` : nettoyage périodique des déploiements gh-pages de branches obsolètes
 
+⚠️ Dans `fhir-release.yml`, `publish_path_outpout` dépend du volet de l'IG publiée et doit être adapté au repo, par exemple :
+- `./IG-website-release/www/ig` — IG générique, à la racine
+- `./IG-website-release/www/ig/fhir` — volet FHIR
+- `./IG-website-release/www/ig/cda` — volet CDA
+- `./IG-website-release/www/ig/hl7v2` — volet HL7v2
+
 ### Optimisation des minutes GitHub Actions (annulation automatique des runs ci-build obsolètes)
 
 Quand plusieurs commits sont poussés rapidement sur une même branche, chaque push déclenche un run ci-build complet, même si le précédent run est déjà rendu obsolète. Le bloc `concurrency:` natif de GitHub Actions (déjà en place dans `fhir-workflows.yml` d'IG-modele) permet d'annuler automatiquement le run précédent dès qu'un nouveau démarre sur la même branche/PR, sans code custom :
