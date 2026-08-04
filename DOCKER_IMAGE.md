@@ -26,6 +26,23 @@ Cette IG synthétique embarque une page minimale (`scripts/synthetic-ig/input/pa
 
 **Note sur les doublons dans `fhir-packages.txt`** : si un même `package-id` apparaît plusieurs fois avec des versions différentes, seule la **dernière occurrence** est effectivement pré-chargée (`scripts/generate-warmup-config.mjs` ne garde qu'une version par id). Modifier ce fichier et pousser sur `main` déclenche un rebuild automatique de l'image.
 
+## Consommer l'image
+
+```yaml
+jobs:
+  build-ig:
+    runs-on: ubuntu-latest
+    container: ghcr.io/ansforge/fhir-ig-builder:latest
+    steps:
+      - uses: actions/checkout@v4
+      # sushi, java, jekyll, gh, le JAR du publisher et les packages FHIR courants sont déjà présents
+```
+
+Pour figer une version précise (reproductibilité, ex. pour rejouer un build tel qu'il aurait tourné à une date donnée) :
+```yaml
+container: ghcr.io/ansforge/fhir-ig-builder:2026-08
+```
+
 ## Déclenchement du build
 
 Le workflow `build-docker.yml` se lance :
@@ -69,23 +86,6 @@ Après chaque publication, le workflow (étape *Clean up old image versions*) su
 La suppression se fait via l'API GitHub Packages (`gh api ... -X DELETE`) avec le `GITHUB_TOKEN` du workflow (qui a le rôle *admin* sur ce package car c'est ce repo qui le publie — pas de PAT nécessaire). Un échec de suppression individuel n'interrompt pas le job (juste un `::warning::` dans les logs) : l'image vient déjà d'être publiée avec succès à ce stade.
 
 L'attestation de provenance (`provenance`) de `docker/build-push-action` est désactivée (`provenance: false`) pour éviter qu'un manifeste supplémentaire non tagué soit créé à chaque build, ce qui compliquerait la logique de rétention ci-dessus.
-
-## Consommer l'image
-
-```yaml
-jobs:
-  build-ig:
-    runs-on: ubuntu-latest
-    container: ghcr.io/ansforge/fhir-ig-builder:latest
-    steps:
-      - uses: actions/checkout@v4
-      # sushi, java, jekyll, gh, le JAR du publisher et les packages FHIR courants sont déjà présents
-```
-
-Pour figer une version précise (reproductibilité, ex. pour rejouer un build tel qu'il aurait tourné à une date donnée) :
-```yaml
-container: ghcr.io/ansforge/fhir-ig-builder:2026-08
-```
 
 ## Fichiers concernés
 
