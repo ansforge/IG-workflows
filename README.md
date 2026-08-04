@@ -23,69 +23,14 @@ Pour tout ce qui concerne l'image Docker utilisée par cette action (contenu, ve
 
 ### Exemple Workflow file
 
-Un exemple pour publier sur les pages github avec lancement des tests, génération du diagramme plantuml et des testscripts
-
-```yaml
-on:
-  push:
-    branches: ["**"]
-
-# Annule tout run ci-build précédent encore en cours sur la même branche/PR
-# dès qu'un nouveau push arrive, pour économiser des minutes GitHub Actions.
-# Voir la section "Optimisation des minutes GitHub Actions" plus bas.
-concurrency:
-  group: ci-build-${{ github.workflow }}-${{ github.head_ref || github.ref }}
-  cancel-in-progress: true
-
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          path: igSource
-      - uses: ansforge/IG-workflows@v0.2.0
-        with:
-          repo_ig: "./igSource"
-          github_page: "true"
-          github_page_token: ${{ secrets.GITHUB_TOKEN }}
-          bake: "true"
-          validator_cli: "true"
-          generate_plantuml: "true"
-          generate_mapping_plantuml: "true"
-          generate_testscript: "true"
-```
-
-Un exemple pour publier une release sur le repo "ansforge/IG-website-release" :
-
-```yaml
-# ⚠️ Ne jamais ajouter de bloc "concurrency" avec cancel-in-progress: true sur ce
-# workflow : il pousse vers un repo externe et crée une GitHub Release, deux
-# opérations qu'on ne peut pas annuler proprement en cours de route.
-jobs:
-  run-release:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          path: igSource
-      - uses: ansforge/IG-workflows@v0.2.0
-        with:
-          repo_ig: "./igSource"
-          github_page: "true"
-          github_page_token: ${{ secrets.GITHUB_TOKEN }}
-          bake: "true"
-          validator_cli: "true"
-          publish_repo: "ansforge/IG-website-release"
-          publish_repo_token: ${{ secrets.ANS_IG_API_TOKEN }}
-          publish_path_outpout: "./IG-website-release/www/ig/fhir"
-```
-
-⚠️ `publish_path_outpout` dépend du repo/volet ciblé dans `IG-website-release` (ex. `.../www/ig/fhir` pour un volet "fhir", `.../www/ig` pour une IG à la racine) — à adapter à votre cas.
+Les exemples de workflows à jour (ci-build, release, nettoyage de gh-pages) ne sont plus dupliqués ici — ils sont maintenus dans le repo [ansforge/IG-modele](https://github.com/ansforge/IG-modele/tree/main/.github/workflows), utilisé comme modèle de référence pour tout nouveau repo IG :
+- `fhir-workflows.yml` : ci-build (publication sur les pages GitHub à chaque push, avec le bloc `concurrency` décrit ci-dessous)
+- `fhir-release.yml` : publication d'une release sur `ansforge/IG-website-release`
+- `clean-gh-pages.yml` : nettoyage périodique des déploiements gh-pages de branches obsolètes
 
 ### Optimisation des minutes GitHub Actions (annulation automatique des runs ci-build obsolètes)
 
-Quand plusieurs commits sont poussés rapidement sur une même branche, chaque push déclenche un run ci-build complet, même si le précédent run est déjà rendu obsolète. Le bloc `concurrency:` natif de GitHub Actions (ajouté dans l'exemple ci-build ci-dessus) permet d'annuler automatiquement le run précédent dès qu'un nouveau démarre sur la même branche/PR, sans code custom :
+Quand plusieurs commits sont poussés rapidement sur une même branche, chaque push déclenche un run ci-build complet, même si le précédent run est déjà rendu obsolète. Le bloc `concurrency:` natif de GitHub Actions (déjà en place dans `fhir-workflows.yml` d'IG-modele) permet d'annuler automatiquement le run précédent dès qu'un nouveau démarre sur la même branche/PR, sans code custom :
 
 ```yaml
 concurrency:
