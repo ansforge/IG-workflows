@@ -25,6 +25,17 @@ Pour tout ce qui concerne l'image Docker utilisée par cette action (contenu, ve
 Un exemple pour publier sur les pages github avec lancement des tests, generation du diagramme pantuml et des testscripts
 
 ```yaml
+on:
+  push:
+    branches: ["**"]
+
+# Annule tout run ci-build précédent encore en cours sur la même branche/PR
+# dès qu'un nouveau push arrive, pour économiser des minutes GitHub Actions.
+# Voir la section "Optimisation des minutes GitHub Actions" plus bas.
+concurrency:
+  group: ci-build-${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -46,6 +57,9 @@ jobs:
 Un exemple pour publier une release sur le repo "ansforge/IG-website-release" dans les ig/fhir
 
 ```yaml
+# ⚠️ Ne jamais ajouter de bloc "concurrency" avec cancel-in-progress: true sur ce
+# workflow : il pousse vers un repo externe et crée une GitHub Release, deux
+# opérations qu'on ne peut pas annuler proprement en cours de route.
 jobs:
   run-release:
     runs-on: ubuntu-latest
@@ -71,6 +85,9 @@ jobs:
 Un exemple pour publier une release sur le repo "ansforge/IG-website-release" dans les ig
 
 ```yaml
+# ⚠️ Ne jamais ajouter de bloc "concurrency" avec cancel-in-progress: true sur ce
+# workflow : il pousse vers un repo externe et crée une GitHub Release, deux
+# opérations qu'on ne peut pas annuler proprement en cours de route.
 jobs:
   run-release:
     runs-on: ubuntu-latest
@@ -89,6 +106,23 @@ jobs:
           publish_repo_token :  ${{ secrets.ANS_IG_API_TOKEN }} 
           publish_path_outpout : "./IG-website-release/www/ig"
 ```
+
+### Optimisation des minutes GitHub Actions (annulation automatique des runs ci-build obsolètes)
+
+Quand plusieurs commits sont poussés rapidement sur une même branche, chaque push déclenche un run ci-build complet, même si le précédent run est déjà rendu obsolète. Le bloc `concurrency:` natif de GitHub Actions (ajouté dans l'exemple ci-build ci-dessus) permet d'annuler automatiquement le run précédent dès qu'un nouveau démarre sur la même branche/PR, sans code custom :
+
+```yaml
+concurrency:
+  group: ci-build-${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+```
+
+- `group` scope l'annulation par branche (et par PR via `head_ref`) : un push sur une branche n'annule jamais le run d'une autre branche.
+- `github.workflow` dans la clé évite tout chevauchement avec le workflow de release, qui est un fichier séparé.
+- **À réserver exclusivement au workflow ci-build.** Le workflow de release pousse vers `ansforge/IG-website-release` et crée une GitHub Release : l'annuler en cours de route peut laisser une publication à moitié faite. Ne jamais y ajouter `cancel-in-progress: true`.
+- Le déploiement sur les pages GitHub (`gh-pages`) reste sûr à annuler côté ci-build : un `git push` est atomique par référence, et le run suivant republie de toute façon.
+- Ce bloc doit être ajouté directement dans le fichier workflow de chaque repo consommateur (ci-build uniquement) — cette action composite ne peut pas l'imposer elle-même, puisque `concurrency:` est une propriété du fichier workflow appelant, pas de l'action.
+
 ### Inputs
 
 | name               | value   | default               | description                                                                                                                                                                                                                                                                                                     |
